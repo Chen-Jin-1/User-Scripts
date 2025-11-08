@@ -3,7 +3,7 @@
 // @namespace           cj-set-ccw-api
 // @match               https://www.ccw.site/detail/*
 // @grant               none
-// @version             1.0.0
+// @version             1.0.1
 // @author              Chen-Jin
 // @description         防止作品使用连接社区扩展骗币等
 // @icon                https://m.ccw.site/user_projects_assets/6df19377-8e84-4929-9e9c-93ddca968dcc.png
@@ -30,6 +30,7 @@ function getCCWAPI() {
 
 (async function() {
     var ccwAPI = await getCCWAPI();
+    console.log("挟持 CCW API 脚本已获取到 CCW API 并挟持");
     setInterval(() => {
         ccwAPI.isFollowed = async (arg) => {
             console.log(`已挟持 是 ${arg} 粉丝`);
