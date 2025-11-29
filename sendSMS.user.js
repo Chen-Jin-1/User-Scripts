@@ -6,7 +6,7 @@
 // @version             1.0.0
 // @author              Chen-Jin
 // @description         使国外号码绑定的 CCW 账号能够发送验证码
-// @icon                https://m.ccw.site/user_projects_assets/c496b3fd-a476-4f1d-8f15-c77b17d30f11.png
+// @icon                https://m.ccw.site/user_projects_assets/c496b3fd-a476-4f1d-8f15-c77b17d30f11.png?x-oss-process=image/circle,r_150
 // @updateURL           https://bgithub.xyz/Chen-Jin-1/User-Scripts/raw/refs/heads/main/sendSMS.user.js
 // @downloadURL         https://bgithub.xyz/Chen-Jin-1/User-Scripts/raw/refs/heads/main/sendSMS.user.js
 // @run-at              document-start
