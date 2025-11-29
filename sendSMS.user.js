@@ -22,6 +22,7 @@ XHR.send = function (body) {
 			let json = JSON.parse(body);
 			json.countryCode = countryCode;
 			return originalSend.call(this, JSON.stringify(json));
+			window.alert(`验证码已发送至 +${countryCode} ${json.recipient}`);
 		}
 		return originalSend.apply(this, arguments);
 	} catch(e) {
