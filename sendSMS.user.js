@@ -3,7 +3,7 @@
 // @namespace           cj-send-sms
 // @match               https://www.ccw.site/profile/*
 // @grant               none
-// @version             1.0.0
+// @version             1.0.1
 // @author              Chen-Jin
 // @description         使国外号码绑定的 CCW 账号能够发送验证码
 // @icon                https://m.ccw.site/user_projects_assets/c496b3fd-a476-4f1d-8f15-c77b17d30f11.png?x-oss-process=image/circle,r_150
