@@ -1,9 +1,9 @@
 // ==UserScript==
 // @name         获取axios
-// @version      1.0.0
-// @description  在ccw获取axios
-// @author       不想上学
-// @match        https://*.ccw.site/*
+// @version      1.0.1
+// @description  获取 CCW 的 Axios
+// @author       不想上学 & Chen-Jin
+// @match        https://www.ccw.site/*
 // @icon         https://m.ccw.site/community/images/logo-ccw.png
 // @grant        unsafeWindow
 // @run-at       document-start
