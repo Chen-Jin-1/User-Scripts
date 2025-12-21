@@ -1,13 +1,14 @@
 // ==UserScript==
-// @name         获取axios
-// @version      1.0.1
+// @name         获取 Axios
+// @version      1.0.2
 // @description  获取 CCW 的 Axios
 // @author       不想上学 & Chen-Jin
-// @match        https://www.ccw.site/*
+// @match        https://*.ccw.site/*
 // @icon         https://m.ccw.site/community/images/logo-ccw.png
 // @grant        unsafeWindow
 // @run-at       document-start
 // ==/UserScript==
+
 (function(){
     const _apply = Function.prototype.apply;
     Function.prototype.apply = function(thisArg, args) {
@@ -17,4 +18,4 @@
         }
         return _apply.call(this, thisArg, args);
     };
-})()
+})();;
