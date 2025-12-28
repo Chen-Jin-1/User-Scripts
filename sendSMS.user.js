@@ -11,7 +11,7 @@
 // @downloadURL         https://gh.llkk.cc/https://github.com/Chen-Jin-1/User-Scripts/raw/refs/heads/main/sendSMS.user.js
 // @run-at              document-start
 // ==/UserScript==
-if (!countryCode) window.countryCode = "1";
+if (!window.countryCode) window.countryCode = "1";
 
 const XHR = XMLHttpRequest.prototype;
 const originalSend = XHR.send;
