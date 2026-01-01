@@ -5,7 +5,7 @@
 // @grant               none
 // @version             1.0.1
 // @author              Chen-Jin
-// @description         获取 Scratch Runtime 和 vm
+// @description         
 // @icon                https://m.ccw.site/community/images/logo-ccw.png
 // @updateURL           https://gh.llkk.cc/https://github.com/Chen-Jin-1/User-Scripts/raw/refs/heads/main/reply.user.js
 // @downloadURL         https://gh.llkk.cc/https://github.com/Chen-Jin-1/User-Scripts/raw/refs/heads/main/reply.user.js
