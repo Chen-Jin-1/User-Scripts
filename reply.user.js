@@ -191,18 +191,8 @@ document.addEventListener("keydown", e => {
     if (e.ctrlKey && e.altKey && e.code === "KeyE") hide();
     if (e.ctrlKey && e.altKey && e.code === "KeyX") fixed();
 });
-const axios = window.axios;
-function checkAxios() {
-    if (axios) {
-        return true;
-    } else {
-        if (window.confirm("此功能需要安装获取 Axios 脚本才能使用，是否复制脚本链接？")) copy("https://gh.llkk.cc/https://github.com/Chen-Jin-1/User-Scripts/raw/refs/heads/main/getAxios.user.js")
-        return false;
-    }
-}
 var msgId = 0;
 async function replyMessage() {
-    if (!checkAxios()) return;
     var content = window.prompt("回复内容");
     if (content) {
         var result = await axios.post("https://community-web.ccw.site/comment/reply", {
