@@ -11,6 +11,6 @@
 // @downloadURL         https://bgithub.xyz/Chen-Jin-1/User-Scripts/raw/refs/heads/main/showPause.user.js
 // ==/UserScript==
 
-var style = document.createElement('style');
-style.innerHTML = '.action-item-P9SP6.action-control-8nmb9 {visibility: visible !important;}';
+const style = document.createElement('style');
+style.innerHTML = 'div[class*="action-control-"] {visibility: visible !important;}';
 document.head.appendChild(style);
