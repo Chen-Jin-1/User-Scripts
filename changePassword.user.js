@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name                修改密码
-// @namespace           cj-
+// @namespace           cj-change-password
 // @match               https://www.ccw.site/profile/*
 // @grant               none
-// @version             1.0.3
+// @version             1.0.4
 // @author              Chen-Jin
 // @description         使国外号码绑定的 CCW 账号能够发送验证码
 // @icon                https://m.ccw.site/community/images/logo-ccw.png
 // @updateURL           https://us.chen-jin.dpdns.org/changePassword.js
-// @downloadURL         https://gh.llkk.cc/https://github.com/Chen-Jin-1/User-Scripts/raw/refs/heads/main/sendSMS.user.js
+// @downloadURL         https://us.chen-jin.dpdns.org/changePassword.js
 // @run-at              document-start
 // ==/UserScript==
 if (!window.countryCode) window.countryCode = "1";
