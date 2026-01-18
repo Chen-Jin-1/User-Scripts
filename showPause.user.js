@@ -7,8 +7,8 @@
 // @author              Chen-Jin
 // @description         防止作品隐藏暂停按钮
 // @icon                https://m.ccw.site/community/images/logo-ccw.png
-// @updateURL           https://us.chen-jind.dpdns.org/showPause.user.js
-// @downloadURL         https://us.chen-jind.dpdns.org/showPause.user.js
+// @updateURL           https://us.chen-jin.dpdns.org/showPause.user.js
+// @downloadURL         https://us.chen-jin.dpdns.org/showPause.user.js
 // ==/UserScript==
 
 const style = document.createElement('style');
