@@ -18,7 +18,7 @@ Function.prototype.apply = function(thisArg, args) {
 
         (async (axios) => {
             try {
-                const checkIn = axios.post("https://community-web.ccw.site/check_in_record/detail", {"scene": "HOMEPAGE"});
+                const checkIn = await axios.post("https://community-web.ccw.site/check_in_record/detail", {"scene": "HOMEPAGE"});
                 const rr = checkIn.checkInRecordResps[checkIn.todayIndex];
                 if (rr.isCheckIn !== true) {
                     axios.post("https://community-web.ccw.site/check_in_record/insert", {scene: 'HOMEPAGE'})
