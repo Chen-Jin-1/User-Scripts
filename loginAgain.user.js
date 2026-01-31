@@ -9,7 +9,7 @@
 // @updateURL           https://us.chen-jin.dpdns.org/loginAgain.user.js?
 // @downloadURL         https://us.chen-jin.dpdns.org/loginAgain.user.js?
 // @run-at              document-start
- //grant                GM_registerMenuCommand
+// @grant               GM_registerMenuCommand
 // ==/UserScript==
 
 GM_registerMenuCommand("恢复登录", () => {
