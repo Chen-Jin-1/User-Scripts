@@ -8,7 +8,7 @@
 // @icon                https://m.ccw.site/community/images/logo-ccw.png
 // @updateURL           https://us.chen-jin.dpdns.org/loginAgain.user.js?
 // @downloadURL         https://us.chen-jin.dpdns.org/loginAgain.user.js?
-// @run-at              document-start
+// @run-at              document-idle
 // @grant               GM_registerMenuCommand
 // ==/UserScript==
 
