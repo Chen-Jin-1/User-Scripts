@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              账号管理器
 // @namespace         cj-auto-check-in
-// @version           1.0.0
+// @version           1.0.1
 // @description       快捷切换 CCW 账号
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
@@ -115,10 +115,10 @@ GM_registerMenuCommand("添加账号", () => {
 
 GM_registerMenuCommand("删除账号", () => {
     let id = window.prompt("CCW ID");
-    delete accounts[id];
     GM_setValue("accounts", accounts);
     if (id !== null) {
         window.alert(accounts.hasOwnProperty(id) ? "已删除" : "不存在");
+        delete accounts[id];
         if (id == currentId) GM_unregisterMenuCommand(menuId[currentId]);
     }
 });
