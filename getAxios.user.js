@@ -1,5 +1,6 @@
 // ==UserScript==
 // @name         获取 Axios
+// @name         cj-get-axios
 // @version      1.0.3
 // @description  获取 CCW 的 Axios
 // @author       不想上学 & Chen-Jin

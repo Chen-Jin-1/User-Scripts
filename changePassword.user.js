@@ -11,13 +11,13 @@
 // @downloadURL         https://us.chen-jin.dpdns.org/changePassword.user.js
 // @run-at              document-start
 // ==/UserScript==
-if (!window.countryCode) window.countryCode = "1";
 
+if (!window.countryCode) window.countryCode = "1";
 const XHR = XMLHttpRequest.prototype;
 const originalSend = XHR.send;
 XHR.send = function (body) {
 	try {
-		if (this.__sentry_xhr__.url.includes("sso.ccw.site/web/auth/assistant/captcha/v2/create")) {
+		if (this.__sentry_xhr__.url === "https://sso.ccw.site/web/auth/assistant/captcha/v2/create") {
 			let json = JSON.parse(body);
 			json.countryCode = countryCode;
 			if (json.captcha) console.log(`发送验证码至 +${countryCode} ${json.recipient}`);
