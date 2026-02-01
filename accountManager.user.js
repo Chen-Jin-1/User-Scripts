@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              账号管理器
 // @namespace         cj-auto-check-in
-// @version           1.0.2
+// @version           1.0.3
 // @description       快捷切换 CCW 账号
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
@@ -22,6 +22,7 @@ let accounts = GM_getValue("accounts", {});
 let menuId = {};
 
 const login = (loginKey, password, noCookies = 0) => {
+    if (!noCookies) document.cookie = "cookie-user-id=0;path=/";
     return fetch("https://sso.ccw.site/web/auth/login-by-password", {
         method: 'post',
         credentials: noCookies ? 'omit' : 'include',
