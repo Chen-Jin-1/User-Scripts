@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              账号管理器
 // @namespace         cj-auto-check-in
-// @version           1.0.1
+// @version           1.0.2
 // @description       快捷切换 CCW 账号
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
@@ -14,6 +14,7 @@
 // @grant             GM_setValue
 // @grant             GM_getValue
 // @grant             GM_listValues
+// @grant             GM_download
 // @run-at            document-start
 // ==/UserScript==
 
@@ -122,3 +123,31 @@ GM_registerMenuCommand("删除账号", () => {
         if (id == currentId) GM_unregisterMenuCommand(menuId[currentId]);
     }
 });
+
+GM_registerMenuCommand("导入配置", () => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = e => {
+        const reader = new FileReader();
+        reader.onload = e => {
+            try {
+                const data = JSON.parse(e.target.result);
+                accounts = data;
+                GM_setValue("accounts", accounts);
+                window.alert('导入成功');
+            } catch(e) {
+                window.alert('失败');
+                console.error(e);
+            }
+        };
+        reader.readAsText(e.target.files[0]);
+    };
+    input.click();
+});
+
+GM_registerMenuCommand("导出配置", () => GM_download({
+    url: 'data:application/json,' + encodeURIComponent(JSON.stringify(accounts)),
+    name: 'CCW_account_manager_config.json',
+    saveAs: 1,
+}));
