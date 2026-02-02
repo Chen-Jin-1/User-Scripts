@@ -40,29 +40,31 @@ for (const id in accounts) {
     menuId[id] = GM_registerMenuCommand(`${accounts[id].name} (${id})`, () => login(id, accounts[id].pwd).then(() => location.reload()));
 }
 
-let originalSend = XMLHttpRequest.prototype.send;
-XMLHttpRequest.prototype.send = function() {
-    try {
-        if (this.__sentry_xhr__?.url === "https://community-web.ccw.site/students/self/detail") {
-            this.addEventListener("load", () => {
-                XMLHttpRequest.prototype.send = originalSend;
-                let json = JSON.parse(this.response).body;
-                if (json) {
-                    currentId = json.studentNumber;
-                    GM_unregisterMenuCommand(menuId[currentId]);
-                    if (accounts.hasOwnProperty(currentId)) {
-                        menuId[currentId] = GM_registerMenuCommand(`[当前] ${json.name} (${currentId})`, () => {});
-                    }
-                    if (accounts[currentId]) {
-                        accounts[currentId].name = json.name;
-                        GM_setValue("accounts", accounts);
-                    }
-                } else currentId = undefined;
-            });
+if (document.cookie.includes("cookie-user-id")) {
+    let originalSend = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.send = function() {
+        try {
+            if (this.__sentry_xhr__?.url === "https://community-web.ccw.site/students/self/detail") {
+                this.addEventListener("load", () => {
+                    XMLHttpRequest.prototype.send = originalSend;
+                    let json = JSON.parse(this.response).body;
+                    if (json) {
+                        currentId = json.studentNumber;
+                        GM_unregisterMenuCommand(menuId[currentId]);
+                        if (accounts.hasOwnProperty(currentId)) {
+                            menuId[currentId] = GM_registerMenuCommand(`[当前] ${json.name} (${currentId})`, () => {});
+                        }
+                        if (accounts[currentId]) {
+                            accounts[currentId].name = json.name;
+                            GM_setValue("accounts", accounts);
+                        }
+                    } else currentId = undefined;
+                });
+            }
+            return originalSend.apply(this, arguments);
+        } catch(e) {
+            console.error(e, this);
         }
-        return originalSend.apply(this, arguments);
-    } catch(e) {
-        console.error(e, this);
     }
 }
 
@@ -117,10 +119,10 @@ GM_registerMenuCommand("添加账号", () => {
 
 GM_registerMenuCommand("删除账号", () => {
     let id = window.prompt("CCW ID");
-    GM_setValue("accounts", accounts);
     if (id !== null) {
         window.alert(accounts.hasOwnProperty(id) ? "已删除" : "不存在");
         delete accounts[id];
+        GM_setValue("accounts", accounts);
         if (id == currentId) GM_unregisterMenuCommand(menuId[currentId]);
     }
 });

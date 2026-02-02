@@ -37,3 +37,26 @@ Function.prototype.apply = function(thisArg, args) {
     }
     return _apply.call(this, thisArg, args);
 };
+
+if (document.cookie.includes("cookie-user-id")) {
+    const originSend = XMLHttpRequest.prototype.send;
+    XMLHttpRequest.prototype.send = function (body) {
+        if (this.__sentry_xhr__?.url === "https://community-web.ccw.site/task/mine") {
+            this.addEventListener("load", () => {
+                XMLHttpRequest.prototype.send = originSend;
+                let tasks = JSON.parse(this.response).body.filter(task => task.status === "PREPARED");
+                tasks.forEach(task => {
+                    fetch("https://community-web.ccw.site//task/award", {
+                        body: JSON.stringify({taskOid: task.oid}),
+                        method: 'post',
+                        credentials: 'include',
+                        headers: {'content-type': 'application/json'}
+                    })
+                        .then(response => response.json())
+                        .then(({body}) => console.log(`已领取任务 ${task.name}，获得 ${body.rewareValue} 金币`));
+                });
+            })
+        }
+        return originSend.call(this, body);
+    }
+}
