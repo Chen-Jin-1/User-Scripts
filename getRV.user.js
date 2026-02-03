@@ -21,4 +21,4 @@ const x = setInterval(() => {
         console.log("runtime", window.rt = Scratch.runtime);
         console.log("vm", window.vm = Scratch.runtime.extensionManager.vm);
     }
-});
+}, 100);
