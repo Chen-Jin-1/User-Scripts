@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              自动签到
 // @namespace         cj-auto-check-in
-// @version           1.0.6
+// @version           1.0.7
 // @description       无需多点，立即签到
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
