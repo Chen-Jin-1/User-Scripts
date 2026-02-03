@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              自动签到
 // @namespace         cj-auto-check-in
-// @version           1.0.5
+// @version           1.0.6
 // @description       无需多点，立即签到
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
@@ -38,29 +38,29 @@ if (document.cookie.includes("cookie-user-id")) {
     const originSend = XMLHttpRequest.prototype.send;
     XMLHttpRequest.prototype.send = function (body) {
         if (this.__sentry_xhr__?.url === "https://community-web.ccw.site/task/mine") {
-            const originalOnReadyStateChange = this.onreadystatechange;
-            this.onreadystatechange = function() {
-                const response = JSON.parse(this.response);
-                response.body = response.body.map(task => {
-                    if (task.status === "PREPARED") task.status = "CYCLE";
-                    return task;
-                });
+            // const originalOnReadyStateChange = this.onreadystatechange;
+            // this.onreadystatechange = function() {
+            //     const response = JSON.parse(this.response);
+            //     response.body = response.body.map(task => {
+            //         if (task.status === "PREPARED") task.status = "CYCLE";
+            //         return task;
+            //     });
 
-                const modifiedResponse = JSON.stringify(response);
-                Object.defineProperties(this, {
-                    'responseText': {
-                        value: modifiedResponse,
-                        writable: false,
-                        configurable: true
-                    },
-                    'response': {
-                        value: modifiedResponse,
-                        writable: false,
-                        configurable: true
-                    }
-                });
-                return originalOnReadyStateChange.apply(this, arguments);
-            }
+            //     const modifiedResponse = JSON.stringify(response);
+            //     Object.defineProperties(this, {
+            //         'responseText': {
+            //             value: modifiedResponse,
+            //             writable: false,
+            //             configurable: true
+            //         },
+            //         'response': {
+            //             value: modifiedResponse,
+            //             writable: false,
+            //             configurable: true
+            //         }
+            //     });
+            //     return originalOnReadyStateChange.apply(this, arguments);
+            // }
             this.addEventListener("load", () => {
                 XMLHttpRequest.prototype.send = originSend;
                 let tasks = JSON.parse(this.response).body.filter(task => task.status === "PREPARED");
