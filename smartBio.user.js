@@ -3,10 +3,10 @@
 // @namespace           cj-smart-bio
 // @match               https://www.ccw.site/*
 // @grant               none
-// @version             1.0.0
+// @version             1.0.1
 // @author              Chen-Jin
 // @description         防止个签过长，影响个签观感
-// @icon                https://m.ccw.site/user_projects_assets/6df19377-8e84-4929-9e9c-93ddca968dcc.png
+// @icon                https://m.ccw.site/community/images/logo-ccw.png
 // @updateURL           https://us.chen-jin.dpdns.org/smartBio.user.js
 // @downloadURL         https://us.chen-jin.dpdns.org/smartBio.user.js
 // @run-at              document-start
