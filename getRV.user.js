@@ -18,6 +18,7 @@
 var x = setInterval(() => {
     if (window.Scratch && Scratch.runtime) {
         clearInterval(x);
-        console.log("runtime\n", window.rt = Scratch.runtime, "vm\n", window.vm = Scratch.runtime.extensionManager.vm);
+        console.log("runtime", window.rt = Scratch.runtime);
+        console.log("vm", window.vm = Scratch.runtime.extensionManager.vm);
     }
 });

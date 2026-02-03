@@ -8,8 +8,8 @@
 // @run-at       document-start
 // @icon         https://music.163.com/favicon.ico
 // @author       Chen-Jin
-// @updateURL    https://gh.llkk.cc/https://github.com/Chen-Jin-1/User-Scripts/raw/refs/heads/main/cmDl.user.js
-// @downloadURL  https://gh.llkk.cc/https://github.com/Chen-Jin-1/User-Scripts/raw/refs/heads/main/cmDl.user.js
+// @updateURL    https://us.chen-jin.dpdns.org/cmDl.user.js
+// @downloadURL  https://us.chen-jin.dpdns.org/cmDl.user.js
 // ==/UserScript==
 
 const srcSetter = Object.getOwnPropertyDescriptor(HTMLMediaElement.prototype, 'src').set;

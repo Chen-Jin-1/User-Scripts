@@ -7,8 +7,8 @@
 // @author              Chen-Jin
 // @description         只对连接社区扩展的一些功能有效
 // @icon                data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI5IiBoZWlnaHQ9IjEyOSIgdmlld0JveD0iMCAwIDEyOSAxMjkiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHg9IjM3IiB5PSI0MCIgd2lkdGg9IjUyIiBoZWlnaHQ9IjUyIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjYiLz4KPHJlY3QgeD0iMjQuNSIgeT0iMjcuNSIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiByeD0iMy41IiBmaWxsPSIjRkFGRjAwIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjMiLz4KPHJlY3QgeD0iMjQuNSIgeT0iNzkuNSIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiByeD0iMy41IiBmaWxsPSIjNzFFQTM5IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjMiLz4KPHJlY3QgeD0iNzYuNSIgeT0iMjcuNSIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiByeD0iMy41IiBmaWxsPSIjRkY0OTRCIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjMiLz4KPHJlY3QgeD0iNzYuNSIgeT0iNzkuNSIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiByeD0iMy41IiBmaWxsPSIjNzVENkZEIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjMiLz4KPC9zdmc+Cg==
-// @updateURL           https://gh.llkk.cc/https://github.com/Chen-Jin-1/User-Scripts/raw/refs/heads/main/setCCWAPI.user.js
-// @downloadURL         https://gh.llkk.cc/https://github.com/Chen-Jin-1/User-Scripts/raw/refs/heads/main/setCCWAPI.user.js
+// @updateURL           https://us.chen-jin.dpdns.org/setCCWAPI.user.js
+// @downloadURL         https://us.chen-jin.dpdns.org/setCCWAPI.user.js
 // @run-at              document-start
 // ==/UserScript==
 

@@ -15,7 +15,7 @@
 const _apply = Function.prototype.apply;
 Function.prototype.apply = function(thisArg, args) {
     if (typeof thisArg === "object" && thisArg && thisArg.defaults && thisArg.interceptors && thisArg.interceptors.request.handlers.length > 0) {
-        console.log("axios", unsafeWindow.axios = thisArg);
+        console.log("Axios", unsafeWindow.axios = thisArg);
         Function.prototype.apply = _apply;
     }
     return _apply.call(this, thisArg, args);
