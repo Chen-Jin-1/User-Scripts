@@ -6,7 +6,7 @@
 // @match               https://www.ccw.site/creator/*
 // @match               https://www.ccw.site/player/*
 // @grant               none
-// @version             1.0.3
+// @version             1.0.4
 // @author              Chen-Jin
 // @description         获取 Scratch Runtime 和 vm
 // @icon                https://m.ccw.site/community/images/logo-ccw.png
@@ -18,7 +18,7 @@
 const x = setInterval(() => {
     if (window.Scratch?.runtime) {
         clearInterval(x);
-        console.log("runtime", window.rt = Scratch.runtime);
-        console.log("vm", window.vm = Scratch.runtime.extensionManager.vm);
+        console.log("runtime", rt = runtime = Scratch.runtime);
+        console.log("vm", vm = Scratch.runtime.extensionManager.vm);
     }
 }, 100);
