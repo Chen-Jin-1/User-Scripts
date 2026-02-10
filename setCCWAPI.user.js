@@ -2,17 +2,16 @@
 // @name                修改 CCW API
 // @namespace           cj-set-ccw-api
 // @match               https://www.ccw.site/detail/*
-// @grant               none
-// @version             1.0.3
+// @version             1.0.4
 // @author              Chen-Jin
 // @description         只对连接社区扩展的一些功能有效
-// @icon                data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTI5IiBoZWlnaHQ9IjEyOSIgdmlld0JveD0iMCAwIDEyOSAxMjkiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHg9IjM3IiB5PSI0MCIgd2lkdGg9IjUyIiBoZWlnaHQ9IjUyIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjYiLz4KPHJlY3QgeD0iMjQuNSIgeT0iMjcuNSIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiByeD0iMy41IiBmaWxsPSIjRkFGRjAwIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjMiLz4KPHJlY3QgeD0iMjQuNSIgeT0iNzkuNSIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiByeD0iMy41IiBmaWxsPSIjNzFFQTM5IiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjMiLz4KPHJlY3QgeD0iNzYuNSIgeT0iMjcuNSIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiByeD0iMy41IiBmaWxsPSIjRkY0OTRCIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjMiLz4KPHJlY3QgeD0iNzYuNSIgeT0iNzkuNSIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0IiByeD0iMy41IiBmaWxsPSIjNzVENkZEIiBzdHJva2U9ImJsYWNrIiBzdHJva2Utd2lkdGg9IjMiLz4KPC9zdmc+Cg==
+// @icon                https://zhishi.oss-cn-beijing.aliyuncs.com/user_projects_assets/a6edfa0f6b8dda2fc126d847989c94ba.svg
 // @updateURL           https://us.chen-jin.dpdns.org/setCCWAPI.user.js
 // @downloadURL         https://us.chen-jin.dpdns.org/setCCWAPI.user.js
 // @run-at              document-start
 // ==/UserScript==
 
-var config = {
+const config = {
     coins: 1000, // 修改后的投币数
 };
 
@@ -43,10 +42,10 @@ function getCCWAPI() {
             console.log(`已点赞`);
             return true;
         };
-        ccwAPI.redirect = async (arg) => {
-            console.log(`跳转到 https://ccw.site/${arg}`);
-            return true;
-        };
+        // ccwAPI.redirect = async (arg) => {
+        //     console.log(`跳转到 https://ccw.site/${arg}`);
+        //     return true;
+        // };
         ccwAPI.requestCoins = async (arg) => {
             console.log(`请求投 ${arg} 币`);
             return true;
