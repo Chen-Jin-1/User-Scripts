@@ -96,7 +96,7 @@ css.textContent = `#cj-reply1-button {
     backdrop-filter: blur(5px);
     user-select: none;
     -webkit-user-drag: element;
-    border: 1px solid #fff;
+    border: 1px solid #ffffff80;
 }
 
 #cj-reply1-button img {
