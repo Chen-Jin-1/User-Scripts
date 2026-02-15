@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                快捷回复
 // @namespace           cj-reply
-// @version             1.0.1
+// @version             1.0.2
 // @description         在 Gandi 中快捷查看回复
 // @author              Chen-Jin
 // @match               https://www.ccw.site/gandi*
@@ -88,7 +88,7 @@ css.textContent = `#cj-reply1-button {
     right: 30px;
     height: 50px;
     width: 50px;
-    z-index: 12345;
+    z-index: 12345678;
     border-radius: 50%;
     padding: 10px;
     background: #ffffff50;
@@ -96,6 +96,7 @@ css.textContent = `#cj-reply1-button {
     backdrop-filter: blur(5px);
     user-select: none;
     -webkit-user-drag: element;
+    border: 1px solid #fff;
 }
 
 #cj-reply1-button img {
@@ -109,7 +110,7 @@ css.textContent = `#cj-reply1-button {
     top: 0;
     left: 100vw;
     transition-duration: 0.3s;
-    z-index: 11111;
+    z-index: 11111111;
     height: 100%;
     width: 100vw;
     background: #00000060;
