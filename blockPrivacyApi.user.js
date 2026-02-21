@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         拦截CCW的个人隐私API
 // @namespace    https://qm.qq.com/q/j0y9kktZ4s
-// @version      1.3
+// @version      1.3.1
 // @description  拦截个人隐私
 // @author       娅
 // @match        https://www.ccw.site/detail/*
@@ -16,12 +16,16 @@
     let vm = null;
     let interceptCount = 0;
     const interceptApiList = [
+        "https://sso.ccw.site/web/auth/logout",
         "https://community-web.ccw.site/students/self/detail",
         "https://community-web.ccw.site/study-community/member/detail",
         "https://community-web.ccw.site/locked_user/detail",
         "https://community-web.ccw.site/students/profile",
         "https://community-web.ccw.site/creation/student/detail",
-        "https://sso.ccw.site/web/auth/logout"
+        "https://community-web.ccw.site/students/update",
+        "https://community-web.ccw.site/study-trade/trade/donate",
+        "https://community-web.ccw.site/currency/account/personal",
+        "https://community-web.ccw.site/students/creator_score"
     ];
     const interceptApiRegex = new RegExp(
         interceptApiList.map(api => api.replace(/\//g, '\\/').replace(/\./g, '\\.'))
