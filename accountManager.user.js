@@ -66,7 +66,7 @@ if (document.cookie.includes("cookie-user-id")) {
             console.error(e, this);
         }
     }
-}
+} else currentId = undefined;
 
 GM_registerMenuCommand("添加账号", () => {
     let id = window.prompt("CCW ID", currentId);
@@ -121,9 +121,9 @@ GM_registerMenuCommand("删除账号", () => {
     let id = window.prompt("CCW ID");
     if (id !== null) {
         window.alert(accounts.hasOwnProperty(id) ? "已删除" : "不存在");
-        delete accounts[id];
         GM_setValue("accounts", accounts);
         if (id == currentId) GM_unregisterMenuCommand(menuId[currentId]);
+        delete accounts[id];
     }
 });
 
