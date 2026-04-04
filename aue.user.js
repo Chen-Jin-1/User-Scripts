@@ -3,7 +3,7 @@
 // @namespace           cj-allow-unknown-extensions
 // @match               https://www.ccw.site/detail/*
 // @match               https://www.ccw.site/gandi*
-// @version             1.0.0
+// @version             1.0.1
 // @author              Chen-Jin
 // @description         使带有未知扩展的作品能正常运行、发布
 // @icon                https://m.ccw.site/community/images/logo-ccw.png
@@ -38,7 +38,7 @@ XMLHttpRequest.prototype.open = function(m, u, ...args) {
     const _send = this.send;
     if (u.startsWith("https://bfs-web.ccw.site/extensions/")) {
         const id = u.split("/").at(-1);
-        const assetUri = urls[id] ?? em._customExtensionInfo[id]?.url;
+        const assetUri = em._customExtensionInfo[id]?.url ?? urls[id];
         if (assetUri) this.send = b => {
             const _onreadystatechange = this.onreadystatechange;
             this.onreadystatechange = () => {
