@@ -41,7 +41,7 @@ XMLHttpRequest.prototype.open = function(m, u, ...args) {
         const assetUri = urls[id] ?? em._customExtensionInfo[id]?.url;
         if (assetUri) this.send = b => {
             const _onreadystatechange = this.onreadystatechange;
-            this.onreadystatechange = () => {
+            if (this.readyState === 4) this.onreadystatechange = () => {
                 Object.defineProperty(this, 'responseText', {
                     get: () => JSON.stringify({
                         body: {
@@ -80,7 +80,6 @@ XMLHttpRequest.prototype.open = function(m, u, ...args) {
                     }),
                     configurable: true,
                 });
-                console.log(this);
                 _onreadystatechange.call(this);
             }
             return _send.call(this, b);
