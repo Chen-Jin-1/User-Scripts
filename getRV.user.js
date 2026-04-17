@@ -10,8 +10,8 @@
 // @author              Chen-Jin
 // @description         获取 Scratch Runtime 和 vm
 // @icon                https://m.ccw.site/community/images/logo-ccw.png
-// @updateURL           https://us.chen-jin.dpdns.org/getRVPlus.user.js/getRV.user.js
-// @downloadURL         https://us.chen-jin.dpdns.org/getRVPlus.user.js/getRV.user.js
+// @updateURL           https://us.chen-jin.dpdns.org/getRV.user.js
+// @downloadURL         https://us.chen-jin.dpdns.org/getRV.user.js
 // @run-at              document-start
 // ==/UserScript==
 
