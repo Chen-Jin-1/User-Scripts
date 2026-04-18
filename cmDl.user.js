@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         网易云音乐下载
 // @namespace    cj-cm-dl
-// @version      2.0.1
+// @version      2.0.2
 // @description  便捷下载音乐
 // @match        https://music.163.com/song?id=*
 // @grant        GM_download
-// @run-at       document-end
+// @run-at       document-body
 // @icon         https://music.163.com/favicon.ico
 // @author       Chen-Jin
 // @updateURL    https://us.chen-jin.dpdns.org/cmDl.user.js
