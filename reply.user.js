@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                快捷回复
 // @namespace           cj-reply
-// @version             1.0.2
+// @version             1.0.3
 // @description         在 Gandi 中快捷查看回复
 // @author              Chen-Jin
 // @match               https://www.ccw.site/gandi*
@@ -10,7 +10,7 @@
 // @icon                https://m.ccw.site/user_projects_assets/4448f7d5994cbe0e5283098aad745d4b.svg
 // @updateURL           https://us.chen-jin.dpdns.org/reply.user.js?
 // @downloadURL         https://us.chen-jin.dpdns.org/reply.user.js?
-// @run-at              document-idle
+// @run-at              document-start
 // ==/UserScript==
 
 // 搬运请先经过作者许可
@@ -186,3 +186,9 @@ function closeIframe() {
 
 btn.title = "进入回复页面";
 btn.onclick = openIframe;
+
+const observer = new MutationObserver((mutationsList) => {
+    if (!document.body.contains(btn)) document.body.appendChild(btn);
+});
+
+observer.observe(document.body, { childList: true });
