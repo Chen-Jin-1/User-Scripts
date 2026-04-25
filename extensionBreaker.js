@@ -13,29 +13,50 @@
 // @downloadURL  https://us.chen-jin.dpdns.org/extensionBreaker.user.js
 // ==/UserScript==
 
-let urls;
+const x = exts => {
+    for (const ext of Object.values(exts)) {
+        const { id, url } = ext;
+        fetch(url)
+            .then(_ => _.text())
+            .then(_ => {
+                const i = document.createElement('iframe');
+                i.id = id;
+                document.head.appendChild(i);
+                const iw = i.contentWindow;
+                iw.eval(`
+window.Scratch = {
+    extensions: {
+        register: function () {console.log(arguments)}
+    }
+}
+`);
+iw.Scratch = window.Scratch;
+                console.log(iw.eval(_));
+            })
+    }
+}
+
 const _then = Promise.prototype.then;
 Promise.prototype.then = function(f, r) {
     return _then.call(this, v => {
-        if (v?.[0]?.extensionURLs) {
-            console.log(v)
-            urls = v[0].extensionURLs;
+        if (v?.wildExtensions) {
+            x(v.wildExtensions);
             Promise.prototype.then = _then;
         }
         return f ? f(v) : v;
     }, r);
 };
 
-const _bind = Function.prototype.bind;
-Function.prototype.bind = function(thisArg, ...args) {
-    if (thisArg && thisArg.runtime && thisArg.greenFlag) {
-        console.log('vm11', thisArg);
-        const _load = thisArg.extensionManager.loadExtensionURL;
-        thisArg.extensionManager.loadExtensionURL = function(x) {
-            console.log(x);
-            return _load.call(this, x);
-        }
+// const _bind = Function.prototype.bind;
+// Function.prototype.bind = function(thisArg, ...args) {
+//     if (thisArg && thisArg.runtime && thisArg.greenFlag) {
+//         console.log('vm11', thisArg);
+//         const _load = thisArg.extensionManager.loadExtensionURL;
+//         thisArg.extensionManager.loadExtensionURL = function(x) {
+//             console.log(x);
+//             return _load.call(this, x);
+//         }
         
-    }
-    return _bind.call(this, thisArg, ...args);
-};
+//     }
+//     return _bind.call(this, thisArg, ...args);
+// };

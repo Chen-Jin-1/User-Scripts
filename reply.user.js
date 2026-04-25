@@ -10,7 +10,7 @@
 // @icon                https://m.ccw.site/user_projects_assets/4448f7d5994cbe0e5283098aad745d4b.svg
 // @updateURL           https://us.chen-jin.dpdns.org/reply.user.js?
 // @downloadURL         https://us.chen-jin.dpdns.org/reply.user.js?
-// @run-at              document-start
+// @run-at              document-body
 // ==/UserScript==
 
 // 搬运请先经过作者许可
