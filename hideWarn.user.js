@@ -5,7 +5,7 @@
 // @match               https://www.ccw.site/gandi
 // @match               https://turbowarp.org/*
 // @grant               none
-// @version             1.0.1
+// @version             1.0.2
 // @author              Chen-Jin
 // @description         隐藏 Gandi 和 TurboWarp 中不支持 WebGL 警告
 // @icon                https://m.ccw.site/community/images/logo-ccw.png
@@ -15,5 +15,5 @@
 // ==/UserScript==
 
 var x = document.createElement("style")
-x.innerHTML = '.ReactModal__Overlay.ReactModal__Overlay--after-open.gandi_webgl-modal_modal-overlay_2yidY, .ReactModal__Overlay.ReactModal__Overlay--after-open.browser-modal_modal-overlay_3TDyF {display: none}';
+x.textContent = '.ReactModal__Overlay.ReactModal__Overlay--after-open.gandi_webgl-modal_modal-overlay_2yidY, .ReactModal__Overlay.ReactModal__Overlay--after-open.browser-modal_modal-overlay_3TDyF {display: none}';
 document.head.appendChild(x);
