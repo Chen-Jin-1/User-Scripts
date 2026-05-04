@@ -1,9 +1,10 @@
 // ==UserScript==
 // @name         酷狗音乐下载
 // @namespace    cj-kg-dl
-// @version      1.0.0
+// @version      1.0.1
 // @description  便捷下载音乐
 // @match        https://www.kugou.com/mixsong/*
+// @match        https://www.kugou.com/song/*
 // @grant        GM_download
 // @run-at       document-start
 // @icon         https://www.kugou.com/favicon.ico
