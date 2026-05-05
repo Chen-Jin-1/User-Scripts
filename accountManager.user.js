@@ -18,8 +18,7 @@
 // @run-at            document-start
 // ==/UserScript==
 
-let accounts = GM_getValue("accounts", {});
-let menuId = {};
+let accounts = GM_getValue("accounts", {}), menuId = {}, currentId;
 
 const login = (loginKey, password, noCookies = 0) => {
     if (!noCookies) document.cookie = "cookie-user-id=0;path=/";
@@ -36,44 +35,40 @@ const login = (loginKey, password, noCookies = 0) => {
     });
 }
 
-for (const id in accounts) {
-    menuId[id] = GM_registerMenuCommand(`${accounts[id].name} (${id})`, () => login(id, accounts[id].pwd).then(() => location.reload()));
-}
+const r = id => menuId[id] = GM_registerMenuCommand(`${accounts[id].name} (${id})`, () => login(id, accounts[id].pwd).then(() => location.reload()));
 
+for (const id in accounts) r(id);
 if (document.cookie.includes("cookie-user-id")) {
-    let originalSend = XMLHttpRequest.prototype.send;
-    XMLHttpRequest.prototype.send = function() {
+    const sc = json => {
+        currentId = json.studentNumber;
+        GM_unregisterMenuCommand(menuId[currentId]);
+        if (accounts.hasOwnProperty(currentId)) menuId[currentId] = GM_registerMenuCommand(`[当前] ${json.name} (${currentId})`, () => {});
+        if (accounts[currentId]) {
+            accounts[currentId].name = json.name;
+            GM_setValue("accounts", accounts);
+        }
+    }
+    let _open = XMLHttpRequest.prototype.open;
+    XMLHttpRequest.prototype.open = function(m, u, a) {
         try {
-            if (this.__sentry_xhr__?.url === "https://community-web.ccw.site/students/self/detail") {
+            if (u === "https://community-web.ccw.site/students/self/detail") {
                 this.addEventListener("load", () => {
-                    XMLHttpRequest.prototype.send = originalSend;
+                    XMLHttpRequest.prototype.open = _open;
                     let json = JSON.parse(this.response).body;
-                    if (json) {
-                        currentId = json.studentNumber;
-                        GM_unregisterMenuCommand(menuId[currentId]);
-                        if (accounts.hasOwnProperty(currentId)) {
-                            menuId[currentId] = GM_registerMenuCommand(`[当前] ${json.name} (${currentId})`, () => {});
-                        }
-                        if (accounts[currentId]) {
-                            accounts[currentId].name = json.name;
-                            GM_setValue("accounts", accounts);
-                        }
-                    } else currentId = undefined;
+                    json && sc(json);
                 });
             }
-            return originalSend.apply(this, arguments);
+            return _open.call(this, m, u, a);
         } catch(e) {
             console.error(e, this);
         }
     }
-} else currentId = undefined;
+}
 
 GM_registerMenuCommand("添加账号", () => {
-    let id = window.prompt("CCW ID", currentId);
-    if (Number(id) === NaN) {
-        window.alert("你添个锤子啊");
-        return;
-    }
+    let id = window.prompt("CCW ID", accounts[currentId] ? '' : currentId);
+    if (accounts[id]) return `账号 ${accounts[id].name} 已存在`;
+    if (Number(id) === NaN) return window.alert("这是什么 ID 🤔");
     fetch("https://community-web.ccw.site/students/profile", {
         method: 'post',
         body: JSON.stringify({studentNumber: id}),
@@ -81,36 +76,25 @@ GM_registerMenuCommand("添加账号", () => {
     })
         .then(response => response.json())
         .then(data => {
-            if (!data.body) {
-                window.alert(data.msg);
-                return;
-            } else {
-                let s = data.body;
-                let pwd = window.prompt("密码");
-                login(id, pwd, 1)
+            if (!data.body) return window.alert(data.msg);
+            else {
+                let s = data.body, pwd = window.prompt("密码");
+                pwd && login(id, pwd, 1)
                     .then(response => response.json())
                     .then(data => {
                         if (!data.body) {
                             window.alert(data.msg);
                             return;
                         } else {
-                            accounts[id] = {
-                                name: s.name,
-                                pwd,
-                            }
+                            accounts[id] = { name: s.name, pwd };
                             GM_setValue("accounts", accounts);
                             fetch("https://sso.ccw.site/web/auth/logout_by_session", {
                                 body: JSON.stringify({id: data.body.id}),
                                 method: 'post',
                                 headers: {'content-type': 'application/json'},
                             });
-                            window.alert("已添加");
-                            GM_unregisterMenuCommand(menuId[id]);
-                            if (id != currentId) {
-                                GM_registerMenuCommand(`${s.name} (${id})`, () => login(id, pwd).then(() => location.reload()));
-                            } else {
-                                GM_registerMenuCommand(`[当前] ${s.name} (${id})`, () => {});
-                            }
+                            if (confirm("已添加，是否现在登录？")) login(id, pwd).then(() => location.reload());
+                            else r(id);
                         }
                     });
             }
@@ -119,18 +103,17 @@ GM_registerMenuCommand("添加账号", () => {
 
 GM_registerMenuCommand("删除账号", () => {
     let id = window.prompt("CCW ID");
-    if (id !== null) {
-        window.alert(accounts.hasOwnProperty(id) ? "已删除" : "不存在");
-        GM_setValue("accounts", accounts);
-        if (id == currentId) GM_unregisterMenuCommand(menuId[currentId]);
-        delete accounts[id];
-    }
+    if (id === null || !accounts[id] || !confirm(`确定删除账号 ${accounts[id].name}？`)) return;
+    GM_unregisterMenuCommand(menuId[id]);
+    delete accounts[id];
+    GM_setValue("accounts", accounts);
+    alert(accounts.hasOwnProperty(id) ? "删除失败" : "已删除");
 });
 
 GM_registerMenuCommand("导入配置", () => {
     const input = document.createElement('input');
     input.type = 'file';
-    input.accept = '.json';
+    input.accept = '.cj-account-manager-config, .json';
     input.onchange = e => {
         const reader = new FileReader();
         reader.onload = e => {
@@ -150,7 +133,7 @@ GM_registerMenuCommand("导入配置", () => {
 });
 
 GM_registerMenuCommand("导出配置", () => GM_download({
-    url: 'data:application/json,' + encodeURIComponent(JSON.stringify(accounts)),
-    name: 'CCW_account_manager_config.json',
+    url: 'data:application/octet-stream,' + encodeURIComponent(JSON.stringify(accounts)),
+    name: Date.now() + '.cj-account-manager-config',
     saveAs: 1,
 }));

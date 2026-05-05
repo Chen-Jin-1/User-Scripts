@@ -5,7 +5,7 @@
 // @description  在任何网站上保留原先函数或对象
 // @match        *://*/*
 // @run-at       document-start
-// @icon         
+// @icon         https://m.ccw.site/user_projects_assets/c2bf0912-a904-4c43-af80-e5b8d4912049.png?x-oss-process=image/circle,r_1000
 // @author       Chen-Jin
 // @updateURL    https://us.chen-jin.dpdns.org/funcBackup.user.js
 // @downloadURL  https://us.chen-jin.dpdns.org/funcBackup.user.js
