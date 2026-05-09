@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         函数备份
 // @namespace    cj-func-backup
-// @version      1.0.0
+// @version      1.0.1
 // @description  在任何网站上保留原先函数或对象
 // @match        *://*/*
 // @run-at       document-start
@@ -9,6 +9,7 @@
 // @author       Chen-Jin
 // @updateURL    https://us.chen-jin.dpdns.org/funcBackup.user.js
 // @downloadURL  https://us.chen-jin.dpdns.org/funcBackup.user.js
+// @grant        none
 // ==/UserScript==
 
 const functions = ["fetch", "XMLHttpRequest.prototype.open", "XMLHttpRequest.prototype.send", "console", "open"];
