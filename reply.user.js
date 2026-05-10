@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name                快捷回复
 // @namespace           cj-reply
-// @version             1.0.3
+// @version             1.0.4
 // @description         在 Gandi 中快捷查看回复
 // @author              Chen-Jin
 // @match               https://www.ccw.site/gandi*
 // @match               https://www.ccw.site/creator*
 // @match               https://assets.ccw.site/*
+// @match               https://learn.ccw.site/*
 // @icon                https://m.ccw.site/user_projects_assets/4448f7d5994cbe0e5283098aad745d4b.svg
 // @updateURL           https://us.chen-jin.dpdns.org/reply.user.js?
 // @downloadURL         https://us.chen-jin.dpdns.org/reply.user.js?
