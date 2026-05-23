@@ -122,6 +122,7 @@ GM_registerMenuCommand("导入配置", () => {
                 accounts = data;
                 GM_setValue("accounts", accounts);
                 window.alert('导入成功');
+                location.reload();
             } catch(e) {
                 window.alert('失败');
                 console.error(e);
