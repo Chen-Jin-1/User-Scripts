@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name              账号管理器
 // @namespace         cj-auto-check-in
-// @version           1.1.0
+// @version           1.1.1
 // @description       快捷切换 CCW 账号
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
-// @icon              https://m.ccw.site/community/images/logo-ccw.png
+// @icon              https://www.chen-jin.dpdns.org/Chen-Jin-circle.png
 // @updateURL         https://us.chen-jin.dpdns.org/accountManager.user.js?
 // @downloadURL       https://us.chen-jin.dpdns.org/accountManager.user.js?
 // @grant             unsafeWindow
@@ -21,7 +21,7 @@
 let accounts = GM_getValue("accounts", {}), menuId = {}, currentId;
 
 const login = (loginKey, password, noCookies = 0) => {
-    if (!noCookies) document.cookie = "cookie-user-id=0;path=/";
+    if (!noCookies) document.cookie = "cookie-user-id=0;path=/;domain=.ccw.site";
     return fetch("https://sso.ccw.site/web/auth/login-by-password", {
         method: 'post',
         credentials: noCookies ? 'omit' : 'include',
@@ -68,7 +68,7 @@ if (document.cookie.includes("cookie-user-id")) {
 GM_registerMenuCommand("添加账号", () => {
     let id = window.prompt("CCW ID", accounts[currentId] ? '' : currentId);
     if (accounts[id]) return `账号 ${accounts[id].name} 已存在`;
-    if (Number(id) === NaN) return window.alert("这是什么 ID 🤔");
+    if (id / 1 != id) return window.alert(`我觉得 ${id} 不是阿拉伯数字（`);
     fetch("https://community-web.ccw.site/students/profile", {
         method: 'post',
         body: JSON.stringify({studentNumber: id}),

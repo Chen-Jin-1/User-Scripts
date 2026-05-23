@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         函数备份
 // @namespace    cj-func-backup
-// @version      1.0.1
+// @version      1.0.1.1
 // @description  在任何网站上保留原先函数或对象
 // @match        *://*/*
 // @run-at       document-start
-// @icon         https://m.ccw.site/user_projects_assets/c2bf0912-a904-4c43-af80-e5b8d4912049.png?x-oss-process=image/circle,r_1000
+// @icon         https://www.chen-jin.dpdns.org/Chen-Jin-circle.png
 // @author       Chen-Jin
 // @updateURL    https://us.chen-jin.dpdns.org/funcBackup.user.js
 // @downloadURL  https://us.chen-jin.dpdns.org/funcBackup.user.js
