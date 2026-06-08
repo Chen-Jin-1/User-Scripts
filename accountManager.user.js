@@ -5,6 +5,7 @@
 // @description       快捷切换 CCW 账号
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
+// @match             https://us.chen-jin.dpdns.org/settings/accountManager
 // @icon              https://www.chen-jin.dpdns.org/Chen-Jin-circle.png
 // @updateURL         https://us.chen-jin.dpdns.org/accountManager.user.js?
 // @downloadURL       https://us.chen-jin.dpdns.org/accountManager.user.js?
@@ -15,8 +16,29 @@
 // @grant             GM_getValue
 // @grant             GM_listValues
 // @grant             GM_download
+// @grant             GM_cookie
 // @run-at            document-start
 // ==/UserScript==
+
+if (location.hostname === 'us.chen-jin.dpdns.org') {
+    unsafeWindow.GM_getValue = GM_getValue;
+    unsafeWindow.GM_setValue = GM_setValue;
+    unsafeWindow.switchCCWAccount = (studentId, token) => {
+        return new Promise((resolve) => {
+            GM_cookie_set({
+                url: 'https://www.ccw.site',
+                name: 'token',
+                value: token,
+                domain: '.ccw.site',
+                path: '/',
+                httpOnly: true,
+                secure: true,
+                sameSite: 'lax'
+            }, () => resolve(true));
+        });
+    };
+    throw "settings";
+}
 
 let accounts = GM_getValue("accounts", {}), menuId = {}, currentId;
 

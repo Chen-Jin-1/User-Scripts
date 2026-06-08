@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CCW 账号管理器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        /* 头部 */
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: white;
+            font-size: 2rem;
+            font-weight: 600;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .header h1::before {
+            content: "📚";
+            font-size: 2rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: white;
+            margin-top: 10px;
+        }
+
+        /* API 警告条 */
+        .api-warning {
+            background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+            color: white;
+            padding: 16px 20px;
+            border-radius: 16px;
+            margin-bottom: 24px;
+            display: none;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .api-warning.show {
+            display: flex;
+        }
+
+        .api-warning .icon {
+            font-size: 28px;
+        }
+
+        .api-warning .content {
+            flex: 1;
+        }
+
+        .api-warning .title {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .api-warning .desc {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+
+        .api-warning button {
+            background: white;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #f12711;
+            transition: transform 0.2s;
+        }
+
+        .api-warning button:hover {
+            transform: scale(1.02);
+        }
+
+        /* 卡片通用样式 */
+        .card {
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+
+        .card-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #333;
+            border-left: 4px solid #667eea;
+            padding-left: 16px;
+        }
+
+        /* 账号列表 */
+        .accounts-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .account-item {
+            background: #f8f9fa;
+            border-radius: 14px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s;
+            border: 1px solid #e9ecef;
+        }
+
+        .account-item:hover {
+            background: #fff;
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.1);
+        }
+
+        .account-info {
+            flex: 1;
+        }
+
+        .account-name {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .account-id {
+            font-size: 0.75rem;
+            color: #888;
+            font-family: monospace;
+            background: #e9ecef;
+            padding: 2px 8px;
+            border-radius: 12px;
+        }
+
+        .account-token {
+            font-size: 0.7rem;
+            color: #aaa;
+            font-family: monospace;
+            margin-top: 6px;
+            word-break: break-all;
+        }
+
+        .account-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        /* 按钮样式 */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #218838;
+            transform: translateY(-1px);
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid #dee2e6;
+            color: #666;
+        }
+
+        .btn-outline:hover {
+            background: #f8f9fa;
+            border-color: #667eea;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+        }
+
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+        }
+
+        /* Tab 切换 */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: none;
+            border: none;
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: #888;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-radius: 10px 10px 0 0;
+        }
+
+        .tab.active {
+            color: #667eea;
+            border-bottom: 2px solid #667eea;
+            margin-bottom: -2px;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* 空状态 */
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #aaa;
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+        }
+
+        /* 工具栏 */
+        .toolbar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        /* 加载动画 */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid #667eea;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* 响应式 */
+        @media (max-width: 600px) {
+            .account-item {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .account-actions {
+                width: 100%;
+                justify-content: flex-end;
+            }
+            .toolbar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>CCW 账号管理器</h1>
+            <div class="badge">⚡ 一键切换 · 安全存储</div>
+        </div>
+
+        <!-- API 检测警告 -->
+        <div id="api-warning" class="api-warning">
+            <div class="icon">⚠️</div>
+            <div class="content">
+                <div class="title">脚本未检测到或版本过低</div>
+                <div class="desc">请确保已安装「账号管理器」用户脚本，并更新到最新版本。</div>
+            </div>
+            <button onclick="location.reload()">重新检测</button>
+        </div>
+
+        <!-- 主内容 -->
+        <div id="main-content" style="display: none;">
+            <!-- 账号列表卡片 -->
+            <div class="card">
+                <div class="card-title">
+                    <span>📋</span> 我的账号
+                </div>
+                <div class="toolbar">
+                    <div class="toolbar-left">
+                        <button id="refresh-btn" class="btn btn-outline btn-sm">🔄 刷新列表</button>
+                    </div>
+                    <div class="toolbar-left">
+                        <button id="export-btn" class="btn btn-outline btn-sm">📦 导出配置</button>
+                        <button id="import-btn" class="btn btn-outline btn-sm">📂 导入配置</button>
+                    </div>
+                </div>
+                <div id="accounts-list" class="accounts-list">
+                    <div class="empty-state">
+                        <div class="icon">👻</div>
+                        <div>暂无账号，请添加</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 添加账号卡片（Tab 切换） -->
+            <div class="card">
+                <div class="tabs">
+                    <button class="tab active" data-tab="token">🔑 Token 添加</button>
+                    <button class="tab" data-tab="password">🔒 密码添加</button>
+                </div>
+
+                <!-- Token 添加 -->
+                <div id="tab-token" class="tab-pane active">
+                    <form id="add-form-token">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>学号</label>
+                                <input type="text" id="token-student-id" placeholder="例如：20240001" required>
+                            </div>
+                            <div class="form-group">
+                                <label>姓名</label>
+                                <input type="text" id="token-name" placeholder="例如：张三" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Token</label>
+                            <input type="text" id="token-value" placeholder="从 DevTools → Application → Cookies 中复制 token 值" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">➕ 添加账号</button>
+                    </form>
+                </div>
+
+                <!-- 密码添加（自动获取 Token） -->
+                <div id="tab-password" class="tab-pane">
+                    <form id="add-form-password">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>学号</label>
+                                <input type="text" id="pwd-student-id" placeholder="例如：20240001" required>
+                            </div>
+                            <div class="form-group">
+                                <label>姓名</label>
+                                <input type="text" id="pwd-name" placeholder="例如：张三" required>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>密码</label>
+                            <input type="password" id="pwd-value" placeholder="请输入 CCW 密码" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary" id="add-by-password-btn">
+                            🔄 登录并获取 Token
+                        </button>
+                        <div id="pwd-status" style="margin-top: 12px; font-size: 0.8rem; color: #888;"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ========== API 检测 ==========
+        async function checkAPI() {
+            // 等待脚本注入
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            if (typeof window.GM_getValue === 'function' && typeof window.GM_setValue === 'function') {
+                document.getElementById('api-warning').classList.remove('show');
+                document.getElementById('main-content').style.display = 'block';
+                return true;
+            } else {
+                document.getElementById('api-warning').classList.add('show');
+                document.getElementById('main-content').style.display = 'none';
+                return false;
+            }
+        }
+
+        // ========== 全局变量 ==========
+        let currentAccounts = {};
+
+        // ========== 加载账号列表 ==========
+        async function loadAccounts() {
+            if (typeof window.GM_getValue !== 'function') return;
+            
+            currentAccounts = await window.GM_getValue('accounts', {});
+            const container = document.getElementById('accounts-list');
+            
+            const accountEntries = Object.entries(currentAccounts);
+            if (accountEntries.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="icon">📭</div>
+                        <div>暂无账号，请添加</div>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            for (const [id, data] of accountEntries) {
+                const div = document.createElement('div');
+                div.className = 'account-item';
+                div.innerHTML = `
+                    <div class="account-info">
+                        <div class="account-name">
+                            ${escapeHtml(data.name)}
+                            <span class="account-id">${escapeHtml(id)}</span>
+                            ${data.token ? '<span style="font-size:0.7rem; background:#e9ecef; padding:2px 8px; border-radius:12px;">✓ Token</span>' : ''}
+                        </div>
+                        ${data.token ? `<div class="account-token">Token: ${escapeHtml(data.token.substring(0, 30))}${data.token.length > 30 ? '...' : ''}</div>` : ''}
+                    </div>
+                    <div class="account-actions">
+                        <button class="btn btn-success btn-sm switch-btn" data-id="${escapeHtml(id)}" data-token="${escapeHtml(data.token || '')}">
+                            🔁 切换
+                        </button>
+                        <button class="btn btn-danger btn-sm delete-btn" data-id="${escapeHtml(id)}">
+                            🗑️ 删除
+                        </button>
+                    </div>
+                `;
+                container.appendChild(div);
+            }
+            
+            // 绑定事件
+            document.querySelectorAll('.switch-btn').forEach(btn => {
+                btn.onclick = async () => {
+                    const id = btn.dataset.id;
+                    const token = btn.dataset.token;
+                    if (!token) {
+                        alert(`账号 ${id} 没有 Token，请先通过密码登录获取`);
+                        return;
+                    }
+                    if (typeof window.switchCCWAccount === 'function') {
+                        await window.switchCCWAccount(id, token);
+                        alert(`✅ 已切换至 ${id}\n请在 CCW 页面刷新查看效果`);
+                    } else {
+                        alert('切换功能不可用，请确保脚本已更新');
+                    }
+                };
+            });
+            
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.onclick = async () => {
+                    const id = btn.dataset.id;
+                    if (!confirm(`确定删除账号 ${id}？`)) return;
+                    const accounts = await window.GM_getValue('accounts', {});
+                    delete accounts[id];
+                    await window.GM_setValue('accounts', accounts);
+                    loadAccounts();
+                };
+            });
+        }
+
+        // ========== Token 方式添加 ==========
+        async function addByToken(studentId, name, token) {
+            const accounts = await window.GM_getValue('accounts', {});
+            accounts[studentId] = { name, token };
+            await window.GM_setValue('accounts', accounts);
+            loadAccounts();
+            return true;
+        }
+
+        // ========== 密码方式添加（通过登录获取 Token）==========
+        async function addByPassword(studentId, name, password) {
+            const statusDiv = document.getElementById('pwd-status');
+            statusDiv.innerHTML = '<span class="loading"></span> 正在登录，获取 Token...';
+            statusDiv.style.color = '#667eea';
+            
+            try {
+                // 第一步：登录获取 session
+                const loginRes = await fetch("https://sso.ccw.site/web/auth/login-by-password", {
+                    method: 'POST',
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        loginKey: studentId,
+                        password: password,
+                        clientCode: "STUDY_COMMUNITY",
+                        extra: JSON.stringify({
+                            device: "账号管理器创建",
+                            browser: "账号管理器创建"
+                        })
+                    }),
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const loginData = await loginRes.json();
+                if (!loginData.body) {
+                    statusDiv.innerHTML = `❌ 登录失败: ${loginData.msg || '未知错误'}`;
+                    statusDiv.style.color = '#dc3545';
+                    return false;
+                }
+                
+                statusDiv.innerHTML = '<span class="loading"></span> 登录成功，正在获取 Token...';
+                
+                // 第二步：获取用户信息（此时 Cookie 已包含 HttpOnly Token）
+                const profileRes = await fetch("https://community-web.ccw.site/students/self/detail", {
+                    credentials: 'include'
+                });
+                const profileData = await profileRes.json();
+                
+                if (!profileData.body) {
+                    statusDiv.innerHTML = '❌ 获取用户信息失败';
+                    statusDiv.style.color = '#dc3545';
+                    return false;
+                }
+                
+                // 注意：由于 HttpOnly 限制，无法直接读取 token 值
+                // 但浏览器已经保存了 token Cookie
+                // 我们只能提示用户手动复制，或者信任 Cookie 已设置
+                statusDiv.innerHTML = '✅ 登录成功！Token 已由浏览器保存。<br>⚠️ 由于安全限制，无法自动读取 Token，请手动从 DevTools 复制后使用 Token 方式添加。';
+                statusDiv.style.color = '#28a745';
+                
+                // 可选：尝试通过 document.cookie 获取（但 HttpOnly 不可见）
+                alert(`登录成功！\n\n但由于 HttpOnly 安全机制，无法自动获取 Token 值。\n请打开 DevTools → Application → Cookies → .ccw.site，复制 token 值后使用「Token 添加」方式保存。`);
+                
+                return false;
+            } catch (err) {
+                statusDiv.innerHTML = `❌ 请求失败: ${err.message}`;
+                statusDiv.style.color = '#dc3545';
+                return false;
+            }
+        }
+
+        // ========== 导出配置 ==========
+        async function exportConfig() {
+            const accounts = await window.GM_getValue('accounts', {});
+            const dataStr = JSON.stringify(accounts, null, 2);
+            const blob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `ccw-accounts-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // ========== 导入配置 ==========
+        function importConfig() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const text = await file.text();
+                try {
+                    const accounts = JSON.parse(text);
+                    await window.GM_setValue('accounts', accounts);
+                    alert('导入成功');
+                    loadAccounts();
+                } catch(err) {
+                    alert('导入失败: ' + err.message);
+                }
+            };
+            input.click();
+        }
+
+        // ========== 工具函数 ==========
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        // ========== Tab 切换 ==========
+        function initTabs() {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(tab => {
+                tab.onclick = () => {
+                    const tabId = tab.dataset.tab;
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+                    document.getElementById(`tab-${tabId}`).classList.add('active');
+                };
+            });
+        }
+
+        // ========== 初始化 ==========
+        async function init() {
+            const apiOk = await checkAPI();
+            if (!apiOk) return;
+            
+            // 初始化界面
+            initTabs();
+            await loadAccounts();
+            
+            // 绑定事件
+            document.getElementById('refresh-btn').onclick = loadAccounts;
+            document.getElementById('export-btn').onclick = exportConfig;
+            document.getElementById('import-btn').onclick = importConfig;
+            
+            // Token 添加表单
+            document.getElementById('add-form-token').onsubmit = async (e) => {
+                e.preventDefault();
+                const studentId = document.getElementById('token-student-id').value.trim();
+                const name = document.getElementById('token-name').value.trim();
+                const token = document.getElementById('token-value').value.trim();
+                
+                if (!studentId || !name || !token) {
+                    alert('请填写完整信息');
+                    return;
+                }
+                
+                await addByToken(studentId, name, token);
+                document.getElementById('add-form-token').reset();
+                alert('✅ 账号已添加');
+            };
+            
+            // 密码添加表单
+            document.getElementById('add-form-password').onsubmit = async (e) => {
+                e.preventDefault();
+                const studentId = document.getElementById('pwd-student-id').value.trim();
+                const name = document.getElementById('pwd-name').value.trim();
+                const password = document.getElementById('pwd-value').value;
+                
+                if (!studentId || !name || !password) {
+                    alert('请填写完整信息');
+                    return;
+                }
+                
+                await addByPassword(studentId, name, password);
+                // 不清空表单，让用户知道结果
+            };
+        }
+        
+        init();
+    </script>
+</body>
+</html>
