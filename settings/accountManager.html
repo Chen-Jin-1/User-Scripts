@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CCW 账号管理器</title>
+    <title>账号管理器 设置</title>
     <style>
         * {
             margin: 0;
@@ -16,6 +16,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
+            user-select: none;
         }
 
         .container {
@@ -41,7 +42,7 @@
         }
 
         .header h1::before {
-            content: "📚";
+            content: "⚙";
             font-size: 2rem;
         }
 
@@ -67,10 +68,13 @@
             align-items: center;
             gap: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            opacity: 0;
+            transition-duration: 300ms;
         }
 
         .api-warning.show {
             display: flex;
+            opacity: 1;
         }
 
         .api-warning .icon {
@@ -175,10 +179,26 @@
         .account-id {
             font-size: 0.75rem;
             color: #888;
-            font-family: monospace;
             background: #e9ecef;
             padding: 2px 8px;
             border-radius: 12px;
+        }
+
+        .account-badge {
+            font-size: 0.65rem;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .badge-token {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .badge-password {
+            background: #fff3cd;
+            color: #856404;
         }
 
         .account-token {
@@ -216,16 +236,6 @@
         .btn-primary:hover {
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(102,126,234,0.4);
-        }
-
-        .btn-success {
-            background: #28a745;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background: #218838;
-            transform: translateY(-1px);
         }
 
         .btn-danger {
@@ -334,11 +344,6 @@
             color: #aaa;
         }
 
-        .empty-state .icon {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
-
         /* 工具栏 */
         .toolbar {
             display: flex;
@@ -366,6 +371,8 @@
             animation: spin 0.8s linear infinite;
         }
 
+        #main-content { transition-duration: 300ms; }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -387,12 +394,12 @@
             }
         }
     </style>
+    <link rel="icon" href="https://www.chen-jin.dpdns.org/Chen-Jin-circle.png">
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>CCW 账号管理器</h1>
-            <div class="badge">⚡ 一键切换 · 安全存储</div>
+            <h1>账号管理器 设置</h1>
         </div>
 
         <!-- API 检测警告 -->
@@ -400,13 +407,13 @@
             <div class="icon">⚠️</div>
             <div class="content">
                 <div class="title">脚本未检测到或版本过低</div>
-                <div class="desc">请确保已安装「账号管理器」用户脚本，并更新到最新版本。</div>
+                <div class="desc">请先安装/更新「账号管理器」用户脚本，然后刷新本页面。</div>
             </div>
-            <button onclick="location.reload()">重新检测</button>
+            <button id="install-script-btn">📦 安装最新版</button>
         </div>
 
         <!-- 主内容 -->
-        <div id="main-content" style="display: none;">
+        <div id="main-content" style="opacity: 0; pointer-events: none">
             <!-- 账号列表卡片 -->
             <div class="card">
                 <div class="card-title">
@@ -423,92 +430,83 @@
                 </div>
                 <div id="accounts-list" class="accounts-list">
                     <div class="empty-state">
-                        <div class="icon">👻</div>
                         <div>暂无账号，请添加</div>
                     </div>
                 </div>
             </div>
 
-            <!-- 添加账号卡片（Tab 切换） -->
             <div class="card">
                 <div class="tabs">
-                    <button class="tab active" data-tab="token">🔑 Token 添加</button>
-                    <button class="tab" data-tab="password">🔒 密码添加</button>
+                    <button class="tab active" data-tab="password">🔒 密码添加</button>
+                    <button class="tab" data-tab="token">🔑 Token 添加</button>
                 </div>
 
-                <!-- Token 添加 -->
-                <div id="tab-token" class="tab-pane active">
-                    <form id="add-form-token">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>学号</label>
-                                <input type="text" id="token-student-id" placeholder="例如：20240001" required>
-                            </div>
-                            <div class="form-group">
-                                <label>姓名</label>
-                                <input type="text" id="token-name" placeholder="例如：张三" required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>Token</label>
-                            <input type="text" id="token-value" placeholder="从 DevTools → Application → Cookies 中复制 token 值" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">➕ 添加账号</button>
-                    </form>
-                </div>
-
-                <!-- 密码添加（自动获取 Token） -->
-                <div id="tab-password" class="tab-pane">
+                <div id="tab-password" class="tab-pane active">
                     <form id="add-form-password">
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>学号</label>
-                                <input type="text" id="pwd-student-id" placeholder="例如：20240001" required>
-                            </div>
-                            <div class="form-group">
-                                <label>姓名</label>
-                                <input type="text" id="pwd-name" placeholder="例如：张三" required>
-                            </div>
+                        <div class="form-group">
+                            <label>CCW ID</label>
+                            <input type="text" id="pwd-student-id" required>
                         </div>
                         <div class="form-group">
                             <label>密码</label>
-                            <input type="password" id="pwd-value" placeholder="请输入 CCW 密码" required>
+                            <input type="password" id="pwd-value" required>
                         </div>
-                        <button type="submit" class="btn btn-primary" id="add-by-password-btn">
-                            🔄 登录并获取 Token
-                        </button>
+                        <button type="submit" class="btn btn-primary" id="add-by-password-btn">➕ 添加账号</button>
                         <div id="pwd-status" style="margin-top: 12px; font-size: 0.8rem; color: #888;"></div>
                     </form>
                 </div>
+
+                <div id="tab-token" class="tab-pane">
+                    <form id="add-form-token">
+                        <div class="form-group">
+                            <label>Token</label>
+                            <input type="text" id="token-value" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">➕ 添加账号</button>
+                        <div id="token-status" style="margin-top: 12px; font-size: 0.8rem; color: #888;"></div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <span>🖥️</span> 设备设置
+                </div>
+                <form id="device-settings-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>设备名称</label>
+                            <input type="text" id="device-name" value="正在获取">
+                        </div>
+                        <div class="form-group">
+                            <label>浏览器名称</label>
+                            <input type="text" id="browser-name" value="正在获取">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">💾 保存设置</button>
+                    <div id="device-status" style="margin-top: 12px; font-size: 0.8rem; color: #888;"></div>
+                </form>
             </div>
         </div>
     </div>
 
     <script>
-        // ========== API 检测 ==========
         async function checkAPI() {
-            // 等待脚本注入
-            await new Promise(resolve => setTimeout(resolve, 200));
-            
-            if (typeof window.GM_getValue === 'function' && typeof window.GM_setValue === 'function') {
-                document.getElementById('api-warning').classList.remove('show');
-                document.getElementById('main-content').style.display = 'block';
+            await new Promise(r => setTimeout(r, 200));
+            if (window.accountManager) {
+                document.getElementById('main-content').style.opacity = '1';
+                document.getElementById('main-content').style.pointerEvents = "auto";
                 return true;
             } else {
+                document.getElementById('install-script-btn').onclick = () => open('https://us.chen-jin.dpdns.org/accountManager.user.js', '_blank');
                 document.getElementById('api-warning').classList.add('show');
-                document.getElementById('main-content').style.display = 'none';
                 return false;
             }
         }
 
-        // ========== 全局变量 ==========
         let currentAccounts = {};
-
-        // ========== 加载账号列表 ==========
-        async function loadAccounts() {
-            if (typeof window.GM_getValue !== 'function') return;
-            
-            currentAccounts = await window.GM_getValue('accounts', {});
+        async function loadAccounts() {            
+            currentAccounts = await accountManager.GM_getValue('accounts', {});
             const container = document.getElementById('accounts-list');
             
             const accountEntries = Object.entries(currentAccounts);
@@ -524,6 +522,10 @@
             
             container.innerHTML = '';
             for (const [id, data] of accountEntries) {
+                const isTokenAccount = data.token !== undefined;
+                const badgeText = isTokenAccount ? '🔑 Token 创建' : '🔒 密码创建';
+                const badgeClass = isTokenAccount ? 'badge-token' : 'badge-password';
+                
                 const div = document.createElement('div');
                 div.className = 'account-item';
                 div.innerHTML = `
@@ -531,14 +533,10 @@
                         <div class="account-name">
                             ${escapeHtml(data.name)}
                             <span class="account-id">${escapeHtml(id)}</span>
-                            ${data.token ? '<span style="font-size:0.7rem; background:#e9ecef; padding:2px 8px; border-radius:12px;">✓ Token</span>' : ''}
+                            <span class="account-badge ${badgeClass}">${badgeText}</span>
                         </div>
-                        ${data.token ? `<div class="account-token">Token: ${escapeHtml(data.token.substring(0, 30))}${data.token.length > 30 ? '...' : ''}</div>` : ''}
                     </div>
                     <div class="account-actions">
-                        <button class="btn btn-success btn-sm switch-btn" data-id="${escapeHtml(id)}" data-token="${escapeHtml(data.token || '')}">
-                            🔁 切换
-                        </button>
                         <button class="btn btn-danger btn-sm delete-btn" data-id="${escapeHtml(id)}">
                             🗑️ 删除
                         </button>
@@ -547,99 +545,124 @@
                 container.appendChild(div);
             }
             
-            // 绑定事件
-            document.querySelectorAll('.switch-btn').forEach(btn => {
-                btn.onclick = async () => {
-                    const id = btn.dataset.id;
-                    const token = btn.dataset.token;
-                    if (!token) {
-                        alert(`账号 ${id} 没有 Token，请先通过密码登录获取`);
-                        return;
-                    }
-                    if (typeof window.switchCCWAccount === 'function') {
-                        await window.switchCCWAccount(id, token);
-                        alert(`✅ 已切换至 ${id}\n请在 CCW 页面刷新查看效果`);
-                    } else {
-                        alert('切换功能不可用，请确保脚本已更新');
-                    }
-                };
-            });
-            
             document.querySelectorAll('.delete-btn').forEach(btn => {
                 btn.onclick = async () => {
                     const id = btn.dataset.id;
                     if (!confirm(`确定删除账号 ${id}？`)) return;
-                    const accounts = await window.GM_getValue('accounts', {});
+                    const accounts = await accountManager.GM_getValue('accounts', {});
                     delete accounts[id];
-                    await window.GM_setValue('accounts', accounts);
+                    await accountManager.GM_setValue('accounts', accounts);
                     loadAccounts();
                 };
             });
         }
 
-        // ========== Token 方式添加 ==========
-        async function addByToken(studentId, name, token) {
-            const accounts = await window.GM_getValue('accounts', {});
-            accounts[studentId] = { name, token };
-            await window.GM_setValue('accounts', accounts);
-            loadAccounts();
-            return true;
+        function addByToken(token) {
+            const statusDiv = document.getElementById('token-status');
+            statusDiv.innerHTML = '<span class="loading"></span> 正在获取账号信息...';
+            statusDiv.style.color = '#667eea';
+            
+            return new Promise((resolve) => {
+                accountManager.GM_xmlhttpRequest({
+                    url: 'https://community-web.ccw.site/students/self/detail',
+                    method: 'post',
+                    data: '{}',
+                    anonymous: true,
+                    headers: {
+                        cookie: 'token=' + token,
+                        'content-type': 'application/json',
+                    },
+                    onload: xhr => {
+                        try {
+                            const body = JSON.parse(xhr.response).body;
+                            if (!body) {
+                                statusDiv.innerHTML = '❌ token 无效';
+                                statusDiv.style.color = '#dc3545';
+                                resolve(false);
+                                return;
+                            }
+                            
+                            const accounts = accountManager.GM_getValue('accounts', {});
+                            accounts[body.studentNumber] = { 
+                                name: body.name, 
+                                token: token 
+                            };
+                            accountManager.GM_setValue('accounts', accounts);
+                            loadAccounts();
+                            statusDiv.innerHTML = '✅ 添加成功';
+                            statusDiv.style.color = '#28a745';
+                            setTimeout(() => statusDiv.innerHTML = '', 2000);
+                            resolve(true);
+                        } catch (err) {
+                            statusDiv.innerHTML = '❌ 解析失败: ' + err.message;
+                            statusDiv.style.color = '#dc3545';
+                            resolve(false);
+                        }
+                    },
+                    onerror: () => {
+                        statusDiv.innerHTML = '❌ 网络请求失败';
+                        statusDiv.style.color = '#dc3545';
+                        resolve(false);
+                    }
+                });
+            });
         }
 
-        // ========== 密码方式添加（通过登录获取 Token）==========
-        async function addByPassword(studentId, name, password) {
+        async function addByPassword(studentNumber, password) {
             const statusDiv = document.getElementById('pwd-status');
-            statusDiv.innerHTML = '<span class="loading"></span> 正在登录，获取 Token...';
             statusDiv.style.color = '#667eea';
             
             try {
-                // 第一步：登录获取 session
+                statusDiv.innerHTML = '<span class="loading"></span> 正在获取用户信息';
+                const profileRes = await fetch("https://community-web.ccw.site/students/profile", {
+                    method: "post",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ studentNumber })
+                });
+                const profileData = await profileRes.json();                
+                if (!profileData.body) {
+                    statusDiv.innerHTML = '❌ 用户不存在';
+                    statusDiv.style.color = '#dc3545';
+                    return false;
+                }
+                statusDiv.innerHTML = '<span class="loading"></span> 正在验证密码...';
                 const loginRes = await fetch("https://sso.ccw.site/web/auth/login-by-password", {
                     method: 'POST',
                     credentials: 'include',
                     body: JSON.stringify({
-                        loginKey: studentId,
+                        loginKey: studentNumber,
                         password: password,
                         clientCode: "STUDY_COMMUNITY",
                         extra: JSON.stringify({
-                            device: "账号管理器创建",
-                            browser: "账号管理器创建"
+                            device: accountManager.GM_getValue('device', '账号管理器创建'),
+                            browser: accountManager.GM_getValue('browser', '账号管理器创建')
                         })
                     }),
                     headers: { 'Content-Type': 'application/json' }
-                });
-                
+                });                
                 const loginData = await loginRes.json();
                 if (!loginData.body) {
-                    statusDiv.innerHTML = `❌ 登录失败: ${loginData.msg || '未知错误'}`;
+                    statusDiv.innerHTML = `❌ ${loginData.msg}`;
                     statusDiv.style.color = '#dc3545';
                     return false;
                 }
                 
-                statusDiv.innerHTML = '<span class="loading"></span> 登录成功，正在获取 Token...';
+                const userName = profileData.body.name;
+                const accounts = await accountManager.GM_getValue('accounts', {});
+                accounts[studentNumber] = { 
+                    name: userName, 
+                    pwd: password
+                };
+                accountManager.GM_setValue('accounts', accounts);
                 
-                // 第二步：获取用户信息（此时 Cookie 已包含 HttpOnly Token）
-                const profileRes = await fetch("https://community-web.ccw.site/students/self/detail", {
-                    credentials: 'include'
-                });
-                const profileData = await profileRes.json();
-                
-                if (!profileData.body) {
-                    statusDiv.innerHTML = '❌ 获取用户信息失败';
-                    statusDiv.style.color = '#dc3545';
-                    return false;
-                }
-                
-                // 注意：由于 HttpOnly 限制，无法直接读取 token 值
-                // 但浏览器已经保存了 token Cookie
-                // 我们只能提示用户手动复制，或者信任 Cookie 已设置
-                statusDiv.innerHTML = '✅ 登录成功！Token 已由浏览器保存。<br>⚠️ 由于安全限制，无法自动读取 Token，请手动从 DevTools 复制后使用 Token 方式添加。';
+                statusDiv.innerHTML = `✅ 已添加 ${userName}`;
                 statusDiv.style.color = '#28a745';
                 
-                // 可选：尝试通过 document.cookie 获取（但 HttpOnly 不可见）
-                alert(`登录成功！\n\n但由于 HttpOnly 安全机制，无法自动获取 Token 值。\n请打开 DevTools → Application → Cookies → .ccw.site，复制 token 值后使用「Token 添加」方式保存。`);
-                
-                return false;
+                document.getElementById('pwd-student-id').value = '';
+                document.getElementById('pwd-value').value = '';
+                loadAccounts();
+                setTimeout(() => statusDiv.innerHTML === `✅ 已添加 ${userName}` && (statusDiv.innerHTML = ''), 3000);
+                return true;
             } catch (err) {
                 statusDiv.innerHTML = `❌ 请求失败: ${err.message}`;
                 statusDiv.style.color = '#dc3545';
@@ -647,12 +670,10 @@
             }
         }
 
-        // ========== 导出配置 ==========
+
         async function exportConfig() {
-            const accounts = await window.GM_getValue('accounts', {});
-            const dataStr = JSON.stringify(accounts, null, 2);
-            const blob = new Blob([dataStr], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
+            const accounts = await accountManager.GM_getValue('accounts', {});
+            const url = 'data:application/data:application/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(accounts, null, 2));
             const a = document.createElement('a');
             a.href = url;
             a.download = `ccw-accounts-${Date.now()}.json`;
@@ -660,7 +681,7 @@
             URL.revokeObjectURL(url);
         }
 
-        // ========== 导入配置 ==========
+
         function importConfig() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -671,7 +692,7 @@
                 const text = await file.text();
                 try {
                     const accounts = JSON.parse(text);
-                    await window.GM_setValue('accounts', accounts);
+                    await accountManager.GM_setValue('accounts', accounts);
                     alert('导入成功');
                     loadAccounts();
                 } catch(err) {
@@ -681,7 +702,7 @@
             input.click();
         }
 
-        // ========== 工具函数 ==========
+
         function escapeHtml(str) {
             if (!str) return '';
             return str.replace(/[&<>]/g, function(m) {
@@ -692,67 +713,64 @@
             });
         }
 
-        // ========== Tab 切换 ==========
+
         function initTabs() {
             const tabs = document.querySelectorAll('.tab');
             tabs.forEach(tab => {
                 tab.onclick = () => {
                     const tabId = tab.dataset.tab;
                     tabs.forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    
-                    document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+                    tab.classList.add('active');                    
+                    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
                     document.getElementById(`tab-${tabId}`).classList.add('active');
                 };
             });
         }
 
-        // ========== 初始化 ==========
+        async function saveDeviceSettings(deviceName, browserName) {
+            accountManager.GM_setValue('device', deviceName);
+            accountManager.GM_setValue('browser', browserName);
+            const statusDiv = document.getElementById('device-status');
+            statusDiv.innerHTML = '✅ 设置已保存';
+            statusDiv.style.color = '#28a745';
+            setTimeout(() => statusDiv.innerHTML = '', 2000);
+        }
+        
         async function init() {
             const apiOk = await checkAPI();
             if (!apiOk) return;
             
-            // 初始化界面
             initTabs();
             await loadAccounts();
             
-            // 绑定事件
             document.getElementById('refresh-btn').onclick = loadAccounts;
             document.getElementById('export-btn').onclick = exportConfig;
             document.getElementById('import-btn').onclick = importConfig;
             
-            // Token 添加表单
             document.getElementById('add-form-token').onsubmit = async (e) => {
                 e.preventDefault();
-                const studentId = document.getElementById('token-student-id').value.trim();
-                const name = document.getElementById('token-name').value.trim();
                 const token = document.getElementById('token-value').value.trim();
-                
-                if (!studentId || !name || !token) {
-                    alert('请填写完整信息');
-                    return;
-                }
-                
-                await addByToken(studentId, name, token);
-                document.getElementById('add-form-token').reset();
-                alert('✅ 账号已添加');
+                if (!token) return alert('请填写 token');                
+                await addByToken(token);
             };
             
-            // 密码添加表单
             document.getElementById('add-form-password').onsubmit = async (e) => {
                 e.preventDefault();
                 const studentId = document.getElementById('pwd-student-id').value.trim();
-                const name = document.getElementById('pwd-name').value.trim();
                 const password = document.getElementById('pwd-value').value;
-                
-                if (!studentId || !name || !password) {
-                    alert('请填写完整信息');
-                    return;
-                }
-                
-                await addByPassword(studentId, name, password);
-                // 不清空表单，让用户知道结果
+                if (!studentId || !password) return alert('请填写 CCW ID 和密码');                
+                await addByPassword(studentId, password);
             };
+
+            document.getElementById('device-settings-form').onsubmit = (e) => {
+                e.preventDefault();
+                const deviceName = document.getElementById('device-name').value.trim() || '账号管理器创建';
+                const browserName = document.getElementById('browser-name').value.trim() || '账号管理器创建';
+                saveDeviceSettings(deviceName, browserName);
+            };
+
+            document.getElementById('device-name').value = accountManager.GM_getValue('device', '账号管理器创建');
+            document.getElementById('browser-name').value = accountManager.GM_getValue('browser', '账号管理器创建');
         }
         
         init();
