@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>账号管理器 设置</title>
+    <title>账号管理器设置</title>
     <style>
         * {
             margin: 0;
@@ -41,11 +41,6 @@
             gap: 12px;
         }
 
-        .header h1::before {
-            content: "⚙";
-            font-size: 2rem;
-        }
-
         .badge {
             display: inline-block;
             background: rgba(255,255,255,0.2);
@@ -64,7 +59,7 @@
             padding: 16px 20px;
             border-radius: 16px;
             margin-bottom: 24px;
-            display: none;
+            display: flex;
             align-items: center;
             gap: 12px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
@@ -73,7 +68,6 @@
         }
 
         .api-warning.show {
-            display: flex;
             opacity: 1;
         }
 
@@ -399,7 +393,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>账号管理器 设置</h1>
+            <h1>账号管理器设置</h1>
         </div>
 
         <!-- API 检测警告 -->
@@ -430,7 +424,7 @@
                 </div>
                 <div id="accounts-list" class="accounts-list">
                     <div class="empty-state">
-                        <div>暂无账号，请添加</div>
+                        <div>暂无账号</div>
                     </div>
                 </div>
             </div>
@@ -465,6 +459,14 @@
                         <button type="submit" class="btn btn-primary">➕ 添加账号</button>
                         <div id="token-status" style="margin-top: 12px; font-size: 0.8rem; color: #888;"></div>
                     </form>
+                    <div id="token-permission-warning" class="api-warning" style="display: none; margin-bottom: 16px;">
+                        <div class="icon">⚠️</div>
+                        <div class="content">
+                            <div class="title">HttpOnly Cookie 权限未开启</div>
+                            <div class="desc">Token 添加功能需要此权限才能工作。</div>
+                        </div>
+                        <button id="fix-permission-btn">🔧 查看解决方法</button>
+                    </div>
                 </div>
             </div>
 
@@ -513,8 +515,7 @@
             if (accountEntries.length === 0) {
                 container.innerHTML = `
                     <div class="empty-state">
-                        <div class="icon">📭</div>
-                        <div>暂无账号，请添加</div>
+                        <div>暂无账号</div>
                     </div>
                 `;
                 return;
@@ -736,7 +737,7 @@
             setTimeout(() => statusDiv.innerHTML = '', 2000);
         }
         
-        async function init() {
+        (async () => {
             const apiOk = await checkAPI();
             if (!apiOk) return;
             
@@ -771,9 +772,27 @@
 
             document.getElementById('device-name').value = accountManager.GM_getValue('device', '账号管理器创建');
             document.getElementById('browser-name').value = accountManager.GM_getValue('browser', '账号管理器创建');
-        }
-        
-        init();
+            
+            accountManager.GM_cookie_set({
+                url: location.href,
+                name: 'test',
+                value: 'v',
+                httpOnly: true,
+            }, result => {
+                const warningDiv = document.getElementById('token-permission-warning');
+                if (warningDiv) {
+                    if (result?.message?.includes('HTTP-only')) {
+                        warningDiv.classList.add('show');
+                        const fixBtn = document.getElementById('fix-permission-btn');
+                        if (fixBtn) {
+                            fixBtn.onclick = () => {
+                                alert('请按以下步骤操作：\n\n1. 点击浏览器工具栏的暴力猴图标\n2. 找到「账号管理器」脚本，点击「设置」\n3. 勾选「允许访问 HttpOnly Cookie」\n4. 保存并刷新本页面');
+                            };
+                        }
+                    }
+                }
+            });
+        })();
     </script>
 </body>
 </html>

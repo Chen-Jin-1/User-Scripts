@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              封禁用户主页查看器
 // @namespace         cj-home-viewer
-// @version           0
+// @version           1.0.0
 // @description       查看被封禁用户的主页
 // @match             https://www.ccw.site/student/*
 // @grant             none
@@ -12,87 +12,92 @@
 // @downloadURL       https://us.chen-jin.dpdns.org/homeViewer.user.js
 // ==/UserScript==
 
-let oid, user, uid;
-
-async function getOid(body) {
-    const j = JSON.parse(body);
-    if (j.studentNumber) oid = (await (await fetch("https://community-web.ccw.site/students/profile", {
-        method: 'post',
-        body,
-        headers: {'content-type': 'application/json'},
-    })).json()).body.studentOid;
-    else oid = j.studentOid;
-    user = (await (await fetch("https://community-web.ccw.site/user-card/detail", {
-        method: 'post',
-        body: JSON.stringify({oid}),
-        headers: {'content-type': 'application/json'},
-    })).json()).body.user;
-};
+let oid, uid, userInfo, lockInfo;
 const _open = XMLHttpRequest.prototype.open;
+const pm = new Promise(r => {
+    const id = location.pathname.split("/").at(-1);
+    fetch("https://community-web.ccw.site/students/profile", {
+        method: 'post',
+        body: JSON.stringify({ [id.length < 15 ? "studentNumber" : "studentOid"]: id }),
+        headers: { 'content-type': 'application/json' },
+    })
+        .then(r => r.json())
+        .then(({body}) => {
+            if (body.name) return r((XMLHttpRequest.prototype.open = _open, 0));
+            uid = body.studentNumber;
+            oid = body.studentOid;
+            fetch("https://community-web.ccw.site/user-card/detail", {
+                method: 'post',
+                body: JSON.stringify({ oid }),
+                headers: { 'content-type': 'application/json' },
+            })
+                .then(r => r.json())
+                .then(({body}) => r((userInfo = body.user, 1)));
+        });
+});
+
 XMLHttpRequest.prototype.open = function(m, u, a) {
     if (u === "https://community-web.ccw.site/locked_user/detail") {
         Object.defineProperty(this, "responseText", {
             get: () => '{"body":{"locked":false},"code":"200","msg":null,"status":200}'
         });
-        this.onload = () => {
-            if (JSON.parse(this.response).locked === false) XMLHttpRequest.prototype.open = _open;
-        };
+        this.onload = () => lockInfo = JSON.parse(this.response).body;
     } else if (u === "https://community-web.ccw.site/students/profile") {
-        console.warn(this);
-        const _send = this.send;
-        this.send = body => {
-            if (!oid) return getOid(body).then(() => _send.call(this, body));
+        const _send = XMLHttpRequest.prototype.send.bind(this);
+        this.send = async body => {
+            if (await pm === false) return _send(body);
+            Object.defineProperty(this, "responseText", {
+                get: () => JSON.stringify({
+                    body: {
+                        birthday: 0,
+                        commentCount: 0,
+                        extraInfo: {
+                            hobbies: "-",
+                            learnedProgrammingLanguages: "",
+                            programmingCapability: "true",
+                            selfIntroduction: `<font color="white">该用户已被封禁</font>
+封禁时间：${new Date(lockInfo.createdAt).toLocaleString()}
+解封时间：${new Date(lockInfo.unlocksAt).toLocaleString()}
+更新时间：${new Date(lockInfo.updatedAt).toLocaleString()}`
+                        },
+                        hideGender: true,
+                        lastLoginAt: 0,
+                        memberArchive: { homepageCover: "https://m.ccw.site/post/692538ef86bbc77f84e3b259/d3783aed-f8f2-498e-abb3-3c02811b2166.png" },
+                        regChannel: "1",
+                        reputationScore: {
+                            rank: "EXCELLENT",
+                            score: 100,
+                            studentOid: oid
+                        },
+                        studentCreatedDays: 0,
+                        studentNumber: uid,
+                        studentOid: oid,
+                        ...userInfo
+                    },
+                    code: "200",
+                    msg: null,
+                    status: 200
+                })
+            });
+            _send(body);
+        }
+    } else if (u === "https://community-web.ccw.site/creation/student/detail") {
+        const _send = XMLHttpRequest.prototype.send.bind(this);
+        this.send = async body => {
+            if (await pm === false) return _send(body);
             Object.defineProperty(this, "responseText", {
                 get: () => JSON.stringify({
                     "body": {
-                        "approvedContent": null,
-                        "approvedType": null,
-                        "avatar": user.avatar,
-                        "bio": user.bio,
-                        "birthday": 0,
-                        "category": "ordinary",
-                        "commentCount": -1,
-                        "extraInfo": {
-                            "hobbies": "已封禁",
-                            "learnedProgrammingLanguages": "",
-                            "programmingCapability": "true",
-                            "selfIntroduction": "该用户已被封禁"
-                        },
-                        "gender": "MALE",
-                        "hideGender": false,
-                        "identityAuthRank": "L2",
-                        "lastLoginAt": 1778414924588,
-                        "memberArchive": {
-                            "accountOid": null,
-                            "defaultEditor": null,
-                            "greatCreationOid": null,
-                            "homepageCover": "https://m.ccw.site/post/692538ef86bbc77f84e3b259/d3783aed-f8f2-498e-abb3-3c02811b2166.png?x=0&y=0"
-                        },
-                        "name": user.name,
-                        "picUrl": null,
-                        "regChannel": "1",
-                        "reputationScore": {
-                            "rank": "EXCELLENT",
-                            "score": 100,
-                            "studentOid": oid
-                        },
-                        "statistics": {
-                            "badgesCount": null,
-                            "homeworkCount": 173,
-                            "likeHomeworkCount": 177
-                        },
-                        "studentCreatedDays": 166,
-                        "studentNumber": "278018102",
-                        "studentOid": oid,
-                        "virtualValue": null
+                        studentOid: oid,
+                        ...userInfo,
                     },
                     "code": "200",
                     "msg": null,
                     "status": 200
                 })
             });
-            _send.call(this, body);
+            _send(body);
         }
     }
-    return _open.call(this, m, u, a);
+    _open.call(this, m, u, a);
 }

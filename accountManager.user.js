@@ -1,12 +1,11 @@
 // ==UserScript==
 // @name              账号管理器
 // @namespace         cj-auto-check-in
-// @version           1.2.0
+// @version           1.2.1
 // @description       快捷切换 CCW 账号
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
 // @match             https://us.chen-jin.dpdns.org/settings/accountManager
-// @match             file://*/*accountManager*
 // @icon              https://www.chen-jin.dpdns.org/Chen-Jin-circle.png
 // @updateURL         https://us.chen-jin.dpdns.org/accountManager.user.js?
 // @downloadURL       https://us.chen-jin.dpdns.org/accountManager.user.js?
@@ -20,18 +19,8 @@
 // @run-at            document-start
 // ==/UserScript==
 
-if (location.hostname === 'us.chen-jin.dpdns.org' || location.protocol === "file:")
-    return unsafeWindow.accountManager = {
-        GM_getValue,
-        GM_setValue,
-        GM_xmlhttpRequest
-    };
-
-
-let accounts = GM_getValue("accounts", {}),
-    menuId = {},
-    currentId;
-
+if (location.hostname === 'us.chen-jin.dpdns.org') return unsafeWindow.accountManager = { GM_getValue, GM_setValue, GM_xmlhttpRequest, GM_cookie };
+let accounts = GM_getValue("accounts", {}), menuId = {}, currentId;
 const login = (loginKey, password, noCookies = 0) => {
     if (!noCookies) document.cookie = "cookie-user-id=0;path=/;domain=.ccw.site";
     return fetch("https://sso.ccw.site/web/auth/login-by-password", {
@@ -49,8 +38,7 @@ const login = (loginKey, password, noCookies = 0) => {
         headers: {'content-type': 'application/json'},
     });
 }
-
-const loginByToken = (token) => {
+const loginByToken = token => {
     return new Promise((resolve) => {
         GM_cookie.set({
             url: 'https://www.ccw.site',
@@ -62,65 +50,44 @@ const loginByToken = (token) => {
         }, () => resolve(true));
     });
 }
-
 const r = id => {
-    const account = accounts[id];
+    if (menuId[id]) GM_unregisterMenuCommand(menuId[id]);
+    const account = accounts[id], text = `${currentId === id ? "[当前] " : ""}${account.name} (${id})`;
     if (account.token) {
-        menuId[id] = GM_registerMenuCommand(`${account.name} (${id})`, () => {
-            loginByToken(account.token).then(() => location.reload());
-        });
+        menuId[id] = GM_registerMenuCommand(text, () => loginByToken(account.token).then(() => location.reload()));
     } else if (account.pwd) {
-        menuId[id] = GM_registerMenuCommand(`${account.name} (${id})`, () => {
-            login(id, account.pwd).then(() => location.reload());
-        });
+        menuId[id] = GM_registerMenuCommand(text, () => login(id, account.pwd).then(() => location.reload()));
     }
 }
-
 function refreshMenu() {
-    for (const id in menuId) {
-        GM_unregisterMenuCommand(menuId[id]);
-    }
+    for (const id in menuId) GM_unregisterMenuCommand(menuId[id]);
     menuId = {};
     accounts = GM_getValue("accounts", {});
     for (const id in accounts) r(id);
-    if (currentId && accounts[currentId]) {
-        menuId[currentId] = GM_registerMenuCommand(`[当前] ${accounts[currentId].name} (${currentId})`, () => {});
-    }
+    if (currentId && accounts[currentId]) r(currentId);
+    menuId.s = GM_registerMenuCommand("⚙️ 打开设置", () => open("https://us.chen-jin.dpdns.org/settings/accountManager", "_blank"));
+    menuId.r = GM_registerMenuCommand("🔄 刷新菜单", refreshMenu);
 }
 
-for (const id in accounts) r(id);
-
+refreshMenu();
 if (document.cookie.includes("cookie-user-id")) {
-    const sc = json => {
-        currentId = json.studentNumber;
-        if (menuId[currentId]) {
-            GM_unregisterMenuCommand(menuId[currentId]);
-        }
-        if (accounts.hasOwnProperty(currentId)) {
-            menuId[currentId] = GM_registerMenuCommand(`[当前] ${json.name} (${currentId})`, () => {});
-            if (accounts[currentId].name !== json.name) {
-                accounts[currentId].name = json.name;
-                GM_setValue("accounts", accounts);
-            }
-        }
-    }
     let _open = XMLHttpRequest.prototype.open;
     XMLHttpRequest.prototype.open = function(m, u, a) {
-        try {
-            if (u === "https://community-web.ccw.site/students/self/detail") {
-                this.addEventListener("load", () => {
-                    XMLHttpRequest.prototype.open = _open;
-                    let json = JSON.parse(this.response).body;
-                    json && sc(json);
-                });
-            }
-            return _open.call(this, m, u, a);
-        } catch(e) {
-            console.error(e, this);
-        }
+        if (u === "https://community-web.ccw.site/students/self/detail") this.addEventListener("load", () => {
+            XMLHttpRequest.prototype.open = _open;
+            let json = JSON.parse(this.response).body;
+            if (json) {
+                currentId = json.studentNumber;
+                if (menuId[currentId]) GM_unregisterMenuCommand(menuId[currentId]);
+                if (accounts.hasOwnProperty(currentId)) {
+                    r(currentId);
+                    if (accounts[currentId].name !== json.name) {
+                        accounts[currentId].name = json.name;
+                        GM_setValue("accounts", accounts);
+                    }
+                }
+            };
+        });
+        return _open.call(this, m, u, a);
     }
 }
-
-
-GM_registerMenuCommand("⚙️ 打开设置", () => open("https://us.chen-jin.dpdns.org/settings/accountManager", "_blank"));
-GM_registerMenuCommand("🔄 刷新菜单", refreshMenu);
