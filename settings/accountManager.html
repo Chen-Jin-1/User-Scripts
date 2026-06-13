@@ -773,7 +773,7 @@
             document.getElementById('device-name').value = accountManager.GM_getValue('device', '账号管理器创建');
             document.getElementById('browser-name').value = accountManager.GM_getValue('browser', '账号管理器创建');
             
-            accountManager.GM_cookie_set({
+            accountManager.GM_cookie.set({
                 url: location.href,
                 name: 'test',
                 value: 'v',
