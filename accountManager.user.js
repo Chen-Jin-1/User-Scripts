@@ -39,6 +39,7 @@ const login = (loginKey, password, noCookies = 0) => {
     });
 }
 const loginByToken = token => {
+    document.cookie = "cookie-user-id=0;path=/;domain=.ccw.site";
     return new Promise((resolve) => {
         GM_cookie.set({
             url: 'https://www.ccw.site',

@@ -13,6 +13,6 @@
 // ==/UserScript==
 
 GM_registerMenuCommand("恢复登录", () => {
-    document.cookie = "cookie-user-id=0;path=/";
+    document.cookie = "cookie-user-id=0;path=/;domain=.ccw.site";
     location.reload();
 });
