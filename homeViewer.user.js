@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name              封禁用户主页查看器
+// @name              主页查看器
 // @namespace         cj-home-viewer
-// @version           1.0.0
-// @description       查看被封禁用户的主页
+// @version           1.0.1
+// @description       查看封禁、注销用户的主页
 // @match             https://www.ccw.site/student/*
 // @grant             none
 // @run-at            document-start
@@ -12,40 +12,64 @@
 // @downloadURL       https://us.chen-jin.dpdns.org/homeViewer.user.js
 // ==/UserScript==
 
-let oid, uid, userInfo, lockInfo;
-const _open = XMLHttpRequest.prototype.open;
-const pm = new Promise(r => {
-    const id = location.pathname.split("/").at(-1);
-    fetch("https://community-web.ccw.site/students/profile", {
-        method: 'post',
-        body: JSON.stringify({ [id.length < 15 ? "studentNumber" : "studentOid"]: id }),
-        headers: { 'content-type': 'application/json' },
-    })
-        .then(r => r.json())
-        .then(({body}) => {
-            if (body.name) return r((XMLHttpRequest.prototype.open = _open, 0));
-            uid = body.studentNumber;
-            oid = body.studentOid;
-            fetch("https://community-web.ccw.site/user-card/detail", {
-                method: 'post',
-                body: JSON.stringify({ oid }),
-                headers: { 'content-type': 'application/json' },
-            })
-                .then(r => r.json())
-                .then(({body}) => r((userInfo = body.user, 1)));
-        });
-});
+let oid, uid, userInfo, lockInfo, lockpmr;
+const lockpm = new Promise(r => lockpmr = r),
+    _open = XMLHttpRequest.prototype.open,
+    pm = new Promise(r => {
+        const id = location.pathname.split("/")[2];
+        fetch("https://community-web.ccw.site/students/profile", {
+            method: 'post',
+            body: JSON.stringify({ [id.length < 15 ? "studentNumber" : "studentOid"]: id }),
+            headers: { 'content-type': 'application/json' },
+        })
+            .then(r => r.json())
+            .then(({ body }) => {
+                ({ studentNumber: uid, studentOid: oid } = body);
+                if (body.category === "logoff") return r(2);
+                else if (body.name) return r((XMLHttpRequest.prototype.open = _open, 0));
+                fetch("https://community-web.ccw.site/user-card/detail", {
+                    method: 'post',
+                    body: JSON.stringify({ oid }),
+                    headers: { 'content-type': 'application/json' },
+                })
+                    .then(r => r.json())
+                    .then(({ body }) => r((userInfo = body.user, 1)));
+            });
+    });
 
-XMLHttpRequest.prototype.open = function(m, u, a) {
+XMLHttpRequest.prototype.open = function (m, u, a) {
     if (u === "https://community-web.ccw.site/locked_user/detail") {
         Object.defineProperty(this, "responseText", {
             get: () => '{"body":{"locked":false},"code":"200","msg":null,"status":200}'
         });
-        this.onload = () => lockInfo = JSON.parse(this.response).body;
+        this.onload = () => lockpmr(lockInfo = JSON.parse(this.response).body, lockpm.d = 1);
     } else if (u === "https://community-web.ccw.site/students/profile") {
         const _send = XMLHttpRequest.prototype.send.bind(this);
         this.send = async body => {
-            if (await pm === false) return _send(body);
+            if (await pm === 0) return _send(body);
+            if (!lockInfo) await fetch("https://community-web.ccw.site/locked_user/detail", {
+                method: 'post',
+                body: JSON.stringify({ accountOid: oid }),
+                headers: { 'content-type': 'application/json' },
+            })
+                .then(r => r.json())
+                .then(({ body }) => lockInfo = body);
+            if (await pm === 2) {
+                const _ = this.onreadystatechange;
+                this.send = null;
+                this.onload = () => {
+                    Object.defineProperty(this, "responseText", {
+                        get() {
+                            const r = JSON.parse(this.response);
+                            r.body.category = "ordinary";
+                            return JSON.stringify(r);
+                        }
+                    });
+                    _();
+                };
+                console.error(this);
+                return _send(body);
+            }
             Object.defineProperty(this, "responseText", {
                 get: () => JSON.stringify({
                     body: {
@@ -69,7 +93,7 @@ XMLHttpRequest.prototype.open = function(m, u, a) {
                             score: 100,
                             studentOid: oid
                         },
-                        studentCreatedDays: 0,
+                        studentCreatedDays: `解封还剩 ${Math.ceil((lockInfo.unlocksAt - Date.now()) / 86400000)} `,
                         studentNumber: uid,
                         studentOid: oid,
                         ...userInfo
@@ -87,13 +111,13 @@ XMLHttpRequest.prototype.open = function(m, u, a) {
             if (await pm === false) return _send(body);
             Object.defineProperty(this, "responseText", {
                 get: () => JSON.stringify({
-                    "body": {
+                    body: {
                         studentOid: oid,
                         ...userInfo,
                     },
-                    "code": "200",
-                    "msg": null,
-                    "status": 200
+                    code: "200",
+                    msg: null,
+                    status: 200
                 })
             });
             _send(body);

@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                恢复登录
 // @namespace           cj-login-again
-// @version             1.0.1
+// @version             1.0.2
 // @description         掉登后点击按钮即可自动登录
 // @author              Chen-Jin
 // @match               https://*.ccw.site/*

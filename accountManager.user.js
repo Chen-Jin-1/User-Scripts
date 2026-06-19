@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              账号管理器
 // @namespace         cj-auto-check-in
-// @version           1.2.2
+// @version           1.2.3
 // @description       快捷切换 CCW 账号
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
@@ -74,6 +74,13 @@ function refreshMenu() {
     if (currentId && accounts[currentId]) r(currentId);
     menuId.s = GM_registerMenuCommand("⚙️ 打开设置", () => open("https://us.chen-jin.dpdns.org/settings/accountManager", "_blank"));
     menuId.r = GM_registerMenuCommand("🔄 刷新菜单", refreshMenu);
+    GM_cookie.list({
+        url: 'https://www.ccw.site',
+        name: 'token',
+    }, x => x.length === 1 && (menuId.rr = GM_registerMenuCommand("👤 恢复登录", () => location.reload(document.cookie = "cookie-user-id=0;path=/;domain=.ccw.site"))));
+    menuId.e = GM_registerMenuCommand("⏏️ 临时退出", () => loginByToken('').then(r => r
+        ? location.reload()
+        : confirm("Http Only Cookie 读写未授权，是否查看教程？") && open("https://d.chen-jin.dpdns.org/enableHttpOnly")));
 }
 
 refreshMenu();
