@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              主页查看器
 // @namespace         cj-home-viewer
-// @version           1.0.1
+// @version           1.0.2
 // @description       查看封禁、注销用户的主页
 // @match             https://www.ccw.site/student/*
 // @grant             none
@@ -47,16 +47,9 @@ XMLHttpRequest.prototype.open = function (m, u, a) {
         const _send = XMLHttpRequest.prototype.send.bind(this);
         this.send = async body => {
             if (await pm === 0) return _send(body);
-            if (!lockInfo) await fetch("https://community-web.ccw.site/locked_user/detail", {
-                method: 'post',
-                body: JSON.stringify({ accountOid: oid }),
-                headers: { 'content-type': 'application/json' },
-            })
-                .then(r => r.json())
-                .then(({ body }) => lockInfo = body);
-            if (await pm === 2) {
+            else if (await pm === 2) {
                 const _ = this.onreadystatechange;
-                this.send = null;
+                this.onreadystatechange = null;
                 this.onload = () => {
                     Object.defineProperty(this, "responseText", {
                         get() {
@@ -70,6 +63,13 @@ XMLHttpRequest.prototype.open = function (m, u, a) {
                 console.error(this);
                 return _send(body);
             }
+            if (!lockInfo) await fetch("https://community-web.ccw.site/locked_user/detail", {
+                method: 'post',
+                body: JSON.stringify({ accountOid: oid }),
+                headers: { 'content-type': 'application/json' },
+            })
+                .then(r => r.json())
+                .then(({ body }) => lockInfo = body);
             Object.defineProperty(this, "responseText", {
                 get: () => JSON.stringify({
                     body: {
@@ -108,7 +108,23 @@ XMLHttpRequest.prototype.open = function (m, u, a) {
     } else if (u === "https://community-web.ccw.site/creation/student/detail") {
         const _send = XMLHttpRequest.prototype.send.bind(this);
         this.send = async body => {
-            if (await pm === false) return _send(body);
+            if (await pm === 0) return _send(body);
+            else if (await pm === 2) {
+                const _ = this.onreadystatechange;
+                this.onreadystatechange = null;
+                this.onload = () => {
+                    Object.defineProperty(this, "responseText", {
+                        get() {
+                            const r = JSON.parse(this.response);
+                            r.body.isSelf = true;
+                            return JSON.stringify(r);
+                        }
+                    });
+                    _();
+                };
+                console.error(this);
+                return _send(body);
+            }
             Object.defineProperty(this, "responseText", {
                 get: () => JSON.stringify({
                     body: {
