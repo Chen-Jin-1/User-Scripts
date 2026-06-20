@@ -407,17 +407,6 @@
             border: 1px dashed var(--border-color);
         }
 
-        /* ===== Footer ===== */
-        .footer-note {
-            margin-top: 3.5rem;
-            text-align: center;
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            border-top: 1px solid var(--border-color);
-            padding-top: 2rem;
-            opacity: 0.7;
-        }
-
         /* ===== Toast ===== */
         .toast-message {
             position: fixed;
@@ -479,7 +468,7 @@
 <div class="container">
     <!-- 页眉 -->
     <div class="header fade-in">
-        <h1><i class="fas fa-code"></i> Chen-Jin's User-Script</h1>
+        <h1><i class="fas fa-code"></i> Chen-Jin 的脚本库</h1>
         <div class="header-actions">
             <span class="badge"><i class="fas fa-archive"></i> <span id="scriptCount">0</span> 个脚本</span>
         </div>
@@ -500,10 +489,6 @@
     <div id="emptyState" class="empty-state" style="display: none;">
         <i class="fas fa-box-open" style="font-size: 2.5rem; opacity: 0.4; margin-bottom: 0.8rem; display: block;"></i>
         没有找到匹配的脚本
-    </div>
-
-    <div class="footer-note">
-        <i class="fas fa-mouse-pointer"></i> 点击「安装」打开脚本 · 点击「复制URL」复制链接
     </div>
 </div>
 
@@ -565,6 +550,12 @@
                 url: "commentId.user.js",
                 author: "Chen-Jin",
             },
+            {
+                name: "CSS 合集",
+                desc: "CSS 注入脚本集合",
+                url: "CSSAll.user.js",
+                author: "Chen-Jin",
+            },
             { 
                 name: "函数备份", 
                 desc: "在任何网站上保留原先函数或对象", 
@@ -613,6 +604,7 @@
                 desc: "隐藏 Gandi 和 TurboWarp 中不支持 WebGL 警告", 
                 url: "hideWarn.user.js",
                 author: "Chen-Jin",
+                mergedTo: "CSS 合集",
             },
             { 
                 name: "主页查看器", 
@@ -661,13 +653,15 @@
                 name: "显示暂停",
                 desc: "使费米隐藏暂停失效",
                 url: "showPause.user.js",
-                author: "Chen-Jin"
+                author: "Chen-Jin",
+                mergedTo: "CSS 合集",
             },
             {
                 name: "智能个签",
                 desc: "防止个签过长",
                 url: "smartBio.user.js",
-                author: "Chen-Jin"
+                author: "Chen-Jin",
+                mergedTo: "CSS 合集",
             },
             {
                 name: "计时器报废器",
