@@ -721,6 +721,7 @@
 
 
         function initTabs() {
+            if (!accountManager.GM_cookie) document.querySelector('[data-tab="token"]').remove();
             const tabs = document.querySelectorAll('.tab');
             tabs.forEach(tab => {
                 tab.onclick = () => {
@@ -745,7 +746,7 @@
         (async () => {
             const apiOk = await checkAPI();
             if (!apiOk) return;
-            
+
             initTabs();
             await loadAccounts();
             window.CDModal = { alert, confirm, prompt };

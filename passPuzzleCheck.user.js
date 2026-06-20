@@ -7,7 +7,6 @@
 // @author              Chen-Jin
 // @description         自动识别拼图位置通过验证
 // @icon                https://m.ccw.site/community/images/logo-ccw.png
-// @updateURL           https://us.chen-jin.dpdns.org/passPuzzleCheck.user.js
 // @downloadURL         https://us.chen-jin.dpdns.org/passPuzzleCheck.user.js
 // @run-at              document-start
 // ==/UserScript==

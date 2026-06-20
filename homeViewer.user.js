@@ -1,14 +1,13 @@
 // ==UserScript==
 // @name              主页查看器
 // @namespace         cj-home-viewer
-// @version           1.0.2
+// @version           1.0.3
 // @description       查看封禁、注销用户的主页
 // @match             https://www.ccw.site/student/*
 // @grant             none
 // @run-at            document-start
 // @icon              https://m.ccw.site/community/images/logo-ccw.png
 // @author            Chen-Jin
-// @updateURL         https://us.chen-jin.dpdns.org/homeViewer.user.js
 // @downloadURL       https://us.chen-jin.dpdns.org/homeViewer.user.js
 // ==/UserScript==
 
@@ -37,7 +36,7 @@ const lockpm = new Promise(r => lockpmr = r),
             });
     });
 
-XMLHttpRequest.prototype.open = function (m, u, a) {
+XMLHttpRequest.prototype.open = function(m, u, a) {
     if (u === "https://community-web.ccw.site/locked_user/detail") {
         Object.defineProperty(this, "responseText", {
             get: () => '{"body":{"locked":false},"code":"200","msg":null,"status":200}'
@@ -60,7 +59,6 @@ XMLHttpRequest.prototype.open = function (m, u, a) {
                     });
                     _();
                 };
-                console.error(this);
                 return _send(body);
             }
             if (!lockInfo) await fetch("https://community-web.ccw.site/locked_user/detail", {
@@ -122,7 +120,6 @@ XMLHttpRequest.prototype.open = function (m, u, a) {
                     });
                     _();
                 };
-                console.error(this);
                 return _send(body);
             }
             Object.defineProperty(this, "responseText", {

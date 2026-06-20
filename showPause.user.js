@@ -7,7 +7,6 @@
 // @author              Chen-Jin
 // @description         使费米隐藏暂停失效
 // @icon                https://m.ccw.site/community/images/logo-ccw.png
-// @updateURL           https://us.chen-jin.dpdns.org/showPause.user.js
 // @downloadURL         https://us.chen-jin.dpdns.org/showPause.user.js
 // ==/UserScript==
 

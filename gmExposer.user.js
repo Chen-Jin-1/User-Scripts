@@ -30,7 +30,6 @@
 // @grant        GM_xmlhttpRequest
 // @grant        unsafeWindow
 // @icon         https://www.chen-jin.dpdns.org/Chen-Jin-circle.png
-// @updateURL    https://us.chen-jin.dpdns.org/gmExposer.user.js
 // @downloadURL  https://us.chen-jin.dpdns.org/gmExposer.user.js
 // ==/UserScript==
 

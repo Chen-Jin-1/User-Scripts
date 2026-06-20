@@ -9,7 +9,6 @@
 // @run-at       document-start
 // @icon         https://www.kugou.com/favicon.ico
 // @author       Chen-Jin
-// @updateURL    https://us.chen-jin.dpdns.org/kgDl.user.js
 // @downloadURL  https://us.chen-jin.dpdns.org/kgDl.user.js
 // ==/UserScript==
 

@@ -6,7 +6,6 @@
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
 // @icon              https://m.ccw.site/community/images/logo-ccw.png
-// @updateURL         https://us.chen-jin.dpdns.org/autoCheckIn.user.js?
 // @downloadURL       https://us.chen-jin.dpdns.org/autoCheckIn.user.js?
 // @grant             unsafeWindow
 // @run-at            document-start

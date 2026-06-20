@@ -8,7 +8,6 @@
 // @run-at       document-body
 // @icon         https://music.163.com/favicon.ico
 // @author       Chen-Jin
-// @updateURL    https://us.chen-jin.dpdns.org/cmDl.user.js
 // @downloadURL  https://us.chen-jin.dpdns.org/cmDl.user.js
 // ==/UserScript==
 

@@ -5,9 +5,8 @@
 // @grant               none
 // @version             1.0.1
 // @author              Chen-Jin
-// @description         防止个签过长，影响个签观感
+// @description         防止个签过长
 // @icon                https://m.ccw.site/community/images/logo-ccw.png
-// @updateURL           https://us.chen-jin.dpdns.org/smartBio.user.js
 // @downloadURL         https://us.chen-jin.dpdns.org/smartBio.user.js
 // @run-at              document-start
 // ==/UserScript==

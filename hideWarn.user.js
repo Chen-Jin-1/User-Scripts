@@ -9,7 +9,6 @@
 // @author              Chen-Jin
 // @description         隐藏 Gandi 和 TurboWarp 中不支持 WebGL 警告
 // @icon                https://m.ccw.site/community/images/logo-ccw.png
-// @updateURL           https://us.chen-jin.dpdns.org/hideWarn.user.js
 // @downloadURL         https://us.chen-jin.dpdns.org/hideWarn.user.js
 // @run-at              document-start
 // ==/UserScript==

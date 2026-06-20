@@ -1,13 +1,12 @@
 // ==UserScript==
 // @name              账号管理器
 // @namespace         cj-auto-check-in
-// @version           1.2.3
+// @version           1.2.4
 // @description       快捷切换 CCW 账号
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
 // @match             https://us.chen-jin.dpdns.org/settings/accountManager
 // @icon              https://www.chen-jin.dpdns.org/Chen-Jin-circle.png
-// @updateURL         https://us.chen-jin.dpdns.org/accountManager.user.js?
 // @downloadURL       https://us.chen-jin.dpdns.org/accountManager.user.js?
 // @grant             unsafeWindow
 // @grant             GM_registerMenuCommand
@@ -19,7 +18,12 @@
 // @run-at            document-start
 // ==/UserScript==
 
-if (location.hostname === 'us.chen-jin.dpdns.org' || location.hostname === 'localhost') return unsafeWindow.accountManager = { GM_getValue, GM_setValue, GM_xmlhttpRequest, GM_cookie };
+if (location.hostname === 'us.chen-jin.dpdns.org' || location.hostname === 'localhost') 
+    try {
+        return unsafeWindow.accountManager = { GM_getValue, GM_setValue, GM_xmlhttpRequest, GM_cookie };
+    } catch {
+        return unsafeWindow.accountManager = { GM_getValue, GM_setValue, GM_xmlhttpRequest };
+    }
 let accounts = GM_getValue("accounts", {}), menuId = {}, currentId;
 const login = (loginKey, password, noCookies = 0) => {
     if (!noCookies) document.cookie = "cookie-user-id=0;path=/;domain=.ccw.site";

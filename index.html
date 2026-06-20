@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chen-Jin 的脚本库</title>
+    <!-- Font Awesome 图标库 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ===== 全局重置 & 字体 ===== */
+        @font-face {
+            font-family: 'PingFang';
+            src: url("https://m.ccw.site/community/fonts/PingFang.ttf");
+            font-display: swap;
+        }
+
+        :root {
+            --bg-start: #0f172a;
+            --bg-end: #020617;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #8b5cf6;
+            --border-color: #1e293b;
+            --glow-color: rgba(59, 130, 246, 0.4);
+            --card-bg: rgba(15, 23, 42, 0.55);
+            --card-border: #1e293b;
+            --merged-color: #f59e0b;
+            --merged-bg: rgba(245, 158, 11, 0.08);
+            --section-title-color: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'PingFang', -apple-system, BlinkMacSystemFont, sans-serif;
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+            background: radial-gradient(circle at 50% 30%, var(--bg-start), var(--bg-end) 80%);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* ===== 页眉 ===== */
+        .header {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
+        }
+
+        .header h1 {
+            font-weight: 600;
+            font-size: 2rem;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+        }
+
+        .header h1 i {
+            color: var(--accent-primary);
+            font-size: 1.8rem;
+            filter: drop-shadow(0 0 8px var(--glow-color));
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(8px);
+            color: var(--text-secondary);
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 400;
+            border: 1px solid var(--border-color);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.3px;
+        }
+
+        .badge i {
+            color: var(--accent-primary);
+        }
+
+        /* ===== 工具栏 ===== */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2.2rem;
+            gap: 1rem;
+        }
+
+        .search-box {
+            display: flex;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.5);
+            backdrop-filter: blur(8px);
+            border-radius: 40px;
+            padding: 0.2rem 0.2rem 0.2rem 1.2rem;
+            border: 1px solid var(--border-color);
+            transition: 0.25s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .search-box:focus-within {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25), 0 4px 16px rgba(0,0,0,0.4);
+        }
+
+        .search-box i {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .search-box input {
+            border: none;
+            padding: 0.6rem 0.8rem;
+            font-size: 0.95rem;
+            background: transparent;
+            min-width: 200px;
+            outline: none;
+            color: var(--text-primary);
+            font-family: 'PingFang', sans-serif;
+        }
+
+        .search-box input::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        /* ===== 分区标题 ===== */
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            color: var(--section-title-color);
+            margin: 2rem 0 1.2rem 0;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+        }
+
+        .section-title i {
+            color: var(--accent-primary);
+            opacity: 0.6;
+            font-size: 0.9rem;
+        }
+
+        .section-title .count {
+            font-size: 0.8rem;
+            background: rgba(30, 41, 59, 0.4);
+            padding: 0.1rem 0.8rem;
+            border-radius: 20px;
+            color: var(--text-secondary);
+        }
+
+        /* ===== 卡片网格 ===== */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.8rem;
+            margin-top: 0.2rem;
+        }
+
+        .script-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border-radius: 24px;
+            padding: 1.6rem 1.4rem 1.4rem;
+            border: 1px solid var(--card-border);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+            transition: transform 0.2s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        .script-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent-primary);
+            box-shadow: 0 16px 40px -8px rgba(59, 130, 246, 0.25), 0 8px 24px rgba(0,0,0,0.5);
+        }
+
+        /* 已合并卡片样式 */
+        .script-card.merged {
+            border-color: rgba(245, 158, 11, 0.3);
+            background: rgba(245, 158, 11, 0.05);
+            opacity: 0.85;
+        }
+
+        .script-card.merged:hover {
+            border-color: var(--merged-color);
+            box-shadow: 0 16px 40px -8px rgba(245, 158, 11, 0.2), 0 8px 24px rgba(0,0,0,0.5);
+            opacity: 1;
+        }
+
+        .card-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-header .name {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            letter-spacing: -0.01em;
+            word-break: break-word;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+        }
+
+        .card-header .icon-placeholder {
+            background: rgba(59, 130, 246, 0.15);
+            border-radius: 12px;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--accent-primary);
+            font-size: 1.1rem;
+            flex-shrink: 0;
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            backdrop-filter: blur(4px);
+        }
+        
+        .merged .card-header .icon-placeholder {
+            color: var(--merged-color);
+            border-color: rgba(245, 158, 11, 0.2);
+            background: rgba(245, 158, 11, 0.15);
+        }
+
+        .card-desc {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin: 0.4rem 0 1rem;
+            flex: 1;
+        }
+
+        .card-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem 0.9rem;
+            margin-bottom: 1.2rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            border-top: 1px solid rgba(30, 41, 59, 0.6);
+            padding-top: 0.8rem;
+        }
+
+        .card-meta i {
+            margin-right: 4px;
+            width: 14px;
+            color: var(--accent-primary);
+            opacity: 0.7;
+        }
+
+        .card-meta .author {
+            color: var(--accent-secondary);
+        }
+
+        .card-meta .author i {
+            color: var(--accent-secondary);
+        }
+
+        /* ===== 按钮 (继承主页风格) ===== */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 18px;
+            color: var(--text-primary);
+            font-size: 14px;
+            font-weight: 400;
+            letter-spacing: 1px;
+            text-decoration: none;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 40px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            gap: 6px;
+            flex: 1 0 auto;
+            min-width: 60px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 3px;
+            background: linear-gradient(to bottom, var(--accent-primary), var(--accent-secondary));
+            border-radius: 0 2px 2px 0;
+            opacity: 0.8;
+            transition: height 0.3s ease;
+        }
+
+        .btn:hover::before {
+            height: 80%;
+            top: 10%;
+        }
+
+        .btn i {
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn:hover {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: var(--accent-primary);
+            box-shadow: 0 12px 28px -8px var(--accent-primary);
+            transform: translateY(-3px);
+        }
+
+        .btn:active {
+            transform: translateY(0px);
+            box-shadow: 0 8px 16px -4px var(--accent-primary);
+            transition: all 0.1s ease;
+        }
+
+        .btn-install {
+            border-left: 3px solid var(--accent-primary);
+        }
+        .btn-install::before {
+            background: linear-gradient(to bottom, var(--accent-primary), #60a5fa);
+        }
+
+        .btn-copy {
+            border-left: 3px solid var(--accent-secondary);
+        }
+        .btn-copy::before {
+            background: linear-gradient(to bottom, var(--accent-secondary), #c084fc);
+        }
+
+        .btn-copy.copied {
+            border-color: #4ade80;
+            background: rgba(74, 222, 128, 0.15);
+            box-shadow: 0 0 20px -6px rgba(74, 222, 128, 0.3);
+        }
+        .btn-copy.copied::before {
+            background: linear-gradient(to bottom, #4ade80, #86efac);
+        }
+        .btn-copy.copied i.fa-check {
+            display: inline-block;
+        }
+        .btn-copy.copied i.fa-copy {
+            display: none;
+        }
+        .btn-copy i.fa-check {
+            display: none;
+        }
+
+        .card-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem;
+            margin-top: auto;
+        }
+
+        /* ===== 空状态 ===== */
+        .empty-state {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: var(--text-secondary);
+            background: rgba(15, 23, 42, 0.3);
+            backdrop-filter: blur(6px);
+            border-radius: 40px;
+            border: 1px dashed var(--border-color);
+        }
+
+        /* ===== Footer ===== */
+        .footer-note {
+            margin-top: 3.5rem;
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 2rem;
+            opacity: 0.7;
+        }
+
+        /* ===== Toast ===== */
+        .toast-message {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(14px);
+            color: white;
+            padding: 0.75rem 1.8rem;
+            border-radius: 60px;
+            font-size: 0.9rem;
+            font-weight: 400;
+            box-shadow: 0 12px 32px rgba(0,0,0,0.6);
+            border: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s, bottom 0.25s;
+            z-index: 999;
+            letter-spacing: 0.3px;
+        }
+
+        .toast-message.show {
+            opacity: 1;
+            pointer-events: auto;
+            bottom: 40px;
+        }
+
+        .toast-message i {
+            color: #4ade80;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 640px) {
+            body { padding: 1.2rem; }
+            .header h1 { font-size: 1.6rem; }
+            .search-box input { min-width: 140px; }
+            .btn { padding: 8px 14px; font-size: 13px; }
+        }
+
+        @media (max-width: 480px) {
+            .btn { padding: 6px 12px; font-size: 12px; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+    </style>
+    <link rel="icon" href="https://www.chen-jin.dpdns.org/Chen-Jin-circle.png">
+</head>
+<body>
+<div class="container">
+    <!-- 页眉 -->
+    <div class="header fade-in">
+        <h1><i class="fas fa-code"></i> Chen-Jin's User-Script</h1>
+        <div class="header-actions">
+            <span class="badge"><i class="fas fa-archive"></i> <span id="scriptCount">0</span> 个脚本</span>
+        </div>
+    </div>
+
+    <!-- 工具栏 -->
+    <div class="toolbar fade-in">
+        <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" id="searchInput" placeholder="搜索脚本名称或作者..." />
+        </div>
+    </div>
+
+    <!-- 卡片容器 -->
+    <div id="cardContainer"></div>
+
+    <!-- 空状态 -->
+    <div id="emptyState" class="empty-state" style="display: none;">
+        <i class="fas fa-box-open" style="font-size: 2.5rem; opacity: 0.4; margin-bottom: 0.8rem; display: block;"></i>
+        没有找到匹配的脚本
+    </div>
+
+    <div class="footer-note">
+        <i class="fas fa-mouse-pointer"></i> 点击「安装」打开脚本 · 点击「复制URL」复制链接
+    </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast-message">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastText">已复制到剪贴板</span>
+</div>
+
+<script>
+    (function() {
+        // ---------- 脚本数据 ----------
+        const scripts = [
+            { 
+                name: "账号管理器", 
+                desc: "快捷切换 CCW 账号", 
+                url: "accountManager.user.js",
+                author: "Chen-Jin",
+            },
+            { 
+                name: "允许未知扩展", 
+                desc: "使带有未知扩展的作品能正常运行、发布", 
+                url: "allowUnknownExtensions.user.js",
+                author: "Chen-Jin",
+            },
+            { 
+                name: "自动签到", 
+                desc: "无需多点，立即签到", 
+                url: "autoCheckIn.user.js",
+                author: "Chen-Jin",
+            },
+            { 
+                name: "拦截 CCW 的个人隐私 API", 
+                desc: "拦截个人隐私", 
+                url: "blockPrivacyApi.user.js",
+                author: "娅",
+            },
+            { 
+                name: "CCW 评论区自定义图片", 
+                desc: "CCW Comment Section Custom Images", 
+                url: "ccsci.user.js",
+                author: "xiaochen004hao",
+            },
+            { 
+                name: "修改密码", 
+                desc: "使境外号码绑定的 CCW 账号能够发送验证码", 
+                url: "changePassword.user.js",
+                author: "Chen-Jin",
+            },
+            { 
+                name: "网易云音乐下载", 
+                desc: "便捷下载音乐", 
+                url: "cmDl.user.js",
+                author: "Chen-Jin",
+            },
+            { 
+                name: "显示评论 ID", 
+                desc: "在评论区直接查看评论 ID", 
+                url: "commentId.user.js",
+                author: "Chen-Jin",
+            },
+            { 
+                name: "函数备份", 
+                desc: "在任何网站上保留原先函数或对象", 
+                url: "funcBackup.user.js",
+                author: "Chen-Jin",
+            },
+            { 
+                name: "获取 Axios", 
+                desc: "获取 CCW 的 Axios", 
+                url: "getAxios.user.js",
+                author: "不想上学 & Chen-Jin",
+            },
+            { 
+                name: "获取 OSS", 
+                desc: "获取 CCW OSS", 
+                url: "getOSS.user.js",
+                author: "不想上学",
+            },
+            { 
+                name: "获取 Runtime & VM", 
+                desc: "获取 Scratch Runtime 和 VM", 
+                url: "getRV.user.js",
+                author: "Chen-Jin",
+                mergedTo: "获取 Runtime & VM Plus",
+            },
+            { 
+                name: "获取 Runtime & VM Plus", 
+                desc: "获取 Scratch Runtime 和 VM", 
+                url: "getRVPlus.user.js",
+                author: "Chen-Jin",
+            },
+            { 
+                name: "挂载 GM 函数", 
+                desc: "挂载所有 GM_* 函数", 
+                url: "gmExposer.user.js",
+                author: "Chen-Jin",
+            },
+            { 
+                name: "摘帽", 
+                desc: "阻止利用帽子块立即运行代码", 
+                url: "hatsBreaker.user.js",
+                author: "Chen-Jin",
+            },
+            { 
+                name: "隐藏警告", 
+                desc: "隐藏 Gandi 和 TurboWarp 中不支持 WebGL 警告", 
+                url: "hideWarn.user.js",
+                author: "Chen-Jin",
+            },
+            { 
+                name: "主页查看器", 
+                desc: "查看封禁、注销用户的主页", 
+                url: "homeViewer.user.js",
+                author: "Chen-Jin",
+            },
+            { 
+                name: "酷狗音乐下载", 
+                desc: "便捷下载音乐", 
+                url: "kgDl.user.js",
+                author: "Chen-Jin",
+            },
+            { 
+                name: "恢复登录", 
+                desc: "掉登后点击按钮即可自动登录", 
+                url: "loginAgain.user.js",
+                author: "Chen-Jin",
+                mergedTo: '账号管理器'
+            },
+            { 
+                name: "自动通过拼图验证", 
+                desc: "自动识别拼图位置通过验证", 
+                url: "passPuzzleCheck.user.js",
+                author: "Chen-Jin",
+            },
+            { 
+                name: "防误删扩展", 
+                desc: "隐藏扩展删除按钮", 
+                url: "preventExtensionDelete.user.js",
+                author: "Chen-Jin",
+            },
+            { 
+                name: "快捷回复", 
+                desc: "在 Gandi 中快捷查看回复", 
+                url: "reply.user.js",
+                author: "Chen-Jin",
+            },
+            {
+                name: "修改 CCW API",
+                desc: "只对连接社区扩展的一些功能有效",
+                url: "setCCWAPI.user.js",
+                author: "Chen-Jin",
+            },
+            {
+                name: "显示暂停",
+                desc: "使费米隐藏暂停失效",
+                url: "showPause.user.js",
+                author: "Chen-Jin"
+            },
+            {
+                name: "智能个签",
+                desc: "防止个签过长",
+                url: "smartBio.user.js",
+                author: "Chen-Jin"
+            },
+            {
+                name: "计时器报废器",
+                desc: "阻止编辑器立即运行代码",
+                url: "timerBreaker.user.js",
+                author: "Chen-Jin",
+                mergedTo: "摘帽",
+            },
+        ];
+
+        // DOM
+        const container = document.getElementById('cardContainer');
+        const emptyState = document.getElementById('emptyState');
+        const searchInput = document.getElementById('searchInput');
+        const toast = document.getElementById('toast');
+        const toastText = document.getElementById('toastText');
+        const scriptCountSpan = document.getElementById('scriptCount');
+
+        let searchTerm = '';
+
+        // ---------- 工具函数：获取完整的绝对 URL ----------
+        function getAbsoluteUrl(relativePath) {
+            if (relativePath.startsWith('http://') || relativePath.startsWith('https://')) {
+                return relativePath;
+            }
+            return new URL(relativePath, window.location.href).href;
+        }
+
+        // ---------- Toast ----------
+        function showToast(message, duration = 2500) {
+            toastText.textContent = message || '已复制到剪贴板';
+            toast.classList.add('show');
+            clearTimeout(window.toastTimer);
+            window.toastTimer = setTimeout(() => {
+                toast.classList.remove('show');
+            }, duration);
+        }
+
+        // ---------- 复制 ----------
+        function copyToClipboard(text) {
+            if (!text) return;
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(text).then(() => {
+                    showToast('✅ 已复制: ' + text);
+                }).catch(() => fallbackCopy(text));
+            } else {
+                fallbackCopy(text);
+            }
+        }
+
+        function fallbackCopy(text) {
+            const ta = document.createElement('textarea');
+            ta.value = text;
+            ta.style.position = 'fixed';
+            ta.style.left = '-9999px';
+            ta.style.top = '-9999px';
+            document.body.appendChild(ta);
+            ta.select();
+            try {
+                document.execCommand('copy');
+                showToast('✅ 已复制: ' + text);
+            } catch (e) {
+                showToast('❌ 复制失败，请手动复制');
+            }
+            document.body.removeChild(ta);
+        }
+
+        // ---------- 转义 ----------
+        function escapeHtml(text) {
+            if (!text) return '';
+            return String(text).replace(/[&<>"]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                if (m === '"') return '&quot;';
+                return m;
+            });
+        }
+
+        // ---------- 滚动到目标脚本 ----------
+        function scrollToScript(targetName) {
+            const cards = document.querySelectorAll('.script-card');
+            let targetCard = null;
+            
+            cards.forEach(card => {
+                const nameElement = card.querySelector('.name');
+                if (nameElement && nameElement.textContent.trim() === targetName) {
+                    targetCard = card;
+                }
+            });
+
+            if (targetCard) {
+                targetCard.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
+                
+                // targetCard.style.transition = 'box-shadow 0.3s ease, border-color 0.3s ease';
+                targetCard.style.boxShadow = '0 0 30px rgba(59, 130, 246, 0.5), 0 8px 24px rgba(0,0,0,0.5)';
+                targetCard.style.borderColor = '#3b82f6';
+                
+                setTimeout(() => {
+                    targetCard.style.boxShadow = '';
+                    targetCard.style.borderColor = '';
+                }, 3000);
+                
+                showToast(`🔍 已定位到: ${targetName}`, 2000);
+            } else {
+                showToast(`⚠️ 未找到脚本: ${targetName}`, 2000);
+            }
+        }
+
+        // ---------- 渲染卡片列表 ----------
+        function renderCardList(scriptsList, title, icon, isMerged = false) {
+            if (!scriptsList.length) return '';
+
+            let html = `
+                <div class="section-title">
+                    <i class="fas ${icon}"></i>
+                    ${title}
+                    <span class="count">${scriptsList.length}</span>
+                </div>
+                <div class="grid">
+            `;
+
+            scriptsList.forEach(script => {
+                const absoluteUrl = getAbsoluteUrl(script.url);
+                const mergedClass = isMerged ? 'merged' : '';
+                
+                let descHtml = escapeHtml(script.desc);
+                if (isMerged && script.mergedTo) {
+                    const targetName = script.mergedTo;
+                    descHtml += `<br>已合并到 <span class="script-link" data-target="${escapeHtml(targetName)}" style="color: #3b82f6; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; font-weight: 500;">【${escapeHtml(targetName)}】</span>`;
+                }
+
+                html += `
+                    <div class="script-card ${mergedClass}" data-script-name="${escapeHtml(script.name)}">
+                        <div class="card-header">
+                            <span class="name">${escapeHtml(script.name)}</span>
+                            <span class="icon-placeholder"><i class="fas ${isMerged ? 'fa-code-branch' : 'fa-puzzle-piece'}"></i></span>
+                        </div>
+                        <div class="card-desc">${descHtml}</div>
+                        <div class="card-meta">
+                            <span class="author"><i class="fas fa-user"></i> ${escapeHtml(script.author)}</span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn btn-install" data-url="${escapeHtml(absoluteUrl)}" data-name="${escapeHtml(script.name)}">
+                                <i class="fas fa-download"></i> 安装
+                            </button>
+                            <button class="btn btn-copy" data-url="${escapeHtml(absoluteUrl)}">
+                                <i class="fas fa-copy"></i>
+                                <i class="fas fa-check"></i> 复制URL
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            return html;
+        }
+
+        // ---------- 渲染全部 ----------
+        function renderAll(activeScripts, mergedScripts) {
+            const total = activeScripts.length + mergedScripts.length;
+            
+            if (!total) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                scriptCountSpan.textContent = '0';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+            scriptCountSpan.textContent = total;
+
+            let html = '';
+            
+            if (activeScripts.length) {
+                html += renderCardList(activeScripts, '常规脚本', 'fa-cube');
+            }
+            
+            if (mergedScripts.length) {
+                html += renderCardList(mergedScripts, '已合并脚本', 'fa-code-branch', true);
+            }
+
+            container.innerHTML = html;
+        }
+
+        // ---------- 过滤 ----------
+        function getFiltered() {
+            let result = scripts;
+            const term = searchTerm.trim().toLowerCase();
+            if (term) {
+                result = result.filter(s => 
+                    s.name.toLowerCase().includes(term) || 
+                    s.author.toLowerCase().includes(term)
+                );
+            }
+            
+            const active = result.filter(s => !s.mergedTo);
+            const merged = result.filter(s => s.mergedTo);
+            
+            return { active, merged };
+        }
+
+        function updateUI() {
+            const { active, merged } = getFiltered();
+            renderAll(active, merged);
+        }
+
+        // ---------- 事件绑定 ----------
+        function setupEvents() {
+            container.addEventListener('click', function(e) {
+                const link = e.target.closest('.script-link');
+                if (link) {
+                    e.preventDefault();
+                    const targetName = link.getAttribute('data-target');
+                    if (targetName) {
+                        scrollToScript(targetName);
+                    }
+                    return;
+                }
+
+                const installBtn = e.target.closest('.btn-install');
+                if (installBtn) {
+                    const url = installBtn.getAttribute('data-url');
+                    const name = installBtn.getAttribute('data-name') || '脚本';
+                    if (url) {
+                        window.open(url, '_blank');
+                        showToast(`📦 正在打开 ${name}...`, 1800);
+                    } else {
+                        showToast('⚠️ 脚本URL缺失', 1500);
+                    }
+                    return;
+                }
+
+                const copyBtn = e.target.closest('.btn-copy');
+                if (copyBtn) {
+                    const url = copyBtn.getAttribute('data-url');
+                    if (url) {
+                        copyToClipboard(url);
+                        copyBtn.classList.add('copied');
+                        setTimeout(() => copyBtn.classList.remove('copied'), 2200);
+                    } else {
+                        showToast('⚠️ 无URL可复制', 1500);
+                    }
+                }
+            });
+
+            searchInput.addEventListener('input', function() {
+                searchTerm = this.value;
+                updateUI();
+            });
+        }
+
+        // ---------- 启动 ----------
+        function init() {
+            updateUI();
+            setupEvents();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    })();
+</script>
+</body>
+</html>

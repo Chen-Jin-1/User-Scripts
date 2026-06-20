@@ -7,7 +7,6 @@
 // @author              Chen-Jin
 // @description         使带有未知扩展的作品能正常运行、发布
 // @icon                https://m.ccw.site/community/images/logo-ccw.png
-// @updateURL           https://us.chen-jin.dpdns.org/allowUnknownExtensions.user.js
 // @downloadURL         https://us.chen-jin.dpdns.org/allowUnknownExtensions.user.js
 // @run-at              document-start
 // ==/UserScript==

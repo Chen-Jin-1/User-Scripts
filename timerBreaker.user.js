@@ -7,8 +7,7 @@
 // @run-at       document-start
 // @icon         https://m.ccw.site/community/images/logo-ccw.png
 // @author       Chen-Jin
-// @updateURL    https://us.chen-jin.dpdns.org/extensionBreaker.user.js
-// @downloadURL  https://us.chen-jin.dpdns.org/extensionBreaker.user.js
+// @downloadURL  https://us.chen-jin.dpdns.org/timerBreaker.user.js
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
 // ==/UserScript==

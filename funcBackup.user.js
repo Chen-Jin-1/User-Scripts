@@ -7,7 +7,6 @@
 // @run-at       document-start
 // @icon         https://www.chen-jin.dpdns.org/Chen-Jin-circle.png
 // @author       Chen-Jin
-// @updateURL    https://us.chen-jin.dpdns.org/funcBackup.user.js
 // @downloadURL  https://us.chen-jin.dpdns.org/funcBackup.user.js
 // @grant        none
 // ==/UserScript==

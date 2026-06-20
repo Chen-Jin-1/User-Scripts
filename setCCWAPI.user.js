@@ -6,7 +6,6 @@
 // @author              Chen-Jin
 // @description         只对连接社区扩展的一些功能有效
 // @icon                https://zhishi.oss-cn-beijing.aliyuncs.com/user_projects_assets/a6edfa0f6b8dda2fc126d847989c94ba.svg
-// @updateURL           https://us.chen-jin.dpdns.org/setCCWAPI.user.js
 // @downloadURL         https://us.chen-jin.dpdns.org/setCCWAPI.user.js
 // @run-at              document-start
 // ==/UserScript==

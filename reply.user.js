@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                快捷回复
 // @namespace           cj-reply
-// @version             1.0.4
+// @version             1.0.5
 // @description         在 Gandi 中快捷查看回复
 // @author              Chen-Jin
 // @match               https://www.ccw.site/gandi*
@@ -9,7 +9,6 @@
 // @match               https://assets.ccw.site/*
 // @match               https://learn.ccw.site/*
 // @icon                https://m.ccw.site/user_projects_assets/4448f7d5994cbe0e5283098aad745d4b.svg
-// @updateURL           https://us.chen-jin.dpdns.org/reply.user.js?
 // @downloadURL         https://us.chen-jin.dpdns.org/reply.user.js?
 // @run-at              document-body
 // ==/UserScript==
@@ -96,25 +95,14 @@ css.textContent = `#cj-reply1-button {
     transition: all 0.3s ease, right 0s, top 0s;
     backdrop-filter: blur(5px);
     user-select: none;
-    -webkit-user-drag: element;
     border: 1px solid #ffffff80;
+    -webkit-user-drag: element;
 }
 
 #cj-reply1-button img {
     height: 100%;
     width: 100%;
     pointer-events: none;
-}
-
-#cj-reply1-iframe {
-    position: fixed;
-    top: 0;
-    left: 100vw;
-    transition-duration: 0.3s;
-    z-index: 11111111;
-    height: 100%;
-    width: 100vw;
-    background: #00000060;
 }
 
 #cj-reply1-button:hover {
@@ -141,14 +129,9 @@ document.head.appendChild(css);
 const btn = document.createElement("button");
 btn.id = "cj-reply1-button";
 btn.innerHTML = '<img src="https://m.ccw.site/user_projects_assets/4448f7d5994cbe0e5283098aad745d4b.svg">';
-document.body.appendChild(btn);
 const num = document.createElement("span");
 btn.appendChild(num);
 makeDraggable(btn);
-const ifr = document.createElement("iframe");
-ifr.id = "cj-reply1-iframe";
-ifr.src = "https://www.ccw.site/notice/reply";
-
 async function update() {
     const noti = await fetch("https://community-web.ccw.site/notification/stats/v2", {
         method: "post",
@@ -165,28 +148,13 @@ async function update() {
         num.style.display = "none";
     }
 }
-
-setInterval(update, 10000);
-function openIframe() {
+btn.title = "打开回复页";
+btn.onclick = () => {
+    open("https://www.ccw.site/notice/reply");
     num.style.display = "none";
-    document.body.appendChild(ifr);
-    requestAnimationFrame(() => ifr.style.left = "0");
-    btn.title = "退出回复页面";
-    btn.onclick = closeIframe;
-}
-
-function closeIframe() {
-    ifr.style.left = "100vw";
-    btn.title = "进入回复页面";
-    setTimeout(() => {
-        document.body.removeChild(ifr);
-        btn.onclick = openIframe;
-    }, 300);
-    btn.onclick = null;
-}
-
-btn.title = "进入回复页面";
-btn.onclick = openIframe;
+};
+document.body.appendChild(btn);
+setInterval(update, 10000);
 
 const observer = new MutationObserver((mutationsList) => {
     if (!document.body.contains(btn)) document.body.appendChild(btn);
