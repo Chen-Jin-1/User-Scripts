@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name         网易云音乐下载
 // @namespace    cj-cm-dl
-// @version      2.0.2
+// @version      2.1.0
 // @description  便捷下载音乐
 // @match        https://music.163.com/song?id=*
 // @grant        GM_download
-// @run-at       document-body
+// @run-at       document-end
 // @icon         https://music.163.com/favicon.ico
 // @author       Chen-Jin
 // @downloadURL  https://us.chen-jin.dpdns.org/cmDl.user.js
@@ -14,8 +14,7 @@
 if (document.querySelector('.u-btni-play-dis')) throw "无法播放";
 const id = new URLSearchParams(location.search).get("id");
 const name = document.title.split(" - ").slice(0, 2).join(" - ").replaceAll("/", "、") + ".mp3";
-const isVIP = document.querySelector('i.lab.u-icn.u-icn-98');
-const url = isVIP ? `https://api.qijieya.cn/meting/?type=url&id=${id}` : `https://music.163.com/song/media/outer/url?id=${id}.mp3`;
+const url = document.querySelector('.vip-song, .u-btni-vipply, .u-btn-vip-download, .u-btni-fav[data-fee="1"], .u-icn-98, .u-icn-vip, .u-icn-vipply') ? `https://api.qijieya.cn/meting/?type=url&id=${id}` : `https://music.163.com/song/media/outer/url?id=${id}.mp3`;
 const host = document.createElement('div');
 host.style.cssText = 'position: fixed; z-index: 100000;';
 const styles = document.createElement("style");
@@ -55,16 +54,22 @@ styles.textContent = `#cmdl {
 host.appendChild(styles);
 const btn = document.createElement("div");
 btn.id = "cmdl";
-btn.textContent = isVIP ? "下载（第三方 API）" : "下载";
+btn.textContent = "⬇️";
 host.appendChild(btn);
-btn.onclick = () => {
-    GM_download({
-        url,
-        name,
-        onerror: e => (btn.textContent = "下载出错", console.error(e)),
-        onprogress: p => btn.textContent = `${Math.ceil((p.loaded / p.total) * 100)}%`,
-        onload: () => btn.textContent = "下载完成",
-        ontimeout: () => btn.textContent = "下载超时",
-    })
+btn.onclick = async () => {
+    btn.textContent = '获取最终 URL';
+    const response = await fetch(url);
+    if (!response.ok) throw btn.textContent = 'HTTP Error ' + response.status;
+    else if (response.url === "https//music.163.com/404") throw btn.textContent = 'HTTP Error 404';
+    btn.textContent = '转为 Blob';
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    btn.textContent = '下载';
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = name;
+    a.click();
+    btn.textContent = '✅ 完成';
+    btn.style.pointerEvents = 'auto';
 }
 top.document.body.appendChild(host);

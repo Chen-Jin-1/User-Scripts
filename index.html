@@ -795,7 +795,7 @@
                 let descHtml = escapeHtml(script.desc);
                 if (isMerged && script.mergedTo) {
                     const targetName = script.mergedTo;
-                    descHtml += `<br>已合并到 <span class="script-link" data-target="${escapeHtml(targetName)}" style="color: #3b82f6; cursor: pointer; text-decoration: underline; text-underline-offset: 2px; font-weight: 500;">【${escapeHtml(targetName)}】</span>`;
+                    descHtml += `<br>已合并到 <span class="script-link" data-target="${escapeHtml(targetName)}" style="color: #3b82f6; cursor: pointer; text-underline-offset: 2px; font-weight: 500;">${escapeHtml(targetName)}</span>`;
                 }
 
                 html += `
