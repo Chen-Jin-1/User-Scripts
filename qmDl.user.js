@@ -1,117 +1,74 @@
-// ==UserScript=
+// ==UserScript==
 // @name         QQ 音乐下载
 // @namespace    cj-cm-dl
-// @version      0
+// @version      1.0.0
 // @description  便捷下载音乐
 // @match        https://y.qq.com/n/ryqq_v2/player
-// @grant        GM_download
-// @run-at       document-end
+// @run-at       document-start
 // @icon         https://y.qq.com/favicon.ico
 // @author       Chen-Jin
 // @downloadURL  https://us.chen-jin.dpdns.org/qqDl.user.js
 // ==/UserScript==
 
-let capturedUrls = [];
-const _parse = JSON.parse;
-JSON.parse = json => {
-    const r = _parse(json);
-    console.log(r);
-    return r;
+const btn = document.createElement('div'), s = new CSSStyleSheet();
+s.replaceSync(`#qmdl {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    padding: 10px 18px;
+    color: white;
+    cursor: pointer;
+    border-radius: 25px;
+    user-select: none;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    white-space: nowrap;
+    background: steelblue;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s, box-shadow 0.2s, opacity 0.3s ease;
+    font-family: 'PingFang', sans-serif;
+    opacity: 1;
+    line-height: initial;
+    touch-action: none;
 }
-
-const originalDefineProperty = unsafeWindow.Object.defineProperty;
-unsafeWindow.Object.defineProperty = function(obj, prop, descriptor) {
-    if (obj?.__esModule && prop === 'QMAPlayerCore') {
-        const originalGetter = descriptor.get;
-        return originalDefineProperty.call(this, obj, prop, {
-            ...descriptor,
-            get: function() {
-                const OriginalClass = originalGetter.call(this);
-                if (OriginalClass.__hijacked) return OriginalClass;
-                const WrappedClass = function(...args) {
-                    const instance = new OriginalClass(...args);
-
-                    if (instance._loader && instance._loader.worker) {
-                        const worker = instance._loader.worker;
-                        worker.fetch = function(e, t, n, r) {
-                            if (e && e.includes('.m4a') && e.includes('vkey=')) {
-                                console.log('URL:', e);
-                                capturedUrls.push(e);
-                                unsafeWindow.__qqAudioUrl = e;
-                            }
-                            return fetch(e, { headers: { 'Range': `bytes=${t != null ? t : 0}-${(t != null ? t : 0) + n - 1}` } }).then(res => {
-                                const range = res.headers.get('Content-Range');
-                                if (!range) throw new Error('Content-Range unsupport');
-                                return res.blob().then(blob => ({ blob, range, size: parseInt(range.split('/')[1]) || blob.size }));
-                            });
-                        };
-                    }
-
-                    unsafeWindow.__qqPlayer = instance;
-                    return instance;
-                };
-
-                WrappedClass.prototype = OriginalClass.prototype;
-                WrappedClass.prototype.constructor = WrappedClass;
-                return WrappedClass;
-            },
-        });
+#qmdl:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+}
+#qmdl:active {
+    transform: translateY(0);
+}`);
+document.adoptedStyleSheets.push(s);
+btn.id = 'qmdl';
+const _ce = document.createElement.bind(document);
+document.createElement = tn => {
+    if (tn === 'audio') {
+        const e = _ce(tn);
+        btn.textContent = '⬇️ 下载';
+        btn.onclick = async () => {
+            const d = JSON.parse(localStorage.playSongData).value,
+                s = d.songList[d.index];
+                url = e.src;
+            btn.style.pointerEvents = 'none';
+            btn.textContent = '获取数据'
+            const response = await fetch(url);
+            if (!response.ok) throw btn.textContent = 'HTTP Error ' + response.status;
+            btn.textContent = '转为 Blob';
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            btn.textContent = '保存';
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = `${s.title} - ${s.singer.map(s => s.name).join('、')}.${url.split("?")[0].split(".").pop()}`;
+            a.click();
+            btn.textContent = '✅ 完成';
+            btn.style.pointerEvents = 'auto';
+        }
+        document.body.appendChild(btn);
+        return e;
     }
-    return originalDefineProperty.call(this, obj, prop, descriptor);
-};
-
-// ========== 下载函数 ==========
-function download() {
-    const url = unsafeWindow.__qqAudioUrl || capturedUrls[capturedUrls.length - 1];
-    if (!url) {
-        console.warn('[QQ下载器] 没有捕获到 URL，请先播放歌曲');
-        return;
-    }
-    console.log('[QQ下载器] 下载 URL:', url);
-    if (typeof GM_download !== 'undefined') {
-        GM_download({
-            url: url,
-            name: `song_${Date.now()}.m4a`,
-            saveAs: true
-        });
-    } else {
-        window.open(url);
-    }
+    return _ce(tn);
 }
-
-// ========== 创建下载按钮 ==========
-function createUI() {
-    if (document.getElementById('qq-dl-btn')) return;
-
-    const btn = document.createElement('button');
-    btn.id = 'qq-dl-btn';
-    btn.textContent = '⬇️';
-    btn.style.cssText = `
-        position: fixed; bottom: 100px; right: 20px; z-index: 99999;
-        background: #31c27c; color: #fff; border: none; border-radius: 50%;
-        width: 56px; height: 56px; font-size: 24px; cursor: pointer;
-        box-shadow: 0 4px 12px rgba(49,194,124,0.4);
-        transition: all 0.3s ease;
-    `;
-    btn.onclick = download;
-    document.body.appendChild(btn);
-    console.log('[QQ下载器] ✅ UI 已创建');
-}
-
-// ========== 暴露控制台接口 ==========
-unsafeWindow.__dl = {
-    download,
-    getUrl: () => unsafeWindow.__qqAudioUrl || capturedUrls[capturedUrls.length - 1],
-    getAllUrls: () => capturedUrls,
-    reset: () => { capturedUrls = []; }
-};
-
-// ========== 初始化 ==========
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', createUI);
-} else {
-    createUI();
-}
-
-console.log('[QQ下载器] ✅ 已加载，播放歌曲后点击按钮下载');
-console.log('[QQ下载器] 📌 或执行 __dl.download()');
+Object.defineProperty(navigator, 'userAgent', { get: () => 'Edg/' });

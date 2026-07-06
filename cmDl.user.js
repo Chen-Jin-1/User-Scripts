@@ -1,24 +1,23 @@
 // ==UserScript==
 // @name         网易云音乐下载
 // @namespace    cj-cm-dl
-// @version      2.1.0
+// @version      2.1.1
 // @description  便捷下载音乐
 // @match        https://music.163.com/song?id=*
-// @grant        GM_download
 // @run-at       document-end
 // @icon         https://music.163.com/favicon.ico
 // @author       Chen-Jin
 // @downloadURL  https://us.chen-jin.dpdns.org/cmDl.user.js
 // ==/UserScript==
 
-if (document.querySelector('.u-btni-play-dis')) throw "无法播放";
+if (document.querySelector('.u-btni-play-dis')) throw "无版权";
 const id = new URLSearchParams(location.search).get("id");
 const name = document.title.split(" - ").slice(0, 2).join(" - ").replaceAll("/", "、") + ".mp3";
 const url = document.querySelector('.vip-song, .u-btni-vipply, .u-btn-vip-download, .u-btni-fav[data-fee="1"], .u-icn-98, .u-icn-vip, .u-icn-vipply') ? `https://api.qijieya.cn/meting/?type=url&id=${id}` : `https://music.163.com/song/media/outer/url?id=${id}.mp3`;
 const host = document.createElement('div');
 host.style.cssText = 'position: fixed; z-index: 100000;';
-const styles = document.createElement("style");
-styles.textContent = `#cmdl {
+const s = new CSSStyleSheet();
+s.replaceSync(`#cmdl {
     position: fixed;
     bottom: 20px;
     right: 20px;
@@ -50,14 +49,14 @@ styles.textContent = `#cmdl {
 }
 #cmdl:active {
     transform: translateY(0);
-}`;
-host.appendChild(styles);
-const btn = document.createElement("div");
+}`);
+document.adoptedStyleSheets.push(s);
 btn.id = "cmdl";
-btn.textContent = "⬇️";
+btn.textContent = "⬇️ 下载";
 host.appendChild(btn);
 btn.onclick = async () => {
-    btn.textContent = '获取最终 URL';
+    btn.style.pointerEvents = 'none';
+    btn.textContent = '获取数据';
     const response = await fetch(url);
     if (!response.ok) throw btn.textContent = 'HTTP Error ' + response.status;
     else if (response.url === "https//music.163.com/404") throw btn.textContent = 'HTTP Error 404';
@@ -72,4 +71,5 @@ btn.onclick = async () => {
     btn.textContent = '✅ 完成';
     btn.style.pointerEvents = 'auto';
 }
+top.document.querySelectorAll('#cmdl').forEach(x => x.remove());
 top.document.body.appendChild(host);
