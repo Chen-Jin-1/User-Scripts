@@ -14,8 +14,6 @@ if (document.querySelector('.u-btni-play-dis')) throw "无版权";
 const id = new URLSearchParams(location.search).get("id");
 const name = document.title.split(" - ").slice(0, 2).join(" - ").replaceAll("/", "、") + ".mp3";
 const url = document.querySelector('.vip-song, .u-btni-vipply, .u-btn-vip-download, .u-btni-fav[data-fee="1"], .u-icn-98, .u-icn-vip, .u-icn-vipply') ? `https://api.qijieya.cn/meting/?type=url&id=${id}` : `https://music.163.com/song/media/outer/url?id=${id}.mp3`;
-const host = document.createElement('div');
-host.style.cssText = 'position: fixed; z-index: 100000;';
 const s = new CSSStyleSheet();
 s.replaceSync(`#cmdl {
     position: fixed;
@@ -39,10 +37,6 @@ s.replaceSync(`#cmdl {
     line-height: initial;
     touch-action: none;
 }
-#cmdl.cmdl-hidden {
-    opacity: 0 !important;
-    pointer-events: none;
-}
 #cmdl:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
@@ -51,9 +45,9 @@ s.replaceSync(`#cmdl {
     transform: translateY(0);
 }`);
 document.adoptedStyleSheets.push(s);
+const btn = document.createElement("div");
 btn.id = "cmdl";
 btn.textContent = "⬇️ 下载";
-host.appendChild(btn);
 btn.onclick = async () => {
     btn.style.pointerEvents = 'none';
     btn.textContent = '获取数据';
@@ -72,4 +66,4 @@ btn.onclick = async () => {
     btn.style.pointerEvents = 'auto';
 }
 top.document.querySelectorAll('#cmdl').forEach(x => x.remove());
-top.document.body.appendChild(host);
+top.document.body.appendChild(btn);

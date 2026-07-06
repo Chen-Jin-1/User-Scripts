@@ -1,14 +1,13 @@
 // ==UserScript==
-// @name         酷狗音乐下载
-// @namespace    cj-kg-dl
-// @version      1.0.2
+// @name         酷我音乐下载
+// @namespace    cj-kw-dl
+// @version      0
 // @description  便捷下载音乐
-// @match        https://www.kugou.com/mixsong/*
-// @match        https://www.kugou.com/song/*
+// @match        https://kuwo.cn/*
 // @run-at       document-start
-// @icon         https://www.kugou.com/favicon.ico
+// @icon         https://kuwo.cn/favicon.ico
 // @author       Chen-Jin
-// @downloadURL  https://us.chen-jin.dpdns.org/kgDl.user.js
+// @downloadURL  https://us.chen-jin.dpdns.org/kwDl.user.js
 // ==/UserScript==
 
 let url, name;
@@ -64,13 +63,23 @@ btn.onclick = async () => {
 
 const _open = XMLHttpRequest.prototype.open;
 XMLHttpRequest.prototype.open = function(m, u, a) {
-    if (u.startsWith("https://wwwapi.kugou.com/play/songinfo?")) {
+    if (u.startsWith("https://kuwo.cn/api/v1/www/music/playUrl?")) {
         this.addEventListener("load", () => {
             const r = JSON.parse(this.response);
-            name = r.data.audio_name + '.mp3';
-            url = r.data.play_url;
-            btn.textContent = "⬇️ 下载";
-            document.body.appendChild(btn);
+            url = r.data.url;
+            if (name) {
+                btn.textContent = "⬇️ 下载";
+                document.body.appendChild(btn);
+            }
+        });
+    } else if (u.startsWith("https://kuwo.cn/api/www/music/musicInfo?")) {
+        this.addEventListener("load", () => {
+            const r = JSON.parse(this.response);
+            name = r.data.name + r.data.artist + '.mp3';
+            if (url) {
+                btn.textContent = "⬇️ 下载";
+                document.body.appendChild(btn);
+            }
         });
     }
     return _open.call(this, m, u, a);
