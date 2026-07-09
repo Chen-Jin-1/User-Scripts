@@ -13,7 +13,7 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4a90d9 0%, #1a5fb4 100%);
             min-height: 100vh;
             padding: 20px;
             user-select: none;
@@ -39,17 +39,6 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
-        }
-
-        .badge {
-            display: inline-block;
-            background: rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            color: white;
-            margin-top: 10px;
         }
 
         /* API 警告条 */
@@ -129,7 +118,7 @@
             align-items: center;
             gap: 10px;
             color: #333;
-            border-left: 4px solid #667eea;
+            border-left: 4px solid #4a90d9;
             padding-left: 16px;
         }
 
@@ -153,8 +142,8 @@
 
         .account-item:hover {
             background: #fff;
-            border-color: #667eea;
-            box-shadow: 0 2px 8px rgba(102,126,234,0.1);
+            border-color: #4a90d9;
+            box-shadow: 0 2px 8px rgba(74,144,217,0.1);
         }
 
         .account-info {
@@ -177,13 +166,6 @@
             background: #e9ecef;
             padding: 2px 8px;
             border-radius: 12px;
-        }
-
-        .account-badge {
-            font-size: 0.65rem;
-            padding: 2px 10px;
-            border-radius: 12px;
-            font-weight: 500;
         }
 
         .badge-token {
@@ -224,13 +206,13 @@
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #4a90d9 0%, #1a5fb4 100%);
             color: white;
         }
 
         .btn-primary:hover {
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+            box-shadow: 0 4px 12px rgba(74,144,217,0.4);
         }
 
         .btn-danger {
@@ -250,7 +232,7 @@
 
         .btn-outline:hover {
             background: #f8f9fa;
-            border-color: #667eea;
+            border-color: #4a90d9;
         }
 
         .btn-sm {
@@ -294,8 +276,8 @@
 
         input:focus, select:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+            border-color: #4a90d9;
+            box-shadow: 0 0 0 3px rgba(74,144,217,0.1);
         }
 
         /* Tab 切换 */
@@ -319,13 +301,13 @@
         }
 
         .tab.active {
-            color: #667eea;
-            border-bottom: 2px solid #667eea;
+            color: #4a90d9;
+            border-bottom: 2px solid #4a90d9;
             margin-bottom: -2px;
         }
 
         .tab:hover {
-            background: #667eea20;
+            background: #4a90d920;
         }
 
         .tab-pane {
@@ -365,7 +347,7 @@
             width: 16px;
             height: 16px;
             border: 2px solid #f3f3f3;
-            border-top: 2px solid #667eea;
+            border-top: 2px solid #4a90d9;
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
@@ -528,10 +510,6 @@
             
             container.innerHTML = '';
             for (const [id, data] of accountEntries) {
-                const isTokenAccount = data.token !== undefined;
-                const badgeText = isTokenAccount ? '🔑 Token 创建' : '🔒 密码创建';
-                const badgeClass = isTokenAccount ? 'badge-token' : 'badge-password';
-                
                 const div = document.createElement('div');
                 div.className = 'account-item';
                 div.innerHTML = `
@@ -539,7 +517,7 @@
                         <div class="account-name">
                             ${escapeHtml(data.name)}
                             <span class="account-id">${escapeHtml(id)}</span>
-                            <span class="account-badge ${badgeClass}">${badgeText}</span>
+                            ${data.token ? '<span style="font-size: .7rem;">🔑</span>' : ''}
                         </div>
                     </div>
                     <div class="account-actions">

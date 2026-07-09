@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              账号管理器
 // @namespace         cj-auto-check-in
-// @version           1.2.4
+// @version           1.2.5
 // @description       快捷切换 CCW 账号
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
@@ -52,6 +52,7 @@ const loginByToken = token => {
             domain: '.ccw.site',
             path: '/',
             httpOnly: true,
+            expirationDate: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
         }, result => resolve(!result?.message?.includes('HTTP-only')));
     });
 }

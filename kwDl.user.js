@@ -9,6 +9,7 @@
 // @icon         https://kuwo.cn/favicon.ico
 // @author       Chen-Jin
 // @downloadURL  https://us.chen-jin.dpdns.org/kwDl.user.js
+// @grant        GM_xmlhttpRequest
 // ==/UserScript==
 
 let url, name;
@@ -48,12 +49,21 @@ const btn = document.createElement("div");
 btn.id = "kwdl";
 btn.onclick = async () => {
     btn.style.pointerEvents = 'none';
-    btn.textContent = '保存';
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = name;
-    a.click();
-    btn.textContent = '✅ 完成';
+    btn.textContent = '获取数据';
+    GM_xmlhttpRequest({
+        method: 'GET',
+        url: url,
+        responseType: 'blob',
+        onload: res => {
+            const blobUrl = URL.createObjectURL(res.response);
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = name;
+            a.click();
+            btn.textContent = '✅ 完成';
+        },
+        onerror: () => btn.textContent = '❌ 失败',
+    });
     btn.style.pointerEvents = 'auto';
 };
 
@@ -62,7 +72,7 @@ XMLHttpRequest.prototype.open = function(m, u, a) {
     if (u.includes("/api/www/music/musicInfo?")) {
         this.addEventListener("load", () => {
             const r = JSON.parse(this.response);
-            name = r.data.name + r.data.artist + '.mp3';
+            name = `${r.data.name} - ${r.data.artist}.mp3`;
         });
     } else if (u.includes("/api/v1/www/music/playUrl?")) {
         this.addEventListener("load", () => {
