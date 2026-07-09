@@ -1,20 +1,27 @@
 // ==UserScript==
 // @name         网易云音乐下载
 // @namespace    cj-cm-dl
-// @version      2.1.1
+// @version      2.2.0
 // @description  便捷下载音乐
-// @match        https://music.163.com/song?id=*
-// @run-at       document-end
+// @match        https://music.163.com/*
+// @run-at       document-start
 // @icon         https://music.163.com/favicon.ico
 // @author       Chen-Jin
 // @downloadURL  https://us.chen-jin.dpdns.org/cmDl.user.js
 // ==/UserScript==
 
-if (document.querySelector('.u-btni-play-dis')) throw "无版权";
-const id = new URLSearchParams(location.search).get("id");
-const name = document.title.split(" - ").slice(0, 2).join(" - ").replaceAll("/", "、") + ".mp3";
-const url = document.querySelector('.vip-song, .u-btni-vipply, .u-btn-vip-download, .u-btni-fav[data-fee="1"], .u-icn-98, .u-icn-vip, .u-icn-vipply') ? `https://api.qijieya.cn/meting/?type=url&id=${id}` : `https://music.163.com/song/media/outer/url?id=${id}.mp3`;
-const s = new CSSStyleSheet();
+let name, song, url;
+if (frameElement) {
+    const id = new URLSearchParams(location.search).get("id");
+    name = document.title.split(" - ").slice(0, 2).join(" - ").replaceAll("/", "、") + ".mp3";
+    url = document.querySelector('.vip-song, .u-btni-vipply, .u-btn-vip-download, .u-btni-fav[data-fee="1"], .u-icn-98, .u-icn-vip, .u-icn-vipply') ? `https://api.qijieya.cn/meting/?type=url&id=${id}` : `https://music.163.com/song/media/outer/url?id=${id}.mp3`;
+} else {
+    const song = JSON.parse(localStorage['track-queue'])[JSON.parse(localStorage['player-setting']).index];
+    name = `${song.name} - ${song.artists.map(x => x.name).join("、")}.mp3`;
+    url = `https://music.163.com/song/media/outer/url?id=${song.id}.mp3`;
+}
+document.querySelectorAll("#cmdl").forEach(x => x.remove());
+const s = new top.CSSStyleSheet();
 s.replaceSync(`#cmdl {
     position: fixed;
     bottom: 20px;
@@ -44,7 +51,7 @@ s.replaceSync(`#cmdl {
 #cmdl:active {
     transform: translateY(0);
 }`);
-document.adoptedStyleSheets.push(s);
+top.document.adoptedStyleSheets.push(s);
 const btn = document.createElement("div");
 btn.id = "cmdl";
 btn.textContent = "⬇️ 下载";
