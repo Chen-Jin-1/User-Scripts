@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         酷我音乐下载
 // @namespace    cj-kw-dl
-// @version      0
+// @version      1.0.0
 // @description  便捷下载音乐
 // @match        https://kuwo.cn/*
 // @match        https://www.kuwo.cn/*
@@ -34,6 +34,7 @@ s.replaceSync(`#kwdl {
     opacity: 1;
     line-height: initial;
     touch-action: none;
+    z-index: 2147483647;
 }
 #kwdl:hover {
     transform: translateY(-2px);
