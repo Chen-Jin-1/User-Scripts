@@ -91,6 +91,7 @@ function refreshMenu() {
 refreshMenu();
 if (document.cookie.includes("cookie-user-id")) {
     unsafeWindow.cjam_c = 1;
+    const _open = XMLHttpRequest.prototype.open;
     XMLHttpRequest.prototype.open = function(m, u, a) {
         if (u === "https://community-web.ccw.site/students/self/detail") this.addEventListener("load", () => {
             unsafeWindow.cjam_c && (XMLHttpRequest.prototype.open = _open);
