@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              账号管理器
 // @namespace         cj-auto-check-in
-// @version           1.2.5
+// @version           1.2.6
 // @description       快捷切换 CCW 账号
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
@@ -90,10 +90,10 @@ function refreshMenu() {
 
 refreshMenu();
 if (document.cookie.includes("cookie-user-id")) {
-    let _open = XMLHttpRequest.prototype.open;
+    unsafeWindow.cjam_c = 1;
     XMLHttpRequest.prototype.open = function(m, u, a) {
         if (u === "https://community-web.ccw.site/students/self/detail") this.addEventListener("load", () => {
-            XMLHttpRequest.prototype.open = _open;
+            unsafeWindow.cjam_c && XMLHttpRequest.prototype.open = _open;
             let json = JSON.parse(this.response).body;
             if (json) {
                 currentId = json.studentNumber;

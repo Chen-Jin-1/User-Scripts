@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              主页查看器
 // @namespace         cj-home-viewer
-// @version           1.0.3
+// @version           1.0.4
 // @description       查看封禁、注销用户的主页
 // @match             https://www.ccw.site/student/*
 // @grant             none
@@ -12,8 +12,9 @@
 // ==/UserScript==
 
 let oid, uid, userInfo, lockInfo, lockpmr;
+typeof cjam_c !== "undefined" && delete cjam_c;
 const lockpm = new Promise(r => lockpmr = r),
-    _open = XMLHttpRequest.prototype.open,
+    const _open = XMLHttpRequest.prototype.open,
     pm = new Promise(r => {
         const id = location.pathname.split("/")[2];
         fetch("https://community-web.ccw.site/students/profile", {
