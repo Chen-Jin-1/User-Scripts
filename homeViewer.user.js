@@ -14,7 +14,7 @@
 let oid, uid, userInfo, lockInfo, lockpmr;
 typeof cjam_c !== "undefined" && delete cjam_c;
 const lockpm = new Promise(r => lockpmr = r),
-    const _open = XMLHttpRequest.prototype.open,
+    _open = XMLHttpRequest.prototype.open,
     pm = new Promise(r => {
         const id = location.pathname.split("/")[2];
         fetch("https://community-web.ccw.site/students/profile", {
