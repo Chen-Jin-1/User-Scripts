@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              主页查看器
 // @namespace         cj-home-viewer
-// @version           1.0.4
+// @version           1.0.5
 // @description       查看封禁、注销用户的主页
 // @match             https://www.ccw.site/student/*
 // @grant             none
