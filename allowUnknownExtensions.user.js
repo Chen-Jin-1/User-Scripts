@@ -3,7 +3,7 @@
 // @namespace           cj-allow-unknown-extensions
 // @match               https://www.ccw.site/detail/*
 // @match               https://www.ccw.site/gandi*
-// @version             1.0.1
+// @version             1.0.2
 // @author              Chen-Jin
 // @description         使带有未知扩展的作品能正常运行、发布
 // @icon                https://m.ccw.site/community/images/logo-ccw.png
@@ -11,12 +11,15 @@
 // @run-at              document-start
 // ==/UserScript==
 
-let urls = [], em;
+let urls = {}, em;
 const _then = Promise.prototype.then;
 Promise.prototype.then = function(f, r) {
     return _then.call(this, v => {
         if (v?.[0]?.extensionURLs) {
             urls = v[0].extensionURLs;
+            Promise.prototype.then = _then;
+        } else if (v?.[0]?.id && v[0].url) {
+            urls = v.reduce((o, i) => (o[i.id] = i.url, o), {});
             Promise.prototype.then = _then;
         }
         return f ? f(v) : v;
@@ -61,7 +64,7 @@ XMLHttpRequest.prototype.open = function(m, u, ...args) {
                                 ],
                                 reviewTags: [
                                     {
-                                        count: 1234,
+                                        count: 1234567890,
                                         tag: "安全"
                                     },
                                 ]
