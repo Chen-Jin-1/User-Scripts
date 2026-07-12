@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                快捷回复
 // @namespace           cj-reply
-// @version             1.0.5
+// @version             1.0.6
 // @description         在 Gandi 中快捷查看回复
 // @author              Chen-Jin
 // @match               https://www.ccw.site/gandi*
@@ -140,7 +140,7 @@ async function update() {
         credentials: 'include'
     })
         .then(r => r.json())
-        .then(({body}) => body.COMMENT_TO_ME);
+        .then(({body}) => body?.COMMENT_TO_ME);
     if (noti) {
         num.textContent = noti;
         num.style.display = "unset";
