@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Monoco Editor 输入
 // @namespace    cj-monaco-input
-// @version      1.0.0
+// @version      1.0.1
 // @description  在 Gandi IDE 使用 Monaco Editor 输入
 // @match        https://www.ccw.site/gandi*
 // @run-at       document-start
@@ -11,7 +11,7 @@
 // @grant        none
 // ==/UserScript==
 
-let rt = 0, style = new CSSStyleSheet();
+let style = new CSSStyleSheet();
 style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
 
 /* 主容器 - 全屏覆盖 */
@@ -21,7 +21,7 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
   left: 0;
   width: 100%;
   height: 100%;
-  z-index: 9999;
+  z-index: 99999;
   background: #1e1e1e;
   display: flex;
   flex-direction: column;
@@ -164,16 +164,16 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
     flex-wrap: wrap;
     gap: 8px;
   }
-  
+
   .monaco-toolbar-title {
     font-size: 12px;
   }
-  
+
   .monaco-toolbar-actions button {
     padding: 4px 12px;
     font-size: 12px;
   }
-  
+
   .monaco-editor-wrapper {
     padding: 6px;
   }
@@ -185,11 +185,11 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
     align-items: stretch;
     gap: 8px;
   }
-  
+
   .monaco-toolbar-actions {
     justify-content: stretch;
   }
-  
+
   .monaco-toolbar-actions button {
     flex: 1;
   }
@@ -245,44 +245,6 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
   opacity: 0.6;
   margin-left: 6px;
   font-weight: normal;
-}
-
-/* ===== 暗色主题适配 ===== */
-@media (prefers-color-scheme: light) {
-  .monaco-editor-container {
-    background: #ffffff;
-  }
-  
-  .monaco-toolbar {
-    background: #f3f3f3;
-    color: #333333;
-    border-bottom: 1px solid #e0e0e0;
-  }
-  
-  .monaco-editor-wrapper {
-    background: #ffffff;
-  }
-  
-  .btn-save {
-    background: #0066b3;
-  }
-  
-  .btn-save:hover {
-    background: #0077cc;
-  }
-  
-  .btn-cancel {
-    background: #e0e0e0;
-    color: #333333;
-  }
-  
-  .btn-cancel:hover {
-    background: #d0d0d0;
-  }
-  
-  .monaco-editor-wrapper .monaco-editor .margin {
-    background: #f3f3f3 !important;
-  }
 }
 
 /* ===== 无障碍支持 ===== */
@@ -381,24 +343,24 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
 document.adoptedStyleSheets.push(style);
 
 Object.defineProperty(window, 'GandiPlugins', {
-    set: v => {
-        const _ = v.default.prototype.initPluginsManager;
-        v.default.prototype.initPluginsManager = function() {
-            _.call(this);
-            console.log(this);
-            Object.defineProperty(this.plugins, 'witcat-blockinput', {
-                get: () => () => {},
-                set: v => v(),
-            })
-        }
-        delete window.GandiPlugins;
-        window.GandiPlugins = v;
-    },
-    configurable: 1,
+  set: v => {
+    const _ = v.default.prototype.initPluginsManager;
+    v.default.prototype.initPluginsManager = function() {
+      _.call(this);
+      Object.defineProperty(this.plugins, 'witcat-blockinput', {
+        get: () => () => {},
+        set: v => v(),
+      });
+    }
+    delete window.GandiPlugins;
+    window.GandiPlugins = v;
+  },
+  configurable: 1,
 });
 
 
 function s(rt) {
+  let language, Blockly = rt.scratchBlocks;
   const lineText = (function() {
     let textarea = "textarea";
     let renderWidth = 20;
@@ -450,224 +412,83 @@ function s(rt) {
         originCloseEditor_ = Blockly.FieldTextInput.prototype.closeEditor_;
       },
 
-      // 检查 Monaco 是否可用
-      isMonacoAvailable: function() {
-        return typeof monaco !== 'undefined' && monaco.editor;
-      },
+      // 直接检查 Monaco 是否可用
+      isMonacoAvailable: () => typeof monaco !== 'undefined',
 
-      // 使用 Monaco Editor 替代原输入框
-      setupMonacoEditor: function(Blockly) {
-        if (!this.isMonacoAvailable()) {
-          console.warn('Monaco Editor not available, using fallback');
-          return false;
-        }
-
-        const self = this;
-
-        // 修改 showEditor_ 使用 Monaco
-        Blockly.FieldTextInput.prototype.showEditor_ = function(e) {
-          // 如果已经有编辑器打开，先关闭
-          if (this.monacoEditor_) {
-            this.closeEditor_();
-          }
-
-          const opcode = this.sourceBlock_.parentBlock_.type;
-          const language = opcode === "cjjst_js" || opcode === "i_js" ? 'javascript' : 'text';
-
-          // 获取当前值
-          const currentValue = this.getValue() || '';
-          
-          // 创建容器
-          const container = document.createElement('div');
-          container.className = 'monaco-editor-container';
-          
-          // 创建工具栏
-          const toolbar = document.createElement('div');
-          toolbar.className = 'monaco-toolbar';
-          toolbar.innerHTML = `
-            <span class="monaco-toolbar-title">📝 高级编辑器 (Ctrl+Enter 保存 · Esc 取消)</span>
-            <div class="monaco-toolbar-actions">
-              <button class="btn-save" id="monaco-save-btn">保存 (Ctrl+Enter)</button>
-              <button class="btn-cancel" id="monaco-cancel-btn">取消 (Esc)</button>
-            </div>
-          `;
-          container.appendChild(toolbar);
-          
-          // 编辑器容器
-          const editorWrapper = document.createElement('div');
-          editorWrapper.className = 'monaco-editor-wrapper';
-          container.appendChild(editorWrapper);
-          
-          document.body.appendChild(container);
-          
-          // 创建 Monaco Editor
-          const editor = monaco.editor.create(editorWrapper, {
-            value: currentValue,
-            language,
-            theme: 'vs-dark',
-            automaticLayout: true,
-            minimap: { enabled: true, maxColumn: 80 },
-            fontSize: 14,
-            wordWrap: 'on',
-            wrappingIndent: 'indent',
-            lineNumbers: 'on',
-            scrollbar: {
-              vertical: 'visible',
-              horizontal: 'visible',
-              useShadows: false
-            },
-            renderWhitespace: 'selection',
-            tabSize: 2,
-            insertSpaces: true
-          });
-          
-          // 保存引用
-          this.monacoEditor_ = editor;
-          this.monacoContainer_ = container;
-          
-          // 调整大小
-          setTimeout(() => {
-            editor.layout();
-          }, 100);
-          
-          // 保存按钮
-          document.getElementById('monaco-save-btn').addEventListener('click', () => {
-            const newValue = editor.getValue();
-            this.setValue(newValue);
-            this.closeEditor_();
-          });
-          
-          // 取消按钮
-          document.getElementById('monaco-cancel-btn').addEventListener('click', () => {
-            this.closeEditor_();
-          });
-          
-          // 快捷键：Ctrl+Enter 保存
-          editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-            document.getElementById('monaco-save-btn').click();
-          });
-          
-          // 快捷键：Esc 取消
-          editor.addCommand(monaco.KeyCode.Escape, () => {
-            document.getElementById('monaco-cancel-btn').click();
-          });
-          
-          // 自动调整大小
-          const resizeObserver = new ResizeObserver(() => {
-            editor.layout();
-          });
-          resizeObserver.observe(editorWrapper);
-          this.monacoResizeObserver_ = resizeObserver;
-          
-          // 聚焦编辑器
-          setTimeout(() => {
-            editor.focus();
-          }, 50);
-        };
-
-        // 修改 closeEditor_ 清理 Monaco
-        Blockly.FieldTextInput.prototype.closeEditor_ = function() {
-          // 清理 Monaco
-          if (this.monacoEditor_) {
-            this.monacoEditor_.dispose();
-            this.monacoEditor_ = null;
-          }
-          if (this.monacoResizeObserver_) {
-            this.monacoResizeObserver_.disconnect();
-            this.monacoResizeObserver_ = null;
-          }
-          if (this.monacoContainer_) {
-            this.monacoContainer_.remove();
-            this.monacoContainer_ = null;
-          }
-          
-          // 调用原方法
-          if (originCloseEditor_) {
-            originCloseEditor_.call(this);
-          }
-        };
-
-        return true;
-      },
-
-      // 弹窗使用 Monaco
-      showMonacoPopup: function(input, checkLong) {
+      checkAndShowPopup: function(input) {
         return new Promise((resolve) => {
-          if (!this.isMonacoAvailable()) {
-            // 降级方案
-            resolve();
-            return;
-          }
-
           const currentValue = input.value || '';
-          
-          // 创建全屏容器
+
           const container = document.createElement('div');
           container.className = 'monaco-editor-container';
-          
-          // 创建工具栏
+          container.id = 'monaco-popup-container';
+
           const toolbar = document.createElement('div');
           toolbar.className = 'monaco-toolbar';
           toolbar.innerHTML = `
-            <span class="monaco-toolbar-title">📝 高级编辑器 (Ctrl+Enter 保存 · Esc 取消)</span>
-            <div class="monaco-toolbar-actions">
-              <button class="btn-save" id="popup-save-btn">保存 (Ctrl+Enter)</button>
-              <button class="btn-cancel" id="popup-cancel-btn">取消 (Esc)</button>
-            </div>
-          `;
+      <span class="monaco-toolbar-title">📝 长文本编辑器 (Ctrl+Enter 保存 · Esc 取消)</span>
+      <div class="monaco-toolbar-actions">
+        <button class="btn-save" id="popup-save-btn">保存 (Ctrl+Enter)</button>
+        <button class="btn-cancel" id="popup-cancel-btn">取消 (Esc)</button>
+      </div>
+    `;
           container.appendChild(toolbar);
-          
-          // 编辑器容器
+
           const editorWrapper = document.createElement('div');
           editorWrapper.className = 'monaco-editor-wrapper';
           container.appendChild(editorWrapper);
-          
+
           document.body.appendChild(container);
-          
-          // 创建编辑器
+
           const editor = monaco.editor.create(editorWrapper, {
             value: currentValue,
-            language: 'text',
+            language: language || 'text',
             theme: 'vs-dark',
             automaticLayout: true,
-            minimap: { enabled: true },
+            minimap: {
+              enabled: true
+            },
             fontSize: 14,
             wordWrap: 'on',
             lineNumbers: 'on'
           });
-          
+
           setTimeout(() => {
             editor.layout();
             editor.focus();
           }, 100);
-          
-          // 保存
+
+          const closeInput = () => {
+            Blockly.WidgetDiv.hide();
+            Blockly.DropDownDiv.hide();
+          }
+
           document.getElementById('popup-save-btn').addEventListener('click', () => {
             const newValue = editor.getValue();
             input.value = newValue;
-            input.dispatchEvent(new Event('input', { bubbles: true }));
             editor.dispose();
             container.remove();
-            resolve();
+            resolve(newValue);
+            closeInput();
           });
-          
-          // 取消
+
           document.getElementById('popup-cancel-btn').addEventListener('click', () => {
             editor.dispose();
             container.remove();
-            resolve();
+            resolve(null);
+            closeInput();
           });
-          
-          // 快捷键
+
           editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
             document.getElementById('popup-save-btn').click();
           });
-          
           editor.addCommand(monaco.KeyCode.Escape, () => {
             document.getElementById('popup-cancel-btn').click();
           });
+          container.onclick = e => e.stopPropagation();
         });
       },
+
 
       linerender: function(value, workspace, rerender) {
         lineRender = value;
@@ -709,9 +530,9 @@ function s(rt) {
         getToolboxAndWorkspaceBlocks(workspace).forEach((block) => {
           if (needRerenderBlockTypes.has(opcodeToSettings[block.type])) {
             block.setOutputShape(
-              borderRestoration[opcodeToSettings[block.type]] === true
-                ? blockly.OUTPUT_SHAPE_SQUARE
-                : blockly.OUTPUT_SHAPE_ROUND,
+              borderRestoration[opcodeToSettings[block.type]] === true ?
+              blockly.OUTPUT_SHAPE_SQUARE :
+              blockly.OUTPUT_SHAPE_ROUND,
             );
             block.render();
           }
@@ -731,22 +552,6 @@ function s(rt) {
             originalJsonInit.call(this, json);
           }
         };
-      },
-
-      textLeft: function(start) {
-      //   if (start) {
-      //     styleElement.innerHTML = `
-      //       .blocklyHtmlInput{
-      //         text-align: left;
-      //       }
-      //     `;
-      //   } else {
-      //     styleElement.innerHTML = `
-      //       .blocklyHtmlInput{
-      //         text-align: center;
-      //       }
-      //     `;
-      //   }
       },
 
       changTextarea: function(start) {
@@ -801,207 +606,26 @@ function s(rt) {
       },
 
       textarea: function(Blockly) {
-        // 如果 Monaco 可用，使用 Monaco 版本
-        if (this.isMonacoAvailable()) {
-          this.setupMonacoEditor(Blockly);
-          return;
-        }
-
-        // 否则使用原 textarea 版本
-        const originShowEditorFunc = originShowEditor_;
+        const originShowEditor = Blockly.FieldTextInput.prototype.showEditor_;
         Blockly.FieldTextInput.prototype.showEditor_ = function(e) {
-          const originalCreateElement = document.createElement;
-          document.createElement = function(tagName) {
-            document.createElement = originalCreateElement;
-            if (
-              tagName === "INPUT" &&
-              document.getElementsByClassName("gandi_custom-procedures_workspace_1d2uW").length === 0
-            ) {
-              let s = originalCreateElement.call(document, "div");
-              s.ClassName = "blocklyHtmlInputs";
-              return originalCreateElement.call(document, textarea);
-            } else {
-              return originalCreateElement.call(document, tagName);
-            }
-          };
-          originShowEditorFunc.call(this, e);
-          document.createElement = originalCreateElement;
-
+          const op = this.sourceBlock_.parentBlock_.type;
+          language = op === "cjjst_js" || op === "i_run" || op === "WitCatHTML_jsfunc" ||
+            op === "WitCatHTML_jsfuncs" || op === "functionHTML" ?
+            'javascript' :
+            op === "WitCatHTML_html" ?
+            'html' :
+            'text';
+          originShowEditor.call(this, e);
           const event = new Event("startInputing");
           document.body.dispatchEvent(event);
         };
 
-        const originalResizeEditor = originalResizeEditor_;
-        Blockly.FieldTextInput.prototype.resizeEditor_ = function() {
-          if (!ResizeEditorAble) {
-            originalResizeEditor.call(this);
-            if (textarea === "textarea") {
-              var scale = this.sourceBlock_.workspace.scale;
-              var div = Blockly.WidgetDiv.DIV;
-
-              var initialWidth;
-              if (this.sourceBlock_.isShadow()) {
-                initialWidth = this.sourceBlock_.getHeightWidth().width * scale;
-              } else {
-                initialWidth = this.size_.width * scale;
-              }
-
-              var width;
-              if (Blockly.BlockSvg.FIELD_TEXTINPUT_EXPAND_PAST_TRUNCATION) {
-                var textWidth = Blockly.scratchBlocksUtils.measureText(
-                  Blockly.FieldTextInput.htmlInput_.style.fontSize,
-                  Blockly.FieldTextInput.htmlInput_.style.fontFamily,
-                  Blockly.FieldTextInput.htmlInput_.style.fontWeight,
-                  Blockly.FieldTextInput.htmlInput_.value,
-                );
-                textWidth += Blockly.FieldTextInput.TEXT_MEASURE_PADDING_MAGIC;
-                textWidth *= scale;
-                width = textWidth;
-              } else {
-                width = initialWidth;
-              }
-              width = Math.max(width, Blockly.BlockSvg.FIELD_WIDTH_MIN_EDIT * scale);
-              width = Math.min(width, Blockly.BlockSvg.FIELD_WIDTH_MAX_EDIT * scale);
-              div.style.width = width / scale + 1 + "px";
-              div.style.height = this.size_.height + "px";
-              div.style.transform = "scale(" + scale + ")";
-
-              div.style.marginLeft = -0.5 * (width - initialWidth) + "px";
-
-              var borderRadius = this.getBorderRadius() + 0.5;
-              div.style.borderRadius = borderRadius + "px";
-              Blockly.FieldTextInput.htmlInput_.style.borderRadius = borderRadius + "px";
-              var strokeColour = this.sourceBlock_.getColourTertiary();
-              div.style.borderColor = strokeColour;
-
-              var xy = this.getAbsoluteXY_();
-              xy.x -= scale / 2;
-              xy.y -= scale / 2;
-              if (this.sourceBlock_.RTL) {
-                xy.x += width;
-                xy.x -= div.offsetWidth * scale;
-                xy.x += 1 * scale;
-              }
-              xy.y += 1 * scale;
-              if (navigator.userAgent.includes("Firefox")) {
-                xy.x += 2 * scale;
-                xy.y += 1 * scale;
-              }
-              if (navigator.userAgent.includes("WebKit")) {
-                xy.y -= 1 * scale;
-              }
-              div.style.left = xy.x + "px";
-              div.style.top = xy.y + "px";
-            }
-          }
-        };
-
-        const originHtmlInputKeyDown = originHtmlInputKeyDown_;
+        const originKeyDown = Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_;
         Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_ = function(e) {
-          if (e.keyCode === 13) {
-            let es = {};
-            es.keyCode = null;
-            originHtmlInputKeyDown.call(this, es);
-          } else {
-            originHtmlInputKeyDown.call(this, e);
-          }
+          originKeyDown.call(this, e);
           const event = new Event("startInputing");
           document.body.dispatchEvent(event);
         };
-
-        function splitStringIntoLines(inputString, charactersPerLine) {
-          const regex = new RegExp(".{1," + charactersPerLine + "}", "g");
-          let inputStringSplit = [];
-          inputString.split("\n").forEach((line) => {
-            if (line.match(regex)) inputStringSplit.push(...line.match(regex));
-            else inputStringSplit.push("\u00A0");
-          });
-          if (inputStringSplit.length > Blockly.BlockSvg.MAX_DISPLAY_LINE_LENGTH) {
-            inputStringSplit = inputStringSplit.slice(0, Blockly.BlockSvg.MAX_DISPLAY_LINE_LENGTH);
-            let s = inputStringSplit[Blockly.BlockSvg.MAX_DISPLAY_LINE_LENGTH - 1];
-            inputStringSplit[Blockly.BlockSvg.MAX_DISPLAY_LINE_LENGTH - 1] = s.slice(0, charactersPerLine - 3) + "…";
-          }
-          return inputStringSplit;
-        }
-
-        const originalRender = originalRender_;
-        Blockly.FieldTextInput.prototype.render_ = function() {
-          this.textElement_?.setAttribute("text-anchor", inputLabelTextAnchor);
-          originalRender.call(this);
-          if (textarea === "textarea") {
-            if (this.visible_ && this.textElement_) {
-              while (this.textElement_.firstChild) {
-                this.textElement_.removeChild(this.textElement_.firstChild);
-              }
-              let test = this.getDisplayText_();
-              if (lineRender) {
-                if (this.getText()) {
-                  if (this.getText().length > Blockly.BlockSvg.MAX_DISPLAY_LENGTH) {
-                    test = this.getText().slice(0, Blockly.BlockSvg.MAX_DISPLAY_LENGTH - 3) + "...";
-                  } else {
-                    test = this.getText();
-                  }
-                }
-              }
-              const lines = splitStringIntoLines(test, renderWidth);
-              let maxLengthLine = 0;
-              let maxLength = 0;
-              for (let index = 0; index < lines.length; index++) {
-                const lineText = lines[index];
-                let tspan = document.createElementNS(Blockly.SVG_NS, "tspan");
-                if (lineText.length > maxLength) {
-                  maxLength = lineText.length;
-                  maxLengthLine = index;
-                }
-                tspan.textContent = lineText;
-                if (index !== 0) {
-                  tspan.setAttribute("dy", 16);
-                } else {
-                  tspan.setAttribute("x", 0);
-                }
-                this.textElement_.appendChild(tspan);
-              }
-              const fc = this.textElement_.children[maxLengthLine];
-
-              this.size_.height = 16 * (lines.length + 1);
-              this.size_.width = fc.getComputedTextLength();
-
-              this.arrowWidth_ = 0;
-              if (this.positionArrow) {
-                this.arrowWidth_ = this.positionArrow(this.size_.width);
-                this.size_.width += this.arrowWidth_;
-              }
-              var centerTextX = (this.size_.width - this.arrowWidth_) / 2;
-              if (this.sourceBlock_.RTL) {
-                centerTextX += this.arrowWidth_;
-              }
-              if (this.sourceBlock_.isShadow() && !this.positionArrow) {
-                var minOffset = Blockly.BlockSvg.FIELD_WIDTH / 2;
-                if (this.sourceBlock_.RTL) {
-                  var minCenter = this.size_.width - minOffset;
-                  centerTextX = Math.min(minCenter, centerTextX);
-                } else {
-                  centerTextX = Math.max(minOffset, centerTextX);
-                }
-              }
-
-              this.textElement_.setAttribute("x", centerTextX);
-              centerTextX = inputLabelTextAnchor === "middle" ? centerTextX : 0;
-              for (const iterator of this.textElement_.children) {
-                iterator.setAttribute("x", centerTextX);
-              }
-            }
-
-            if (this.box_) {
-              this.box_.setAttribute("width", this.size_.width);
-              this.box_.setAttribute("height", this.size_.height);
-            }
-          }
-        };
-      },
-
-      turnRender: function(bool) {
-        ResizeEditorAble = bool;
       },
 
       dispose: function(workspace, Blockly) {
@@ -1036,26 +660,20 @@ function s(rt) {
     };
   })();
 
-  // ============================================
-  // 2. 主功能
-  // ============================================
   function initWitcatBlockinput(blocklyInstance, workspaceInstance) {
-    const Blockly = rt.scratchBlocks;
     const workspace = Blockly.getMainWorkspace();
 
-    // 初始化 lineText
     lineText.init(Blockly);
-    
-    // 状态变量
+
     let show = false;
     let inshow = false;
     let textLeft = true;
     let loaded = [];
-    let checkLong = 50;
+    let checkLong = 20;
     let timer = null;
-    let useMonaco = lineText.isMonacoAvailable();
+    let isPopupOpen = false;
+    let lastInputValue = '';
 
-    // 防抖函数
     function debounce(func, delay) {
       clearTimeout(timer);
       timer = setTimeout(() => {
@@ -1063,27 +681,31 @@ function s(rt) {
       }, delay);
     }
 
-    // 监听器
     const listener = function() {
+      if (isPopupOpen) return;
+
       const input = document.querySelector('.blocklyHtmlInput');
       if (!input) return;
-      
-      input.style.resize = "none";
+
+      // 如果值没有变化，不处理
+      if (input.value === lastInputValue) return;
+      lastInputValue = input.value;
+
       if (input.value.length > checkLong) {
         if (!show) {
           show = true;
-          if (useMonaco) {
-            lineText.showMonacoPopup(input, checkLong).then(() => {
-              show = false;
-            });
-          } else {
-            // 使用原弹窗
-            popups(input).then(() => {
-              show = false;
-            });
-          }
+          isPopupOpen = true;
+
+          lineText.checkAndShowPopup(input).then(() => {
+            show = false;
+            isPopupOpen = false;
+          }).catch(() => {
+            show = false;
+            isPopupOpen = false;
+          });
         }
       }
+
       if (!inshow) {
         setTimeout(() => {
           if (input.scrollHeight <= input.offsetHeight) {
@@ -1100,243 +722,64 @@ function s(rt) {
       }
     };
 
-    // 原弹窗函数（保留作为降级方案）
-    function popups(input) {
-      return new Promise((resolve) => {
-        inshow = true;
-        lineText.turnRender(true);
-        
-        const div = document.createElement("div");
-        div.style.position = "fixed";
-        div.style.top = "0px";
-        div.style.left = "0px";
-        div.style.width = "100%";
-        div.style.height = "100%";
-        div.style.zIndex = "9999";
-        div.style.transition = "all 0.2s ease-out";
-        div.style.backgroundColor = "#00000000";
+    // ✅ 监听 input 事件
+    document.addEventListener('input', function(e) {
+      const input = e.target;
+      if (input && input.classList && input.classList.contains('blocklyHtmlInput')) {
+        listener();
+      }
+    });
 
-        div.innerHTML = `
-          <div id="myModal" class="modal">
-            <div class="modals">
-              <span class="close">&times;</span>
-              <h5 class="modal-title">高级输入</h5>
-              <div class="modal-content"></div>
-            </div>
-          </div>
-          <style>
-            .modal {
-              height: 0%;
-              transition: all 0.2s ease-out;
-            }
-            .modal-content {
-              margin-top: 16px;
-              height: calc(100% - 16px);
-              overflow: scroll;
-            }
-            .modals {
-              background-color: #00000000;
-              margin: 15vh 25vw;
-              padding: 20px;
-              border-radius: 10px;
-              width: 50%;
-              height: 70vh;
-              position: relative;
-              transition: all 0.3s ease-out;
-            }
-            .modal-content::-webkit-scrollbar-corner {
-              background-color: transparent;
-            }
-            .modal-content p {
-              color: var(--theme-text-primary);
-            }
-            .modals h5 {
-              position: relative;
-              bottom: 10px;
-              color: #00000000;
-              font-size: 20px;
-              transition: all 0.3s ease-out;
-            }
-            .close {
-              cursor: pointer;
-              position: absolute;
-              top: 0;
-              right: 10px;
-              font-size: 28px;
-              font-weight: bold;
-              color: #00000000;
-              transition: all 0.3s ease-out;
-            }
-            .close:hover,
-            .close:focus {
-              color: black;
-              text-decoration: none;
-            }
-          </style>
-        `;
+    // ✅ 监听 startInputing 事件（点击输入框时）
+    document.body.addEventListener("startInputing", function() {
+      const input = document.querySelector('.blocklyHtmlInput');
+      if (input) {
+        lastInputValue = input.value;
+        input.style.resize = "none";
 
-        function inputstyle() {
-          try {
-            input.parentElement.style.opacity = "1.0";
-            input.parentElement.style.position = "fixed";
-            input.parentElement.style.top = "calc(15vh + 30px)";
-            input.parentElement.style.left = "25vw";
-            input.parentElement.style.width = "calc(50% - 20px)";
-            input.parentElement.style.height = "calc(70vh - 60px)";
-            input.parentElement.style.margin = "20px 10px";
-            input.parentElement.style.border = "none";
-            input.parentElement.style.background = "var(--theme-color-150)";
-            input.parentElement.style.borderRadius = "10px";
-            input.parentElement.style.transform = "";
-            input.parentElement.style.padding = "10px";
-            input.parentElement.style.boxShadow = "var(--theme-scrollbar-color) 0px 0px 0px 4px";
-            input.style.background = "var(--theme-color-150)";
-            input.style.border = "none";
-            input.style.color = "var(--theme-text-primary)";
-            input.style.borderRadius = "0px";
-            input.style.textAlign = textLeft ? "left" : "center";
-          } catch {
-            input = document.querySelector('.blocklyHtmlInput');
-            if (!input) return;
-            input.parentElement.style.transition = "none";
-            input.parentElement.style.opacity = "0.0";
-            input.parentElement.style.position = "fixed";
-            input.parentElement.style.top = "15vh";
-            input.parentElement.style.left = "25vw";
-            input.parentElement.style.width = "50%";
-            input.parentElement.style.height = "70vh";
-            input.parentElement.style.margin = "20px 10px";
-            input.parentElement.style.border = "none";
-            input.parentElement.style.background = "var(--theme-color-150)";
-            input.parentElement.style.borderRadius = "10px";
-            input.parentElement.style.transform = "";
-            input.parentElement.style.padding = "10px";
-            input.parentElement.style.boxShadow = "var(--theme-scrollbar-color) 0px 0px 0px 4px";
-            input.style.background = "var(--theme-color-150)";
-            input.style.border = "none";
-            input.style.color = "var(--theme-text-primary)";
-            input.style.borderRadius = "0px";
-            input.style.textAlign = textLeft ? "left" : "center";
-            setTimeout(() => {
-              input.parentElement.style.transition = "all 0.3s ease-out";
-              inputstyle();
-            }, 10);
+        // ✅ 点击时也检测阈值
+        if (input.value.length > checkLong) {
+          if (!show && !isPopupOpen) {
+            show = true;
+            isPopupOpen = true;
+
+            lineText.checkAndShowPopup(input).then(() => {
+              show = false;
+              isPopupOpen = false;
+            }).catch(() => {
+              show = false;
+              isPopupOpen = false;
+            });
           }
         }
+      }
+    });
 
-        input.parentElement.style.transition = "all 0.3s ease-out";
-        inputstyle();
+    lineText.svg(Blockly);
+    lineText.svgStart(true, workspace, Blockly, "text");
+    lineText.changeRenderWidth(20, workspace);
+    lineText.changTextarea(true);
+    lineText.linerender(true, workspace, false);
+    lineText.texthide(20, workspace, Blockly);
+    lineText.texthides(3, workspace, Blockly);
+    lineText.textarea(Blockly);
 
-        document.body.appendChild(div);
 
-        const modal = document.getElementById("myModal");
-        const span = document.querySelector(".close");
-
-        const config = {
-          attributes: true,
-          childList: true,
-          subtree: true,
-        };
-
-        const callback = function(mutationsList, observer) {
-          observer.disconnect();
-          const input = document.querySelector('.blocklyHtmlInput');
-          if (input) {
-            inputstyle();
-            observer.observe(input.parentElement, config);
-          } else {
-            div.style.backgroundColor = "#00000000";
-            modal.style.height = "0%";
-            document.querySelector('.modals').style.backgroundColor = "#00000000";
-            span.style.color = "#00000000";
-            document.querySelector('.modal-title').style.color = "#00000000";
-            setTimeout(() => {
-              inshow = false;
-              lineText.turnRender(false);
-              div.remove();
-              resolve();
-            }, 300);
-          }
-        };
-
-        const observer = new MutationObserver(callback);
-        observer.observe(input.parentElement, config);
-
-        setTimeout(() => {
-          div.style.backgroundColor = "var(--theme-scrollbar-color)";
-          modal.style.height = "80%";
-          document.querySelector('.modals').style.backgroundColor = "var(--theme-color-300)";
-          span.style.color = "var(--theme-box-shadow-color)";
-          document.querySelector('.modal-title').style.color = "var(--theme-text-primary)";
-        }, 300);
-      });
-    }
-
-    // 初始化功能
-    if (loaded.indexOf("start") === -1) {
-      document.body.addEventListener("startInputing", listener);
-      loaded.push("start");
-    }
-    
-    if (loaded.indexOf("textLeft") === -1) {
-      lineText.textLeft(false);
-      loaded.push("textLeft");
-    }
-    
-    if (loaded.indexOf("svg") === -1) {
-      lineText.svg(Blockly);
-      loaded.push("svg");
-    }
-    
-    if (loaded.indexOf("svgStart-text") === -1) {
-      lineText.svgStart(true, workspace, Blockly, "text");
-      loaded.push("svgStart-text");
-    }
-    
-    if (loaded.indexOf("changeRenderWidth") === -1) {
-      lineText.changeRenderWidth(20, workspace);
-      loaded.push("changeRenderWidth");
-    }
-    
-    if (loaded.indexOf("textarea") === -1) {
-      lineText.textarea(Blockly);
-      loaded.push("textarea");
-    }
-    
-    if (loaded.indexOf("changTextarea") === -1) {
-      lineText.changTextarea(true);
-      loaded.push("changTextarea");
-    }
-    
-    if (loaded.indexOf("linerender") === -1) {
-      lineText.linerender(true, workspace, false);
-      loaded.push("linerender");
-    }
-    
-    if (loaded.indexOf("texthide") === -1) {
-      lineText.texthide(20, workspace, Blockly);
-      loaded.push("texthide");
-    }
-    
-    if (loaded.indexOf("texthides") === -1) {
-      lineText.texthides(3, workspace, Blockly);
-      loaded.push("texthides");
-    }
-
-    // 返回控制对象
     return {
       dispose: function() {
+        document.removeEventListener('input', listener);
         document.body.removeEventListener("startInputing", listener);
         lineText.changTextarea(false);
-        lineText.textLeft(false);
         lineText.dispose(workspace, Blockly);
       },
       setCheckLong: function(value) {
         checkLong = value;
       },
+      getCheckLong: function() {
+        return checkLong;
+      },
       setTextLeft: function(value) {
         textLeft = value;
-        lineText.textLeft(value);
       },
       setLineRender: function(value) {
         lineText.linerender(value, workspace);
@@ -1349,9 +792,6 @@ function s(rt) {
       },
       setTextHideLines: function(value) {
         lineText.texthides(value, workspace, Blockly);
-      },
-      setUseMonaco: function(value) {
-        useMonaco = value && lineText.isMonacoAvailable();
       }
     };
   }
@@ -1362,24 +802,20 @@ function s(rt) {
   window.WitcatBlockinput = {
     init: initWitcatBlockinput,
     lineText: lineText,
-    isMonacoAvailable: function() {
-      return lineText.isMonacoAvailable();
-    }
   };
 
   // 自动初始化
   const instance = initWitcatBlockinput(rt.scratchBlocks, rt.scratchBlocks.getMainWorkspace());
   window.__witcatInstance = instance;
-  console.log('WitcatBlockinput initialized' + (lineText.isMonacoAvailable() ? ' with Monaco Editor' : ' with fallback'));
 
   return __witcatInstance.dispose;
 }
 
 const _bind = Function.prototype.bind;
 Function.prototype.bind = function(t, ...args) {
-    if (t?.runtime && t.greenFlag) {
-        window.addEventListener("load", () => s(t.runtime));
-        Function.prototype.bind = _bind;
-    }
-    return _bind.call(this, t, ...args);
+  if (t?.runtime && t.greenFlag) {
+    window.addEventListener("load", () => s(t.runtime));
+    Function.prototype.bind = _bind;
+  }
+  return _bind.call(this, t, ...args);
 };
