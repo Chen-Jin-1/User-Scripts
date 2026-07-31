@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Monoco Editor 输入
 // @namespace    cj-monaco-input
-// @version      1.0.1
+// @version      -1
 // @description  在 Gandi IDE 使用 Monaco Editor 输入
 // @match        https://www.ccw.site/gandi*
 // @run-at       document-start
@@ -360,7 +360,7 @@ Object.defineProperty(window, 'GandiPlugins', {
 
 
 function s(rt) {
-  let language, Blockly = rt.scratchBlocks;
+  let language, Blockly = rt.scratchBlocks, checkLong = 20, show = 0;
   const lineText = (function() {
     let textarea = "textarea";
     let renderWidth = 20;
@@ -458,9 +458,11 @@ function s(rt) {
             editor.focus();
           }, 100);
 
+          Blockly.DropDownDiv.hide();
+          
           const closeInput = () => {
             Blockly.WidgetDiv.hide();
-            Blockly.DropDownDiv.hide();
+            
           }
 
           document.getElementById('popup-save-btn').addEventListener('click', () => {
@@ -607,6 +609,15 @@ function s(rt) {
 
       textarea: function(Blockly) {
         const originShowEditor = Blockly.FieldTextInput.prototype.showEditor_;
+        const check = (input = document.querySelector('.blocklyHtmlInput')) => {
+          if (!input) return;
+          lastInputValue = input.value;
+          input.style.resize = "none";
+
+          if (input.value.length > checkLong) {
+              lineText.checkAndShowPopup(input)
+          }
+        }
         Blockly.FieldTextInput.prototype.showEditor_ = function(e) {
           const op = this.sourceBlock_.parentBlock_.type;
           language = op === "cjjst_js" || op === "i_run" || op === "WitCatHTML_jsfunc" ||
@@ -616,15 +627,13 @@ function s(rt) {
             'html' :
             'text';
           originShowEditor.call(this, e);
-          const event = new Event("startInputing");
-          document.body.dispatchEvent(event);
+          check();
         };
 
         const originKeyDown = Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_;
         Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_ = function(e) {
           originKeyDown.call(this, e);
-          const event = new Event("startInputing");
-          document.body.dispatchEvent(event);
+          check();
         };
       },
 
@@ -665,13 +674,9 @@ function s(rt) {
 
     lineText.init(Blockly);
 
-    let show = false;
-    let inshow = false;
     let textLeft = true;
     let loaded = [];
-    let checkLong = 20;
     let timer = null;
-    let isPopupOpen = false;
     let lastInputValue = '';
 
     function debounce(func, delay) {
@@ -687,39 +692,35 @@ function s(rt) {
       const input = document.querySelector('.blocklyHtmlInput');
       if (!input) return;
 
-      // 如果值没有变化，不处理
-      if (input.value === lastInputValue) return;
-      lastInputValue = input.value;
+      // // 如果值没有变化，不处理
+      // if (input.value === lastInputValue) return;
+      // lastInputValue = input.value;
 
-      if (input.value.length > checkLong) {
-        if (!show) {
-          show = true;
-          isPopupOpen = true;
+      // if (input.value.length > checkLong) {
+      //   if (!show) {
+      //     show = true;
+      //     isPopupOpen = true;
 
-          lineText.checkAndShowPopup(input).then(() => {
-            show = false;
-            isPopupOpen = false;
-          }).catch(() => {
-            show = false;
-            isPopupOpen = false;
-          });
-        }
-      }
+      //     lineText.checkAndShowPopup(input).then(() => {
+      //       show = false;
+      //       isPopupOpen = false;
+      //     }).catch(() => {
+      //       show = false;
+      //       isPopupOpen = false;
+      //     });
+      //   }
+      // }
 
-      if (!inshow) {
-        setTimeout(() => {
-          if (input.scrollHeight <= input.offsetHeight) {
-            input.style.lineHeight = input.scrollHeight + "px";
-            if (input.scrollHeight > input.offsetHeight) {
-              input.style.lineHeight = "1.2";
-            }
-          } else {
-            input.style.lineHeight = "1.2";
-          }
-        }, 10);
-      } else {
-        input.style.lineHeight = "1.2";
-      }
+      // setTimeout(() => {
+      //   if (input.scrollHeight <= input.offsetHeight) {
+      //     input.style.lineHeight = input.scrollHeight + "px";
+      //     if (input.scrollHeight > input.offsetHeight) {
+      //       input.style.lineHeight = "1.2";
+      //     }
+      //   } else {
+      //     input.style.lineHeight = "1.2";
+      //   }
+      // }, 10);
     };
 
     // ✅ 监听 input 事件
@@ -727,31 +728,6 @@ function s(rt) {
       const input = e.target;
       if (input && input.classList && input.classList.contains('blocklyHtmlInput')) {
         listener();
-      }
-    });
-
-    // ✅ 监听 startInputing 事件（点击输入框时）
-    document.body.addEventListener("startInputing", function() {
-      const input = document.querySelector('.blocklyHtmlInput');
-      if (input) {
-        lastInputValue = input.value;
-        input.style.resize = "none";
-
-        // ✅ 点击时也检测阈值
-        if (input.value.length > checkLong) {
-          if (!show && !isPopupOpen) {
-            show = true;
-            isPopupOpen = true;
-
-            lineText.checkAndShowPopup(input).then(() => {
-              show = false;
-              isPopupOpen = false;
-            }).catch(() => {
-              show = false;
-              isPopupOpen = false;
-            });
-          }
-        }
       }
     });
 
@@ -768,7 +744,7 @@ function s(rt) {
     return {
       dispose: function() {
         document.removeEventListener('input', listener);
-        document.body.removeEventListener("startInputing", listener);
+        // document.body.removeEventListener("startInputing", listener);
         lineText.changTextarea(false);
         lineText.dispose(workspace, Blockly);
       },
