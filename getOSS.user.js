@@ -13,9 +13,9 @@ var __create=Object.create;var __defProp=Object.defineProperty;var __getOwnPropD
 const w = () => new Promise(r => {
     let fetch = unsafeWindow.fetch, _;
     unsafeWindow.fetch = async function(u, o) {
-        const a = fetch(u, o);
-        u === 'https://community-web.ccw.site/health/check' && (await a, _ = a.json(), r((a.json = () => _)()));
-        return await a;
+        const a = await fetch(u, o);
+        u === 'https://community-web.ccw.site/health/check' && (_ = a.json(), r((a.json = () => _)()));
+        return a;
     }
 });
 const ccwFetch = (t, e = "{}", r = "include", h = {}) => fetch(t, {

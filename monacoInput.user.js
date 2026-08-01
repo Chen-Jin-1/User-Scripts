@@ -1,17 +1,18 @@
 // ==UserScript==
-// @name         Monoco Editor 输入
+// @name         Monaco Editor 输入
 // @namespace    cj-monaco-input
-// @version      -1
+// @version      0
 // @description  在 Gandi IDE 使用 Monaco Editor 输入
 // @match        https://www.ccw.site/gandi*
 // @run-at       document-start
 // @icon         https://m.ccw.site/community/images/logo-ccw.png
 // @author       Chen-Jin
 // @downloadURL  https://us.chen-jin.dpdns.org/monacoInput.user.js
-// @grant        none
+// @grant        GM_registerMenuCommand
+// @grant        GM_unregisterMenuCommand
 // ==/UserScript==
 
-let style = new CSSStyleSheet();
+let style = new CSSStyleSheet(), win = document.defaultView;
 style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
 
 /* 主容器 - 全屏覆盖 */
@@ -339,10 +340,33 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
     background: rgba(0, 0, 0, 0.05);
     color: #666;
   }
+}
+
+#monaco-popup-container {
+  position: fixed;
+  inset: 0;
+  transition: opacity .3s ease;
+  opacity: 0;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  z-index: 100000;
+  animation: monacoFadeIn 0.3s ease-out;
+  &:has(.monaco-toolbar) {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  &:has(.monaco-toolbar-title:hover, ~ .monaco-toolbar .monaco-toolbar-title:hover) {
+    opacity: .5;
+  }
+}
+  
+.blocklyWidgetDiv.fieldTextInput {
+  height: auto !important;
 }`);
 document.adoptedStyleSheets.push(style);
 
-Object.defineProperty(window, 'GandiPlugins', {
+Object.defineProperty(win, 'GandiPlugins', {
   set: v => {
     const _ = v.default.prototype.initPluginsManager;
     v.default.prototype.initPluginsManager = function() {
@@ -352,15 +376,14 @@ Object.defineProperty(window, 'GandiPlugins', {
         set: v => v(),
       });
     }
-    delete window.GandiPlugins;
-    window.GandiPlugins = v;
+    delete win.GandiPlugins;
+    win.GandiPlugins = v;
   },
   configurable: 1,
 });
 
-
 function s(rt) {
-  let language, Blockly = rt.scratchBlocks, checkLong = 20, show = 0;
+  let language, Blockly = rt.scratchBlocks, checkLong = 20, show = 0, mid;
   const lineText = (function() {
     let textarea = "textarea";
     let renderWidth = 20;
@@ -410,6 +433,7 @@ function s(rt) {
         originalRender_ = Blockly.FieldTextInput.prototype.render_;
         originalResizeEditor_ = Blockly.FieldTextInput.prototype.resizeEditor_;
         originCloseEditor_ = Blockly.FieldTextInput.prototype.closeEditor_;
+        
       },
 
       // 直接检查 Monaco 是否可用
@@ -417,21 +441,22 @@ function s(rt) {
 
       checkAndShowPopup: function(input) {
         return new Promise((resolve) => {
+          show = 1;
           const currentValue = input.value || '';
+          const lines = currentValue.substring(0, input.selectionStart).split('\n'),
+            lineNumber = lines.length,
+            column = lines[lines.length - 1].length + 1;
 
           const container = document.createElement('div');
-          container.className = 'monaco-editor-container';
           container.id = 'monaco-popup-container';
 
           const toolbar = document.createElement('div');
           toolbar.className = 'monaco-toolbar';
-          toolbar.innerHTML = `
-      <span class="monaco-toolbar-title">📝 长文本编辑器 (Ctrl+Enter 保存 · Esc 取消)</span>
-      <div class="monaco-toolbar-actions">
-        <button class="btn-save" id="popup-save-btn">保存 (Ctrl+Enter)</button>
-        <button class="btn-cancel" id="popup-cancel-btn">取消 (Esc)</button>
-      </div>
-    `;
+          toolbar.innerHTML = `<span class="monaco-toolbar-title">Monaco Editor For Blockly</span>
+<div class="monaco-toolbar-actions">
+  <button class="btn-save" id="popup-save-btn">保存</button>
+  <button class="btn-cancel" id="popup-cancel-btn">取消</button>
+</div>`;
           container.appendChild(toolbar);
 
           const editorWrapper = document.createElement('div');
@@ -456,13 +481,14 @@ function s(rt) {
           setTimeout(() => {
             editor.layout();
             editor.focus();
+            editor.setPosition({ lineNumber, column });
           }, 100);
 
           Blockly.DropDownDiv.hide();
           
           const closeInput = () => {
             Blockly.WidgetDiv.hide();
-            
+            show = 0;
           }
 
           document.getElementById('popup-save-btn').addEventListener('click', () => {
@@ -481,13 +507,22 @@ function s(rt) {
             closeInput();
           });
 
-          editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-            document.getElementById('popup-save-btn').click();
-          });
-          editor.addCommand(monaco.KeyCode.Escape, () => {
-            document.getElementById('popup-cancel-btn').click();
-          });
+          container.onkeydown = e => {
+            e.stopPropagation();
+            if (e.key === 's' && e.ctrlKey) document.getElementById('popup-save-btn').click(e.preventDefault());
+            else if (e.key === 'Escape') document.getElementById('popup-cancel-btn').click();
+          }
           container.onclick = e => e.stopPropagation();
+
+          toolbar.querySelector('.monaco-toolbar-title').onclick = e => {
+            if (toolbar.parentNode === container) {
+              document.body.appendChild(toolbar);
+              toolbar.classList.add('monaco-fixed');
+            } else {
+              container.prepend(toolbar);
+              toolbar.classList.remove('monaco-fixed');
+            }
+          }
         });
       },
 
@@ -611,32 +646,140 @@ function s(rt) {
         const originShowEditor = Blockly.FieldTextInput.prototype.showEditor_;
         const check = (input = document.querySelector('.blocklyHtmlInput')) => {
           if (!input) return;
-          lastInputValue = input.value;
           input.style.resize = "none";
-
-          if (input.value.length > checkLong) {
-              lineText.checkAndShowPopup(input)
-          }
+          if (!show && input.value.length > checkLong) lineText.checkAndShowPopup(input);
         }
         Blockly.FieldTextInput.prototype.showEditor_ = function(e) {
-          const op = this.sourceBlock_.parentBlock_.type;
+          const op = this.sourceBlock_.parentBlock_.type, value = this.text_;
           language = op === "cjjst_js" || op === "i_run" || op === "WitCatHTML_jsfunc" ||
             op === "WitCatHTML_jsfuncs" || op === "functionHTML" ?
             'javascript' :
             op === "WitCatHTML_html" ?
             'html' :
             'text';
+          const _ce = document.createElement.bind(document);
+          document.createElement = t => {
+            if (t === 'INPUT') {
+              document.createElement = _ce;
+              e = _ce('textarea');
+              e.addEventListener('input', _ => e.rows = e.value.split('\n').length);
+              e.rows = value.split('\n').length;
+              return e;
+            }
+            return _ce(t);
+          }
           originShowEditor.call(this, e);
           check();
         };
 
         const originKeyDown = Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_;
         Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_ = function(e) {
-          originKeyDown.call(this, e);
+          if (e.key !== "Enter" || e.ctrlKey) originKeyDown.call(this, e);
           check();
         };
       },
 
+      render: () => {
+        function splitStringIntoLines(inputString, charactersPerLine) {
+          const regex = new RegExp(".{1," + charactersPerLine + "}", "g");
+          let inputStringSplit = [];
+          inputString.split("\n").forEach((line) => {
+            if (line.match(regex)) inputStringSplit.push(...line.match(regex));
+            else inputStringSplit.push("\u00A0");
+          });
+          if (inputStringSplit.length > Blockly.BlockSvg.MAX_DISPLAY_LINE_LENGTH) {
+            inputStringSplit = inputStringSplit.slice(0, Blockly.BlockSvg.MAX_DISPLAY_LINE_LENGTH);
+            let s = inputStringSplit[Blockly.BlockSvg.MAX_DISPLAY_LINE_LENGTH - 1];
+            inputStringSplit[Blockly.BlockSvg.MAX_DISPLAY_LINE_LENGTH - 1] = s.slice(0, charactersPerLine - 3) + "…";
+          }
+          return inputStringSplit;
+        }
+        this.textElement_?.setAttribute("text-anchor", inputLabelTextAnchor);
+        Blockly.FieldTextInput.prototype.render_ = function() {
+          originalRender_.call(this);
+          if (textarea == "textarea") {
+            if (this.visible_ && this.textElement_) {
+              while (this.textElement_.firstChild) {
+                this.textElement_.removeChild(this.textElement_.firstChild);
+              }
+              let test = this.getDisplayText_();
+              if (lineRender) {
+                if (this.getText()) {
+                  if (this.getText().length > Blockly.BlockSvg.MAX_DISPLAY_LENGTH) {
+                    test = this.getText().slice(0, Blockly.BlockSvg.MAX_DISPLAY_LENGTH - 3) + "...";
+                  } else {
+                    test = this.getText();
+                  }
+                }
+              }
+              const lines = splitStringIntoLines(test, renderWidth);
+              let maxLengthLine = 0;
+              let maxLength = 0;
+              for (let index = 0; index < lines.length; index++) {
+                const lineText = lines[index];
+                let tspan = document.createElementNS(Blockly.SVG_NS, "tspan");
+                if (lineText.length > maxLength) {
+                  maxLength = lineText.length;
+                  maxLengthLine = index;
+                }
+                tspan.textContent = lineText;
+                if (index !== 0) {
+                  tspan.setAttribute("dy", 16);
+                } else {
+                  tspan.setAttribute("x", 0);
+                }
+                this.textElement_.appendChild(tspan);
+              }
+              const fc = this.textElement_.children[maxLengthLine];
+
+              this.size_.height = 16 * (lines.length + 1);
+              this.size_.width = fc.getComputedTextLength();
+
+              this.arrowWidth_ = 0;
+              if (this.positionArrow) {
+                this.arrowWidth_ = this.positionArrow(this.size_.width);
+                this.size_.width += this.arrowWidth_;
+              }
+              // Update text centering, based on newly calculated width.
+              var centerTextX = (this.size_.width - this.arrowWidth_) / 2;
+              if (this.sourceBlock_.RTL) {
+                centerTextX += this.arrowWidth_;
+              }
+              // In a text-editing shadow block's field,
+              // if half the text length is not at least center of
+              // visible field (FIELD_WIDTH), center it there instead,
+              // unless there is a drop-down arrow.
+              if (this.sourceBlock_.isShadow() && !this.positionArrow) {
+                var minOffset = Blockly.BlockSvg.FIELD_WIDTH / 2;
+                if (this.sourceBlock_.RTL) {
+                  // X position starts at the left edge of the block, in both RTL and LTR.
+                  // First offset by the width of the block to move to the right edge,
+                  // and then subtract to move to the same position as LTR.
+                  var minCenter = this.size_.width - minOffset;
+                  centerTextX = Math.min(minCenter, centerTextX);
+                } else {
+                  // (width / 2) should exceed Blockly.BlockSvg.FIELD_WIDTH / 2
+                  // if the text is longer.
+                  centerTextX = Math.max(minOffset, centerTextX);
+                }
+              }
+
+              // Apply new text element x position.
+              this.textElement_.setAttribute("x", centerTextX);
+              centerTextX = inputLabelTextAnchor === "middle" ? centerTextX : 0;
+              for (const iterator of this.textElement_.children) {
+                iterator.setAttribute("x", centerTextX);
+              }
+            }
+
+            // Update any drawn box to the correct width and height.
+            if (this.box_) {
+              this.box_.setAttribute("width", this.size_.width);
+              this.box_.setAttribute("height", this.size_.height);
+            }
+          }
+        };
+      },
       dispose: function(workspace, Blockly) {
         Blockly.FieldTextInput.prototype.showEditor_ = originShowEditor_;
         Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_ = originHtmlInputKeyDown_;
@@ -669,15 +812,12 @@ function s(rt) {
     };
   })();
 
-  function initWitcatBlockinput(blocklyInstance, workspaceInstance) {
+  function initBlockinput() {
     const workspace = Blockly.getMainWorkspace();
-
     lineText.init(Blockly);
-
     let textLeft = true;
     let loaded = [];
     let timer = null;
-    let lastInputValue = '';
 
     function debounce(func, delay) {
       clearTimeout(timer);
@@ -685,51 +825,6 @@ function s(rt) {
         func();
       }, delay);
     }
-
-    const listener = function() {
-      if (isPopupOpen) return;
-
-      const input = document.querySelector('.blocklyHtmlInput');
-      if (!input) return;
-
-      // // 如果值没有变化，不处理
-      // if (input.value === lastInputValue) return;
-      // lastInputValue = input.value;
-
-      // if (input.value.length > checkLong) {
-      //   if (!show) {
-      //     show = true;
-      //     isPopupOpen = true;
-
-      //     lineText.checkAndShowPopup(input).then(() => {
-      //       show = false;
-      //       isPopupOpen = false;
-      //     }).catch(() => {
-      //       show = false;
-      //       isPopupOpen = false;
-      //     });
-      //   }
-      // }
-
-      // setTimeout(() => {
-      //   if (input.scrollHeight <= input.offsetHeight) {
-      //     input.style.lineHeight = input.scrollHeight + "px";
-      //     if (input.scrollHeight > input.offsetHeight) {
-      //       input.style.lineHeight = "1.2";
-      //     }
-      //   } else {
-      //     input.style.lineHeight = "1.2";
-      //   }
-      // }, 10);
-    };
-
-    // ✅ 监听 input 事件
-    document.addEventListener('input', function(e) {
-      const input = e.target;
-      if (input && input.classList && input.classList.contains('blocklyHtmlInput')) {
-        listener();
-      }
-    });
 
     lineText.svg(Blockly);
     lineText.svgStart(true, workspace, Blockly, "text");
@@ -739,14 +834,15 @@ function s(rt) {
     lineText.texthide(20, workspace, Blockly);
     lineText.texthides(3, workspace, Blockly);
     lineText.textarea(Blockly);
-
+    lineText.render();
 
     return {
       dispose: function() {
-        document.removeEventListener('input', listener);
-        // document.body.removeEventListener("startInputing", listener);
         lineText.changTextarea(false);
         lineText.dispose(workspace, Blockly);
+        GM_unregisterMenuCommand(mid);
+        mid = GM_registerMenuCommand('加载', initBlockinput);
+        delete win._monacoInstance;
       },
       setCheckLong: function(value) {
         checkLong = value;
@@ -768,29 +864,20 @@ function s(rt) {
       },
       setTextHideLines: function(value) {
         lineText.texthides(value, workspace, Blockly);
-      }
+      },
     };
   }
 
-  // ============================================
-  // 3. 暴露到全局
-  // ============================================
-  window.WitcatBlockinput = {
-    init: initWitcatBlockinput,
-    lineText: lineText,
-  };
-
-  // 自动初始化
-  const instance = initWitcatBlockinput(rt.scratchBlocks, rt.scratchBlocks.getMainWorkspace());
-  window.__witcatInstance = instance;
-
-  return __witcatInstance.dispose;
+  const instance = initBlockinput();
+  win._monacoInstance = instance;
+  GM_unregisterMenuCommand(mid);
+  mid = GM_registerMenuCommand('卸载', instance.dispose);
 }
 
 const _bind = Function.prototype.bind;
 Function.prototype.bind = function(t, ...args) {
   if (t?.runtime && t.greenFlag) {
-    window.addEventListener("load", () => s(t.runtime));
+    win.addEventListener("load", () => s(t.runtime));
     Function.prototype.bind = _bind;
   }
   return _bind.call(this, t, ...args);
