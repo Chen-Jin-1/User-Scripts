@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Monaco Editor 输入
 // @namespace    cj-monaco-input
-// @version      0
+// @version      1.0
 // @description  在 Gandi IDE 使用 Monaco Editor 输入
 // @match        https://www.ccw.site/gandi*
 // @run-at       document-start
@@ -51,7 +51,6 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
   border-bottom: 1px solid #3e3e42;
   flex-shrink: 0;
   user-select: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .monaco-toolbar-title {
@@ -125,7 +124,6 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
 .monaco-editor-wrapper .monaco-editor {
   border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
 }
 
 /* Monaco 编辑器内部样式覆盖 */
@@ -356,13 +354,21 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
     opacity: 1;
     pointer-events: auto;
   }
-  &:has(.monaco-toolbar-title:hover, ~ .monaco-toolbar .monaco-toolbar-title:hover) {
+  &.toolbar-hover {
     opacity: .5;
   }
 }
   
 .blocklyWidgetDiv.fieldTextInput {
   height: auto !important;
+}
+
+.monaco-fixed {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: var(--theme-color-300);
+  border-bottom: none;
 }`);
 document.adoptedStyleSheets.push(style);
 
@@ -488,6 +494,7 @@ function s(rt) {
           
           const closeInput = () => {
             Blockly.WidgetDiv.hide();
+            document.querySelector('.monaco-fixed')?.remove();
             show = 0;
           }
 
@@ -514,7 +521,11 @@ function s(rt) {
           }
           container.onclick = e => e.stopPropagation();
 
-          toolbar.querySelector('.monaco-toolbar-title').onclick = e => {
+          const title = toolbar.querySelector('.monaco-toolbar-title');
+          title.onclick = (e) => {
+            e.stopPropagation();
+            container.classList.remove('toolbar-hover');
+            
             if (toolbar.parentNode === container) {
               document.body.appendChild(toolbar);
               toolbar.classList.add('monaco-fixed');
@@ -522,7 +533,15 @@ function s(rt) {
               container.prepend(toolbar);
               toolbar.classList.remove('monaco-fixed');
             }
-          }
+          };
+          
+          title.onmouseenter = () => {
+            container.classList.add('toolbar-hover');
+          };
+          
+          title.onmouseleave = () => {
+            container.classList.remove('toolbar-hover');
+  };
         });
       },
 
@@ -787,6 +806,9 @@ function s(rt) {
         Blockly.FieldTextInput.prototype.resizeEditor_ = originalResizeEditor_;
         Blockly.FieldTextInput.prototype.closeEditor_ = originCloseEditor_;
         Blockly.BlockSvg.MAX_DISPLAY_LENGTH = Infinity;
+
+        document.getElementById('#monaco-popup-container')?.remove();
+        document.querySelector('.monaco-fixed')?.remove();
 
         let needRerenderBlockTypes = new Set(["text", "number", "color"]);
         needRerenderBlockTypes.forEach((needRerenderBlockType) => {
