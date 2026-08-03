@@ -451,11 +451,13 @@ function s(rt) {
           const lines = currentValue.substring(0, input.selectionStart).split('\n'),
             lineNumber = lines.length,
             column = lines[lines.length - 1].length + 1;
-          
+
+          const _showEditor = Blockly.FieldTextInput.prototype.showEditor_,
+            _ohik = Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_;
           const _hide = Blockly.WidgetDiv.hide.bind(Blockly.WidgetDiv);
           Blockly.WidgetDiv.hide = () => {};
+          Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_ = () => {};
           input.parentNode.style.display = 'none';
-          const _showEditor = Blockly.FieldTextInput.prototype.showEditor_;
 
           const container = document.createElement('div');
           container.id = 'monaco-popup-container';
@@ -500,6 +502,7 @@ function s(rt) {
             _hide();
             Blockly.WidgetDiv.hide = _hide;
             Blockly.FieldTextInput.prototype.showEditor_ = _showEditor;
+            Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_ = _ohik;
             document.querySelector('.monaco-fixed')?.remove();
             show = 0;
           }
