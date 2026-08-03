@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Monaco Editor 输入
 // @namespace    cj-monaco-input
-// @version      1.0
+// @version      1.1
 // @description  在 Gandi IDE 使用 Monaco Editor 输入
 // @match        https://www.ccw.site/gandi*
 // @run-at       document-start
@@ -439,7 +439,6 @@ function s(rt) {
         originalRender_ = Blockly.FieldTextInput.prototype.render_;
         originalResizeEditor_ = Blockly.FieldTextInput.prototype.resizeEditor_;
         originCloseEditor_ = Blockly.FieldTextInput.prototype.closeEditor_;
-        
       },
 
       // 直接检查 Monaco 是否可用
@@ -452,6 +451,11 @@ function s(rt) {
           const lines = currentValue.substring(0, input.selectionStart).split('\n'),
             lineNumber = lines.length,
             column = lines[lines.length - 1].length + 1;
+          
+          const _hide = Blockly.WidgetDiv.hide.bind(Blockly.WidgetDiv);
+          Blockly.WidgetDiv.hide = () => {};
+          input.parentNode.style.display = 'none';
+          const _showEditor = Blockly.FieldTextInput.prototype.showEditor_;
 
           const container = document.createElement('div');
           container.id = 'monaco-popup-container';
@@ -493,7 +497,9 @@ function s(rt) {
           Blockly.DropDownDiv.hide();
           
           const closeInput = () => {
-            Blockly.WidgetDiv.hide();
+            _hide();
+            Blockly.WidgetDiv.hide = _hide;
+            Blockly.FieldTextInput.prototype.showEditor_ = _showEditor;
             document.querySelector('.monaco-fixed')?.remove();
             show = 0;
           }
@@ -525,7 +531,6 @@ function s(rt) {
           title.onclick = (e) => {
             e.stopPropagation();
             container.classList.remove('toolbar-hover');
-            
             if (toolbar.parentNode === container) {
               document.body.appendChild(toolbar);
               toolbar.classList.add('monaco-fixed');
@@ -535,13 +540,9 @@ function s(rt) {
             }
           };
           
-          title.onmouseenter = () => {
-            container.classList.add('toolbar-hover');
-          };
-          
-          title.onmouseleave = () => {
-            container.classList.remove('toolbar-hover');
-  };
+          title.onmouseenter = () => container.classList.add('toolbar-hover');
+          title.onmouseleave = () => container.classList.remove('toolbar-hover');
+          Blockly.FieldTextInput.prototype.showEditor_ = () => confirm("Monaco Editor 编辑未保存，是否继续编辑？") && title.click();
         });
       },
 
@@ -669,13 +670,22 @@ function s(rt) {
           if (!show && input.value.length > checkLong) lineText.checkAndShowPopup(input);
         }
         Blockly.FieldTextInput.prototype.showEditor_ = function(e) {
-          const op = this.sourceBlock_.parentBlock_.type, value = this.text_;
-          language = op === "cjjst_js" || op === "i_run" || op === "WitCatHTML_jsfunc" ||
-            op === "WitCatHTML_jsfuncs" || op === "functionHTML" ?
-            'javascript' :
-            op === "WitCatHTML_html" ?
-            'html' :
-            'text';
+          const sb = this.sourceBlock_,
+            { id } = sb,
+            pid = sb.parentBlock_.id,
+            pb = rt._editingTarget.blocks._blocks[pid] ?? rt.flyoutBlocks._blocks[pid],
+            is = pb.inputs,
+            fn = Object.values(is).find(x => x.shadow === id).name,
+            n = `${pb.opcode}_${fn}`,
+            value = this.text_;
+          language = n === "cjjst_js_js" || n === "i_run_js" || n === "WitCatHTML_jsfunc_js" ||
+            n === "WitCatHTML_jsfuncs_js" || n === "WitCatHTML_functionHTML_func" || n === "cjjst_jsblock_js"
+              ? 'javascript'
+              : n === "WitCatHTML_html_html"
+                ? 'html'
+                : n === "CCWData_getValueInJSON_2_JSON" || n === "CCWData_setValueInJSON_2_JSON" || n === "CCWData_fillJSONArrayToList_JSON"
+                  ? 'json'
+                  : 'text';
           const _ce = document.createElement.bind(document);
           document.createElement = t => {
             if (t === 'INPUT') {
