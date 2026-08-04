@@ -116,7 +116,6 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
 /* 编辑器包装器 */
 .monaco-editor-wrapper {
   flex: 1;
-  padding: 12px;
   min-height: 0;
   background: #1e1e1e;
 }
