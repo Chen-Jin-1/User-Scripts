@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Monaco Editor 输入
 // @namespace    cj-monaco-input
-// @version      1.1
+// @version      1.1.1
 // @description  在 Gandi IDE 使用 Monaco Editor 输入
 // @match        https://www.ccw.site/gandi*
 // @run-at       document-start
@@ -388,7 +388,7 @@ Object.defineProperty(win, 'GandiPlugins', {
 });
 
 function s(rt) {
-  let language, Blockly = rt.scratchBlocks, checkLong = 20, show = 0, mid;
+  let language, Blockly = rt.scratchBlocks, checkLong = 20, show = 0, mid, field;
   const lineText = (function() {
     let textarea = "textarea";
     let renderWidth = 20;
@@ -533,6 +533,7 @@ function s(rt) {
           title.onclick = (e) => {
             e.stopPropagation();
             container.classList.remove('toolbar-hover');
+            field.setValue(editor.getValue());
             if (toolbar.parentNode === container) {
               document.body.appendChild(toolbar);
               toolbar.classList.add('monaco-fixed');
@@ -688,6 +689,7 @@ function s(rt) {
                 : n === "CCWData_getValueInJSON_2_JSON" || n === "CCWData_setValueInJSON_2_JSON" || n === "CCWData_fillJSONArrayToList_JSON"
                   ? 'json'
                   : 'text';
+          field = this;
           const _ce = document.createElement.bind(document);
           document.createElement = t => {
             if (t === 'INPUT') {
