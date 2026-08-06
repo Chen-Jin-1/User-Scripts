@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Monaco Editor 输入
 // @namespace    cj-monaco-input
-// @version      1.1.1
+// @version      1.1.2
 // @description  在 Gandi IDE 使用 Monaco Editor 输入
 // @match        https://www.ccw.site/gandi*
 // @run-at       document-start
@@ -452,10 +452,12 @@ function s(rt) {
             column = lines[lines.length - 1].length + 1;
 
           const _showEditor = Blockly.FieldTextInput.prototype.showEditor_,
-            _ohik = Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_;
+            _ohik = Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_,
+            _splitEvent = Blockly.Touch.splitEventByTouches;
           const _hide = Blockly.WidgetDiv.hide.bind(Blockly.WidgetDiv);
           Blockly.WidgetDiv.hide = () => {};
           Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_ = () => {};
+          Blockly.Touch.splitEventByTouches = () => [];
           input.parentNode.style.display = 'none';
 
           const container = document.createElement('div');
@@ -502,6 +504,7 @@ function s(rt) {
             Blockly.WidgetDiv.hide = _hide;
             Blockly.FieldTextInput.prototype.showEditor_ = _showEditor;
             Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_ = _ohik;
+            Blockly.Touch.splitEventByTouches = _splitEvent;
             document.querySelector('.monaco-fixed')?.remove();
             show = 0;
           }
@@ -533,10 +536,10 @@ function s(rt) {
           title.onclick = (e) => {
             e.stopPropagation();
             container.classList.remove('toolbar-hover');
-            field.setValue(editor.getValue());
             if (toolbar.parentNode === container) {
               document.body.appendChild(toolbar);
               toolbar.classList.add('monaco-fixed');
+              field.setValue(editor.getValue());
             } else {
               container.prepend(toolbar);
               toolbar.classList.remove('monaco-fixed');
@@ -697,6 +700,16 @@ function s(rt) {
               e = _ce('textarea');
               e.addEventListener('input', _ => e.rows = e.value.split('\n').length);
               e.rows = value.split('\n').length;
+              const _ael = e.addEventListener;
+              e.addEventListener = (...args) => {
+                console.log("ee", args);
+                _ael.apply(e, args);
+              }
+              const __ael = document.addEventListener;
+              document.addEventListener = (...args) => {
+                console.log("de", args);
+                __ael.apply(document, args);
+              }
               return e;
             }
             return _ce(t);
