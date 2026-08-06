@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Monaco Editor 输入
 // @namespace    cj-monaco-input
-// @version      1.1.2
+// @version      1.1.3
 // @description  在 Gandi IDE 使用 Monaco Editor 输入
 // @match        https://www.ccw.site/gandi*
 // @run-at       document-start
@@ -368,6 +368,12 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
   width: 100%;
   background: var(--theme-color-300);
   border-bottom: none;
+  z-index: 99999;
+}
+  
+[class*="gandi_save-controller_status-wrapper"], {
+  position: fixed;
+  z-index: 100000;
 }`);
 document.adoptedStyleSheets.push(style);
 
@@ -506,6 +512,7 @@ function s(rt) {
             Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_ = _ohik;
             Blockly.Touch.splitEventByTouches = _splitEvent;
             document.querySelector('.monaco-fixed')?.remove();
+            document.removeEventListener(titleclick);
             show = 0;
           }
 
@@ -530,6 +537,13 @@ function s(rt) {
             if (e.key === 's' && e.ctrlKey) document.getElementById('popup-save-btn').click(e.preventDefault());
             else if (e.key === 'Escape') document.getElementById('popup-cancel-btn').click();
           }
+          let titleclick;
+          document.addEventListener('keydown', titleclick = e =>
+            (e.key === 'o' && e.ctrlKey && (e.altKey
+              ? (toolbar.style.display = toolbar.style.display ? "" : "none")
+              : title.click()
+            ), e.preventDefault())
+          );
           container.onclick = e => e.stopPropagation();
 
           const title = toolbar.querySelector('.monaco-toolbar-title');
@@ -700,16 +714,6 @@ function s(rt) {
               e = _ce('textarea');
               e.addEventListener('input', _ => e.rows = e.value.split('\n').length);
               e.rows = value.split('\n').length;
-              const _ael = e.addEventListener;
-              e.addEventListener = (...args) => {
-                console.log("ee", args);
-                _ael.apply(e, args);
-              }
-              const __ael = document.addEventListener;
-              document.addEventListener = (...args) => {
-                console.log("de", args);
-                __ael.apply(document, args);
-              }
               return e;
             }
             return _ce(t);
