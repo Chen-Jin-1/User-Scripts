@@ -539,7 +539,7 @@ function s(rt) {
           }
           let titleclick;
           document.addEventListener('keydown', titleclick = e =>
-            (e.key === 'o' && e.ctrlKey && (e.altKey
+            e.key === 'o' && e.ctrlKey && ((e.altKey
               ? (toolbar.style.display = toolbar.style.display ? "" : "none")
               : title.click()
             ), e.preventDefault())
