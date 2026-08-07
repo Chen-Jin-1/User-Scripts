@@ -1,13 +1,10 @@
 // ==UserScript==
 // @name                快捷回复
 // @namespace           cj-reply
-// @version             1.0.6
+// @version             1.0.7
 // @description         在 Gandi 中快捷查看回复
 // @author              Chen-Jin
-// @match               https://www.ccw.site/gandi*
-// @match               https://www.ccw.site/creator*
-// @match               https://assets.ccw.site/*
-// @match               https://learn.ccw.site/*
+// @match               https://*.ccw.site/*
 // @icon                https://m.ccw.site/user_projects_assets/4448f7d5994cbe0e5283098aad745d4b.svg
 // @downloadURL         https://us.chen-jin.dpdns.org/reply.user.js?
 // @run-at              document-body
@@ -18,62 +15,51 @@
 const extIcon = "https://m.ccw.site/user_projects_assets/4448f7d5994cbe0e5283098aad745d4b.svg";
 function makeDraggable(element) {
     let isDragging = false;
-    let dragPerformed = false;
     let startX, startY;
     let initialRight, initialTop;
+    let hasMoved = false;
     
-    element.addEventListener('mousedown', startDrag);
-    element.addEventListener('torchstart', startDrag);
+    element.addEventListener('pointerdown', startDrag);
     
     function startDrag(e) {
-        element.style.cursor = "grabbing";
+        if (e.pointerType === 'pen' && e.pressure === 0) return;
+        
         isDragging = true;
-        dragPerformed = false;
+        hasMoved = false;
         startX = e.clientX;
         startY = e.clientY;
+        
         const computedStyle = getComputedStyle(element);
         initialRight = parseFloat(computedStyle.right);
         initialTop = parseFloat(computedStyle.top);
-        element.style.right = initialRight + 'px';
-        element.style.top = initialTop + 'px';
-        document.addEventListener('mousemove', onDrag);
-        document.addEventListener('mouseup', stopDrag);
+        
+        document.addEventListener('pointermove', onDrag);
+        document.addEventListener('pointerup', stopDrag);
         e.preventDefault();
     }
     
     function onDrag(e) {
         if (!isDragging) return;
         
-        const moveX = Math.abs(e.clientX - startX);
-        const moveY = Math.abs(e.clientY - startY);
-        
-        if (moveX > 5 || moveY > 5) {
-            dragPerformed = true;
-        }
-        
         const deltaX = e.clientX - startX;
         const deltaY = e.clientY - startY;
+        
+        // 检测是否真的移动了
+        if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
+            hasMoved = true;
+        }
+        
         element.style.right = (initialRight - deltaX) + 'px';
         element.style.top = (initialTop + deltaY) + 'px';
     }
     
-    function stopDrag() {
-        element.style.cursor = "";
+    function stopDrag(e) {
         isDragging = false;
-        document.removeEventListener('mousemove', onDrag);
-        document.removeEventListener('mouseup', stopDrag);
+        document.removeEventListener('pointermove', onDrag);
+        document.removeEventListener('pointerup', stopDrag);
         
-        if (dragPerformed) {
-            const clickHandler = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                element.removeEventListener('click', clickHandler, true);
-            };
-            element.addEventListener('click', clickHandler, true);
-            
-            setTimeout(() => {
-                element.removeEventListener('click', clickHandler, true);
-            }, 100);
+        if (!hasMoved) {
+            element.hclick();
         }
     }
 }
@@ -149,7 +135,7 @@ async function update() {
     }
 }
 btn.title = "打开回复页";
-btn.onclick = () => {
+btn.hclick = () => {
     open("https://www.ccw.site/notice/reply");
     num.style.display = "none";
 };
