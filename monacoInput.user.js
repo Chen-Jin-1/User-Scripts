@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Monaco Editor 输入
 // @namespace    cj-monaco-input
-// @version      1.1.3
+// @version      1.1.4
 // @description  在 Gandi IDE 使用 Monaco Editor 输入
 // @match        https://www.ccw.site/gandi*
 // @run-at       document-start
@@ -533,7 +533,7 @@ function s(rt) {
           });
 
           container.onkeydown = e => {
-            e.stopPropagation();
+            if (!e.key === "o" && !e.ctrlKey) e.stopPropagation();
             if (e.key === 's' && e.ctrlKey) document.getElementById('popup-save-btn').click(e.preventDefault());
             else if (e.key === 'Escape') document.getElementById('popup-cancel-btn').click();
           }
