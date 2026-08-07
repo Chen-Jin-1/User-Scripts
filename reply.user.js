@@ -136,7 +136,7 @@ async function update() {
 }
 btn.title = "打开回复页";
 btn.hclick = () => {
-    if (location.href.startsWith("https://www.ccw.site/notice/")) document.querySelectorAll('.title-item-3IPvv')[1]?.click();
+    if (location.href.startsWith("https://www.ccw.site/notice/")) return document.querySelectorAll('.title-item-3IPvv')[1]?.click();
     open("https://www.ccw.site/notice/reply");
     num.style.display = "none";
 };
