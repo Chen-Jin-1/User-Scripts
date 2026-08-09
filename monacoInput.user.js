@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Monaco Editor 输入
 // @namespace    cj-monaco-input
-// @version      1.1.4
+// @version      1.1.5
 // @description  在 Gandi IDE 使用 Monaco Editor 输入
 // @match        https://www.ccw.site/gandi*
 // @run-at       document-start
@@ -505,8 +505,20 @@ function s(rt) {
 
           Blockly.DropDownDiv.hide();
           
-          const closeInput = () => {
-            _hide();
+          const closeInput = v => {
+            try {
+              _hide();
+            } catch(e) {
+              console.error(e);
+              if (v) navigator.clipboard.writeText(v)
+                .then(() => alert("出错，内容已复制"))
+                .catch(e => {
+                  console.error(e);
+                  console.log(v);
+                  alert("出错，复制失败，内容已输出至剪贴板");
+                });
+              else alert("出错");
+            }
             Blockly.WidgetDiv.hide = _hide;
             Blockly.FieldTextInput.prototype.showEditor_ = _showEditor;
             Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_ = _ohik;
@@ -522,7 +534,7 @@ function s(rt) {
             editor.dispose();
             container.remove();
             resolve(newValue);
-            closeInput();
+            closeInput(newValue);
           });
 
           document.getElementById('popup-cancel-btn').addEventListener('click', () => {

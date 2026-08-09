@@ -3,7 +3,7 @@
 // @namespace           cj-get-rv-plus
 // @match               https://www.ccw.site/*
 // @grant               none
-// @version             1.0.3
+// @version             1.0.4
 // @author              Chen-Jin
 // @description         获取 Scratch Runtime 和 VM
 // @icon                https://m.ccw.site/community/images/logo-ccw.png
@@ -15,9 +15,10 @@ const _bind = Function.prototype.bind;
 Function.prototype.bind = function(thisArg, ...args) {
     if (thisArg && thisArg.runtime && thisArg.greenFlag) {
         const rt = thisArg.runtime;
-        Object.defineProperty(window, "vm", { get: () => thisArg, set: () => console.log("尝试修改 window.vm")});
-        Object.defineProperty(window, "rt", { get: () => rt, set: () => console.log("尝试修改 window.rt")});
-        Object.defineProperty(window, "runtime", { get: () => rt, set: () => console.log("尝试修改 window.runtime")});
+        Object.defineProperty(window, "vm", { get: () => thisArg, set: () => {}});
+        Object.defineProperty(window, "rt", { get: () => rt, set: () => {}});
+        Object.defineProperty(window, "runtime", { get: () => rt, set: () => {}});
+        window.blockly = rt.scratchBlocks;
         Function.prototype.bind = _bind;
         console.log("vm", vm);
         console.log("rt", rt);
