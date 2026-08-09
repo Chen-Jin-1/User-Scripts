@@ -51,6 +51,7 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
   border-bottom: 1px solid #3e3e42;
   flex-shrink: 0;
   user-select: none;
+  height: 47px;
 }
 
 .monaco-toolbar-title {
@@ -368,12 +369,17 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
   width: 100%;
   background: var(--theme-color-300);
   border-bottom: none;
-  z-index: 99999;
+  z-index: 6000;
 }
   
-[class*="gandi_save-controller_status-wrapper"], {
+[class*="gandi_save-controller_controller"] {
+  position: relative;
+  z-index: 7000;
+}
+  
+[class*="gandi_stage-wrapper_full-screen"] [class*="gandi_stage-header_stage-menu-wrapper"] {
   position: fixed;
-  z-index: 100000;
+  bottom: 0;
 }`);
 document.adoptedStyleSheets.push(style);
 
