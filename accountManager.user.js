@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name              账号管理器
 // @namespace         cj-auto-check-in
-// @version           1.2.7
+// @version           1.2.8
 // @description       快捷切换 CCW 账号
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
-// @match             https://us.chen-jin.dpdns.org/settings/accountManager
+// @match             https://us.chen-jin.dpdns.org/settings/accountManager.html
 // @icon              https://www.chen-jin.dpdns.org/Chen-Jin-circle.png
 // @downloadURL       https://us.chen-jin.dpdns.org/accountManager.user.js?
 // @grant             unsafeWindow
@@ -77,7 +77,7 @@ function refreshMenu() {
     accounts = GM_getValue("accounts", {});
     for (const id in accounts) r(id);
     if (currentId && accounts[currentId]) r(currentId);
-    menuId.s = GM_registerMenuCommand("⚙️ 打开设置", () => open("https://us.chen-jin.dpdns.org/settings/accountManager", "_blank"));
+    menuId.s = GM_registerMenuCommand("⚙️ 打开设置", () => open("https://us.chen-jin.dpdns.org/settings/accountManager.html", "_blank"));
     menuId.r = GM_registerMenuCommand("🔄 刷新菜单", refreshMenu);
     GM_cookie.list({
         url: 'https://www.ccw.site',
