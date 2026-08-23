@@ -492,7 +492,6 @@
 
 <!-- Toast -->
 <div id="toast" class="toast-message">
-    <i class="fas fa-check-circle"></i>
     <span id="toastText">已复制到剪贴板</span>
 </div>
 
@@ -505,6 +504,7 @@
                 desc: "快捷切换 CCW 账号", 
                 url: "accountManager.user.js",
                 author: "Chen-Jin",
+                set: "/settings/accountManager.html"
             },
             { 
                 name: "允许未知扩展", 
@@ -837,6 +837,9 @@
                                 <i class="fas fa-copy"></i>
                                 <i class="fas fa-check"></i> 复制URL
                             </button>
+                            ${script.set ? `<button class="btn btn-set" data-url="${escapeHtml(script.set)}">
+                                <i class="fas fa-gear"></i> 设置
+                            </button>` : ''}
                         </div>
                     </div>
                 `;
@@ -932,6 +935,9 @@
                         showToast('⚠️ 无URL可复制', 1500);
                     }
                 }
+
+                const setBtn = e.target.closest('.btn-set');
+                if (setBtn) open(setBtn.getAttribute('data-url'));
             });
 
             searchInput.addEventListener('input', function() {

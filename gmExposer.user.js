@@ -1,8 +1,7 @@
 // ==UserScript==
-// @name         挂载 GM 函数
+// @name         挂载 GM API
 // @namespace    cj-gm-exposer
 // @version      1.0.0
-// @description  挂载所有 GM_* 函数
 // @author       Chen-Jin
 // @match        *://*/*
 // @grant        GM_addElement

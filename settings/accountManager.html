@@ -5,6 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>账号管理器设置</title>
     <style>
+        @font-face {
+            font-family: 'PingFang';
+            src: url("https://m.ccw.site/community/fonts/PingFang.ttf");
+            font-display: swap;
+        }
+
+        :root {
+            --bg-start: #0f172a;
+            --bg-end: #020617;
+            --text-primary: #ffffff;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #8b5cf6;
+            --border-color: #1e293b;
+            --glow-color: rgba(59, 130, 246, 0.4);
+            --card-bg: rgba(15, 23, 42, 0.8);
+            --input-bg: rgba(30, 41, 59, 0.5);
+            --danger: #ef4444;
+            --success: #22c55e;
+            --warning: #f59e0b;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -13,9 +36,11 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
-            background: linear-gradient(135deg, #4a90d9 0%, #1a5fb4 100%);
+            font-family: 'PingFang', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: var(--text-primary);
+            line-height: 1.6;
             min-height: 100vh;
+            background: radial-gradient(circle at 50% 30%, var(--bg-start), var(--bg-end) 80%);
             padding: 20px;
             user-select: none;
         }
@@ -32,27 +57,33 @@
         }
 
         .header h1 {
-            color: white;
             font-size: 2rem;
             font-weight: 600;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 12px;
+            text-shadow: 0 0 40px rgba(59, 130, 246, 0.2);
         }
 
         /* API 警告条 */
         .api-warning {
-            background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
-            color: white;
+            background: rgba(245, 158, 11, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: var(--text-primary);
             padding: 16px 20px;
             border-radius: 16px;
             margin-bottom: 24px;
             display: none;
             align-items: center;
             gap: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 30px rgba(0,0,0,0.3);
             opacity: 0;
             transition-duration: 300ms;
         }
@@ -73,42 +104,49 @@
         .api-warning .title {
             font-weight: 600;
             margin-bottom: 4px;
+            color: var(--warning);
         }
 
         .api-warning .desc {
             font-size: 0.85rem;
-            opacity: 0.9;
+            opacity: 0.8;
+            color: var(--text-secondary);
         }
 
         .api-warning button {
-            background: white;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             border: none;
             padding: 8px 20px;
-            border-radius: 8px;
-            font-weight: 600;
+            border-radius: 40px;
+            font-weight: 500;
             cursor: pointer;
-            color: #f12711;
-            transition: transform 0.2s;
+            color: white;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            font-family: inherit;
         }
 
         .api-warning button:hover {
-            transform: scale(1.02);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px -8px var(--accent-primary);
         }
 
         /* 卡片通用样式 */
         .card {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-color);
             border-radius: 20px;
             padding: 24px;
             margin-bottom: 24px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            animation: fadeIn 0.6s ease-out forwards;
         }
 
         .card:hover {
+            border-color: var(--accent-primary);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5), 0 0 40px rgba(59, 130, 246, 0.05);
             transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
         }
 
         .card-title {
@@ -118,8 +156,8 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            color: #333;
-            border-left: 4px solid #4a90d9;
+            color: var(--text-primary);
+            border-left: 3px solid var(--accent-primary);
             padding-left: 16px;
         }
 
@@ -131,20 +169,20 @@
         }
 
         .account-item {
-            background: #f8f9fa;
+            background: rgba(30, 41, 59, 0.4);
             border-radius: 14px;
             padding: 16px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            transition: all 0.2s;
-            border: 1px solid #e9ecef;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            border: 1px solid transparent;
         }
 
         .account-item:hover {
-            background: #fff;
-            border-color: #4a90d9;
-            box-shadow: 0 2px 8px rgba(74,144,217,0.1);
+            background: rgba(30, 41, 59, 0.6);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.05);
         }
 
         .account-info {
@@ -154,7 +192,7 @@
         .account-name {
             font-weight: 700;
             font-size: 1.1rem;
-            color: #333;
+            color: var(--text-primary);
             display: flex;
             align-items: center;
             gap: 10px;
@@ -163,25 +201,26 @@
 
         .account-id {
             font-size: 0.75rem;
-            color: #888;
-            background: #e9ecef;
-            padding: 2px 8px;
+            color: var(--text-muted);
+            background: rgba(30, 41, 59, 0.6);
+            padding: 2px 10px;
             border-radius: 12px;
+            border: 1px solid var(--border-color);
         }
 
         .badge-token {
-            background: #d4edda;
-            color: #155724;
+            background: rgba(34, 197, 94, 0.15);
+            color: var(--success);
         }
 
         .badge-password {
-            background: #fff3cd;
-            color: #856404;
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--warning);
         }
 
         .account-token {
             font-size: 0.7rem;
-            color: #aaa;
+            color: var(--text-muted);
             font-family: monospace;
             margin-top: 6px;
             word-break: break-all;
@@ -195,49 +234,62 @@
         /* 按钮样式 */
         .btn {
             padding: 8px 16px;
-            border-radius: 10px;
-            border: none;
+            border-radius: 40px;
+            border: 1px solid var(--border-color);
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
             font-size: 0.85rem;
             display: inline-flex;
             align-items: center;
             gap: 6px;
+            font-family: inherit;
+            background: rgba(30, 41, 59, 0.4);
+            color: var(--text-secondary);
+            backdrop-filter: blur(4px);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #4a90d9 0%, #1a5fb4 100%);
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
             color: white;
+            border: none;
         }
 
         .btn-primary:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(74,144,217,0.4);
+            box-shadow: 0 8px 25px -8px var(--accent-primary);
+            transform: translateY(-2px);
         }
 
         .btn-danger {
-            background: #dc3545;
-            color: white;
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid rgba(239, 68, 68, 0.2);
         }
 
         .btn-danger:hover {
-            background: #c82333;
+            background: rgba(239, 68, 68, 0.25);
+            border-color: var(--danger);
+            box-shadow: 0 8px 25px -8px rgba(239, 68, 68, 0.3);
         }
 
         .btn-outline {
             background: transparent;
-            border: 1px solid #dee2e6;
-            color: #666;
+            border: 1px solid var(--border-color);
+            color: var(--text-secondary);
         }
 
         .btn-outline:hover {
-            background: #f8f9fa;
-            border-color: #4a90d9;
+            background: rgba(30, 41, 59, 0.4);
+            border-color: var(--accent-primary);
+            color: var(--text-primary);
         }
 
         .btn-sm {
-            padding: 6px 12px;
+            padding: 6px 14px;
             font-size: 0.75rem;
         }
 
@@ -261,32 +313,40 @@
             display: block;
             font-size: 0.8rem;
             font-weight: 600;
-            color: #555;
+            color: var(--text-secondary);
             margin-bottom: 6px;
+            letter-spacing: 0.5px;
         }
 
         input, select {
             width: 100%;
-            padding: 12px 14px;
-            border: 2px solid #e9ecef;
+            padding: 12px 16px;
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
             border-radius: 12px;
             font-size: 0.9rem;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
             font-family: inherit;
+            color: var(--text-primary);
+        }
+
+        input::placeholder {
+            color: var(--text-muted);
         }
 
         input:focus, select:focus {
             outline: none;
-            border-color: #4a90d9;
-            box-shadow: 0 0 0 3px rgba(74,144,217,0.1);
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1), 0 0 30px rgba(59, 130, 246, 0.05);
         }
 
         /* Tab 切换 */
         .tabs {
             display: flex;
-            gap: 8px;
+            gap: 4px;
             margin-bottom: 20px;
-            border-bottom: 2px solid #e9ecef;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 2px;
         }
 
         .tab {
@@ -295,20 +355,22 @@
             border: none;
             font-size: 0.9rem;
             font-weight: 500;
-            color: #888;
+            color: var(--text-muted);
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
             border-radius: 10px 10px 0 0;
+            font-family: inherit;
         }
 
         .tab.active {
-            color: #4a90d9;
-            border-bottom: 2px solid #4a90d9;
+            color: var(--accent-primary);
+            border-bottom: 2px solid var(--accent-primary);
             margin-bottom: -2px;
         }
 
         .tab:hover {
-            background: #4a90d920;
+            background: rgba(59, 130, 246, 0.08);
+            color: var(--text-primary);
         }
 
         .tab-pane {
@@ -317,13 +379,14 @@
 
         .tab-pane.active {
             display: block;
+            animation: fadeIn 0.3s ease-out forwards;
         }
 
         /* 空状态 */
         .empty-state {
             text-align: center;
             padding: 40px;
-            color: #aaa;
+            color: var(--text-muted);
         }
 
         /* 工具栏 */
@@ -347,17 +410,24 @@
             display: inline-block;
             width: 16px;
             height: 16px;
-            border: 2px solid #f3f3f3;
-            border-top: 2px solid #4a90d9;
+            border: 2px solid var(--border-color);
+            border-top: 2px solid var(--accent-primary);
             border-radius: 50%;
             animation: spin 0.8s linear infinite;
         }
 
-        #main-content { transition-duration: 300ms; }
+        #main-content {
+            transition-duration: 300ms;
+        }
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* 响应式 */
@@ -373,6 +443,25 @@
             .toolbar {
                 flex-direction: column;
                 align-items: stretch;
+            }
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            .card {
+                padding: 18px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 12px;
+            }
+            .btn {
+                padding: 6px 14px;
+                font-size: 0.8rem;
+            }
+            .card-title {
+                font-size: 1.1rem;
             }
         }
     </style>
