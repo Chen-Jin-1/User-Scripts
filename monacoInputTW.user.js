@@ -1,16 +1,31 @@
 // ==UserScript==
-// @name         Monaco Editor 输入
+// @name         Monaco Editor For TW
 // @namespace    cj-monaco-input
-// @version      1.1.6
-// @description  在 Gandi IDE 使用 Monaco Editor 输入
-// @match        https://www.ccw.site/gandi*
+// @version      1.0.0
+// @description  在 TurboWarp 使用 Monaco Editor 输入
+// @match        https://turbowarp.org/*
+// @match        https://40code.com/editor*
+// @match        https://zerocat.dev/scratch/editor*
 // @run-at       document-start
-// @icon         https://m.ccw.site/community/images/logo-ccw.png
+// @icon         https://turbowarp.org/images/apple-touch-icon.png
 // @author       Chen-Jin
 // @downloadURL  https://us.chen-jin.dpdns.org/monacoInput.user.js
 // @grant        GM_registerMenuCommand
 // @grant        GM_unregisterMenuCommand
 // ==/UserScript==
+
+const script = document.createElement('script');
+script.src = 'https://g.alicdn.com/code/lib/monaco-editor/0.52.0/min/vs/loader.js';
+script.onload = function() {
+  const { require } = document.defaultView;
+  require.config({
+    paths: {
+      'vs': 'https://g.alicdn.com/code/lib/monaco-editor/0.52.0/min/vs'
+    }
+  });
+  require(['vs/editor/editor.main'], () => {});
+};
+document.head.appendChild(script);
 
 let style = new CSSStyleSheet(), win = document.defaultView;
 style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
@@ -52,6 +67,7 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
   flex-shrink: 0;
   user-select: none;
   height: 47px;
+  box-sizing: border-box;
 }
 
 .monaco-toolbar-title {
@@ -367,7 +383,7 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
   position: fixed;
   top: 0;
   width: 100%;
-  background: var(--theme-color-300);
+  background: var(--menu-bar-background);
   border-bottom: none;
   z-index: 6000;
 }
@@ -383,24 +399,8 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
 }`);
 document.adoptedStyleSheets.push(style);
 
-Object.defineProperty(win, 'GandiPlugins', {
-  set: v => {
-    const _ = v.default.prototype.initPluginsManager;
-    v.default.prototype.initPluginsManager = function() {
-      _.call(this);
-      Object.defineProperty(this.plugins, 'witcat-blockinput', {
-        get: () => () => {},
-        set: v => v(),
-      });
-    }
-    delete win.GandiPlugins;
-    win.GandiPlugins = v;
-  },
-  configurable: 1,
-});
-
 function s(rt) {
-  let language, Blockly = rt.scratchBlocks, checkLong = 20, show = 0, mid, field;
+  let language, Blockly = ScratchBlocks, checkLong = 20, show = 0, mid, field;
   const lineText = (function() {
     let textarea = "textarea";
     let renderWidth = 20;
@@ -477,7 +477,7 @@ function s(rt) {
 
           const toolbar = document.createElement('div');
           toolbar.className = 'monaco-toolbar';
-          toolbar.innerHTML = `<span class="monaco-toolbar-title">Monaco Editor For Gandi IDE</span>
+          toolbar.innerHTML = `<span class="monaco-toolbar-title">Monaco Editor For TurboWarp</span>
 <div class="monaco-toolbar-actions">
   <button class="btn-save" id="popup-save-btn">保存</button>
   <button class="btn-cancel" id="popup-cancel-btn">取消</button>
@@ -747,7 +747,7 @@ function s(rt) {
         };
       },
 
-      render: () => {
+      render: function () {
         function splitStringIntoLines(inputString, charactersPerLine) {
           const regex = new RegExp(".{1," + charactersPerLine + "}", "g");
           let inputStringSplit = [];
