@@ -8,8 +8,6 @@
 // @icon         https://m.ccw.site/community/images/logo-ccw.png
 // @author       Chen-Jin
 // @downloadURL  https://us.chen-jin.dpdns.org/unccwcsp.user.js
-// @grant        GM_registerMenuCommand
-// @grant        GM_unregisterMenuCommand
 // ==/UserScript==
 
 const originalPrepend = Element.prototype.prepend;
