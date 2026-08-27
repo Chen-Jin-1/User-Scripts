@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         获取 OSS
-// @version      1.1.0
+// @version      1.1.1
 // @description  获取 CCW OSS
 // @match        https://*.ccw.site/*
 // @exclude      https://www.ccw.site/detail*
