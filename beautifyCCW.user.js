@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         CCW 美化
 // @namespace    cj-beautify-ccw
-// @version      1.0.0
+// @version      1.0.1
 // @description  美化 CCW UI
 // @match        https://*.ccw.site/*
 // @run-at       document-start
@@ -60,8 +60,8 @@ s.replaceSync(`.container-3vlMF {
     to { opacity: 1; }
 }
 @keyframes cj-hide {
-    from { opacity: 0; }
-    to { opacity: 1; }
+    from { opacity: 1; }
+    to { opacity: 0; }
 }
 .c-modal-root-container, .rd-modal-root-container {
     backdrop-filter: blur(5px);
@@ -115,8 +115,20 @@ s.replaceSync(`.container-3vlMF {
 .actionSheet-ScqOS {
     transition-duration: 0.3s;
 }
-.ghost-2DGBD:after {
-    animation: cj-show .3s ease-out forwards;
+.ghost-2DGBD:after, .btn-middle-19T-1:after {
+    opacity: 0;
+    pointer-events: none;
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: rgba(0,0,0,.2);
+    transition: opacity .1s ease-out;
+}
+.ghost-2DGBD:hover:after, .btn-middle-19T-1:hover:after {
+    opacity: 1;
 }
 .list-2lTGp {
     background: #2d2d3850;
