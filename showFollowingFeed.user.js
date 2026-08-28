@@ -1,12 +1,13 @@
 // ==UserScript==
 // @name         显示关注动态
-// @version      1.0.0
+// @version      1.0.1
 // @description  在个人动态显示关注动态
 // @match        https://www.ccw.site/student/*
 // @icon         https://m.ccw.site/community/images/logo-ccw.png
 // @downloadURL  https://us.chen-jin.dpdns.org/showFollowingFeed.user.js
 // @author       Chen-Jin
 // @grant        none
+// @run-at       document-start
 // ==/UserScript==
 const _open = XMLHttpRequest.prototype.open,
     _send = XMLHttpRequest.prototype.send;

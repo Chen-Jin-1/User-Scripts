@@ -12,7 +12,6 @@
 // ==/UserScript==
 
 let oid, uid, userInfo, lockInfo, lockpmr;
-typeof cjam_c !== "undefined" && delete cjam_c;
 const lockpm = new Promise(r => lockpmr = r),
     _open = XMLHttpRequest.prototype.open,
     pm = new Promise(r => {
