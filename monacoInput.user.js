@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Monaco Editor 输入
 // @namespace    cj-monaco-input
-// @version      1.1.6
+// @version      1.1.7
 // @description  在 Gandi IDE 使用 Monaco Editor 输入
 // @match        https://www.ccw.site/gandi*
 // @run-at       document-start
@@ -388,9 +388,32 @@ Object.defineProperty(win, 'GandiPlugins', {
     const _ = v.default.prototype.initPluginsManager;
     v.default.prototype.initPluginsManager = function() {
       _.call(this);
-      Object.defineProperty(this.plugins, 'witcat-blockinput', {
-        get: () => () => {},
-        set: v => v(),
+      this.plugins = new Proxy(this.plugins, {
+        get(target, prop) {
+          if (prop === 'witcat-blockinput') {
+            console.log("拦截插件读取");
+            return () => {};
+          }
+          return target[prop];
+        },
+        
+        set(target, prop, value) {
+          if (prop === 'witcat-blockinput') {
+            console.log("拦截插件写入");
+            value();
+            return true;
+          }
+          target[prop] = value;
+          return true;
+        },
+        
+        deleteProperty(target, prop) {
+          if (prop === 'defineProperty') {
+            console.log("拦截插件删除");
+            return true;
+          }
+          return delete target[prop];
+        }
       });
     }
     delete win.GandiPlugins;
