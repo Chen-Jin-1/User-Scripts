@@ -408,7 +408,7 @@ Object.defineProperty(win, 'GandiPlugins', {
         },
         
         deleteProperty(target, prop) {
-          if (prop === 'defineProperty') {
+          if (prop === 'witcat-blockinput') {
             console.log("拦截插件删除");
             return true;
           }
