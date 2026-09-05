@@ -135,7 +135,6 @@ document.body.appendChild(btn);
 
 updtr();
 chan.onmessage = e => {
-    debugger
     const { data } = e;
     if (data === "sf") clearInterval(tr), tr = setInterval(update, 15000);
     else if (data) {
