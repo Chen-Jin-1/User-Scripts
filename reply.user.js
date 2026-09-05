@@ -1,16 +1,15 @@
 // ==UserScript==
 // @name                快捷回复
 // @namespace           cj-reply
-// @version             1.0.7
-// @description         在 Gandi 中快捷查看回复
+// @version             1.0.8
+// @description         在 Gandi 中快捷查看回复数
 // @author              Chen-Jin
 // @match               https://*.ccw.site/*
 // @icon                https://m.ccw.site/user_projects_assets/4448f7d5994cbe0e5283098aad745d4b.svg
 // @downloadURL         https://us.chen-jin.dpdns.org/reply.user.js?
 // @run-at              document-body
+// @grant               none
 // ==/UserScript==
-
-// 搬运请先经过作者许可
 
 const extIcon = "https://m.ccw.site/user_projects_assets/4448f7d5994cbe0e5283098aad745d4b.svg";
 function makeDraggable(element) {
@@ -18,12 +17,9 @@ function makeDraggable(element) {
     let startX, startY;
     let initialRight, initialTop;
     let hasMoved = false;
-    
     element.addEventListener('pointerdown', startDrag);
     
-    function startDrag(e) {
-        if (e.pointerType === 'pen' && e.pressure === 0) return;
-        
+    function startDrag(e) {        
         isDragging = true;
         hasMoved = false;
         startX = e.clientX;
@@ -40,15 +36,9 @@ function makeDraggable(element) {
     
     function onDrag(e) {
         if (!isDragging) return;
-        
         const deltaX = e.clientX - startX;
         const deltaY = e.clientY - startY;
-        
-        // 检测是否真的移动了
-        if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) {
-            hasMoved = true;
-        }
-        
+        if (Math.abs(deltaX) > 3 || Math.abs(deltaY) > 3) hasMoved = true;
         element.style.right = (initialRight - deltaX) + 'px';
         element.style.top = (initialTop + deltaY) + 'px';
     }
@@ -57,10 +47,7 @@ function makeDraggable(element) {
         isDragging = false;
         document.removeEventListener('pointermove', onDrag);
         document.removeEventListener('pointerup', stopDrag);
-        
-        if (!hasMoved) {
-            element.hclick();
-        }
+        if (!hasMoved) element.hclick();
     }
 }
 
@@ -82,7 +69,8 @@ css.textContent = `#cj-reply1-button {
     backdrop-filter: blur(5px);
     user-select: none;
     border: 1px solid #ffffff80;
-    -webkit-user-drag: element;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 #cj-reply1-button img {
@@ -118,10 +106,14 @@ btn.innerHTML = '<img src="https://m.ccw.site/user_projects_assets/4448f7d5994cb
 const num = document.createElement("span");
 btn.appendChild(num);
 makeDraggable(btn);
+let tr;
+const updtr = () => tr = setInterval(update, 10000),
+    chan = new BroadcastChannel('cj-reply');
 async function update() {
+    chan.postMessage("sf");
     const noti = await fetch("https://community-web.ccw.site/notification/stats/v2", {
         method: "post",
-        body: "{countAll: true}",
+        body: "{countAll:true}",
         headers: {'content-type': 'application/json'},
         credentials: 'include'
     })
@@ -130,9 +122,8 @@ async function update() {
     if (noti) {
         num.textContent = noti;
         num.style.display = "unset";
-    } else {
-        num.style.display = "none";
-    }
+        chan.postMessage(noti);
+    } else num.style.display = "none";
 }
 btn.title = "打开回复页";
 btn.hclick = () => {
@@ -141,10 +132,20 @@ btn.hclick = () => {
     num.style.display = "none";
 };
 document.body.appendChild(btn);
-setInterval(update, 10000);
 
-const observer = new MutationObserver((mutationsList) => {
-    if (!document.body.contains(btn)) document.body.appendChild(btn);
-});
+updtr();
+chan.onmessage = e => {
+    debugger
+    const { data } = e;
+    if (data === "sf") clearInterval(tr), tr = setInterval(update, 15000);
+    else if (data) {
+        num.textContent = data;
+        num.style.display = "unset";
+    } else num.style.display = "none";
+}
+update();
 
+const observer = new MutationObserver(() => !document.body.contains(btn) && document.body.appendChild(btn));
 observer.observe(document.body, { childList: true });
+document.onload = e => observer.disconnect();
+window._cj_reply = 1;
