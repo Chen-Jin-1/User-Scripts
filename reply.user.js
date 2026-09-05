@@ -2,7 +2,7 @@
 // @name                快捷回复
 // @namespace           cj-reply
 // @version             1.0.8
-// @description         在 Gandi 中快捷查看回复数
+// @description         在 CCW 中发现新回复
 // @author              Chen-Jin
 // @match               https://*.ccw.site/*
 // @icon                https://m.ccw.site/user_projects_assets/4448f7d5994cbe0e5283098aad745d4b.svg
@@ -11,7 +11,6 @@
 // @grant               none
 // ==/UserScript==
 
-const extIcon = "https://m.ccw.site/user_projects_assets/4448f7d5994cbe0e5283098aad745d4b.svg";
 function makeDraggable(element) {
     let isDragging = false;
     let startX, startY;
