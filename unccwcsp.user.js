@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         反 CSP Meta
+// @name         反 CCW CSP
 // @namespace    cj-un-ccw-csp
-// @version      1.0.0
-// @description  阻止 CCW 神人运维写的 CSP meta 添加导致作品异常
+// @version      1.0.1
+// @description  防止 HCN 出的馊主意导致 CCW 作品、扩展异常
 // @match        https://www.ccw.site/*
 // @run-at       document-start
 // @icon         https://m.ccw.site/community/images/logo-ccw.png

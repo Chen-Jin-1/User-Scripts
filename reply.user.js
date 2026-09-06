@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name                快捷回复
 // @namespace           cj-reply
-// @version             1.0.8
+// @version             1.0.9
 // @description         在 CCW 中发现新回复
 // @author              Chen-Jin
 // @match               https://*.ccw.site/*
@@ -121,8 +121,8 @@ async function update() {
     if (noti) {
         num.textContent = noti;
         num.style.display = "unset";
-        chan.postMessage(noti);
     } else num.style.display = "none";
+    chan.postMessage(noti);
 }
 btn.title = "打开回复页";
 btn.hclick = () => {
