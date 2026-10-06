@@ -69,7 +69,13 @@ const r = id => {
                 : confirm("Http Only Cookie 读写未授权，是否查看教程？") && open("https://d.chen-jin.dpdns.org/enableHttpOnly"))
             : menuId[id] = login(id, account.pwd)
                 .then(r => r.json())
-                .then(d => d.body ? location.reload() : alert(d.msg))
+                .then(d => d.body
+                    ? fetch("https://community-web.ccw.site/notification/page", {
+                        method: 'post',
+                        body: '{notifyGroup:"WEB_SYSTEM"}',
+                        credentials: 'include',
+                        headers: { 'content-type': 'application/json' }
+                    }).then(r => location.reload()) : alert(d.msg))
     ));
 }
 function refreshMenu() {
