@@ -350,15 +350,17 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
   flex-direction: column;
   z-index: 100000;
   animation: monacoFadeIn 0.3s ease-out;
-  &:has(.monaco-toolbar) {
-    opacity: 1;
-    pointer-events: auto;
-  }
-  &.toolbar-hover {
-    opacity: .5;
-  }
 }
-  
+
+#monaco-popup-container:has(.monaco-toolbar) {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#monaco-popup-container.toolbar-hover {
+  opacity: .5;
+}
+
 .blocklyWidgetDiv.fieldTextInput {
   height: auto !important;
 }

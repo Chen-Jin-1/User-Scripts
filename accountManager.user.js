@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              账号管理器
 // @namespace         cj-auto-check-in
-// @version           1.2.9
+// @version           1.2.10
 // @description       快捷切换 CCW 账号
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
@@ -25,8 +25,14 @@ if (location.hostname === 'us.chen-jin.dpdns.org' || location.hostname === 'loca
         return unsafeWindow.accountManager = { GM_getValue, GM_setValue, GM_xmlhttpRequest };
     }
 let accounts = GM_getValue("accounts", {}), menuId = {}, currentId;
+const uOid = u => fetch("https://community-web.ccw.site/students/profile", {
+    method: 'post',
+    body: JSON.stringify({ studentNumber: u }),
+    headers: { 'content-type': 'application/json' },
+})
+    .then(r => r.json())
+    .then(r => document.cookie = `cookie-user-id=${r.body.studentOid};path=/;domain=.ccw.site;max-age=2952000`);
 const login = (loginKey, password, noCookies = 0) => {
-    if (!noCookies) document.cookie = "cookie-user-id=0;path=/;domain=.ccw.site";
     return fetch("https://sso.ccw.site/web/auth/login-by-password", {
         method: 'post',
         credentials: noCookies ? 'omit' : 'include',
@@ -39,37 +45,32 @@ const login = (loginKey, password, noCookies = 0) => {
                 browser: GM_getValue("browser", "账号管理器创建")
             })
         }),
-        headers: {'content-type': 'application/json'},
+        headers: { 'content-type': 'application/json' },
     });
 }
-const loginByToken = token => {
-    document.cookie = "cookie-user-id=0;path=/;domain=.ccw.site";
-    return new Promise((resolve) => {
-        GM_cookie.set({
-            url: 'https://www.ccw.site',
-            name: 'token',
-            value: token,
-            domain: '.ccw.site',
-            path: '/',
-            httpOnly: true,
-            expirationDate: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
-        }, result => resolve(!result?.message?.includes('HTTP-only')));
-    });
-}
+const loginByToken = token => new Promise((resolve) => {
+    GM_cookie.set({
+        url: 'https://www.ccw.site',
+        name: 'token',
+        value: token,
+        domain: '.ccw.site',
+        path: '/',
+        httpOnly: true,
+        expirationDate: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
+    }, result => resolve(!result?.message?.includes('HTTP-only')));
+});
 const r = id => {
     if (menuId[id]) GM_unregisterMenuCommand(menuId[id]);
     const account = accounts[id], text = `${currentId === id ? "[当前] " : ""}${account.name} (${id})`;
-    if (account.token) {
-        menuId[id] = GM_registerMenuCommand(text, () => loginByToken(account.token).then(r => r
-            ? location.reload()
-            : confirm("Http Only Cookie 读写未授权，是否查看教程？") && open("https://d.chen-jin.dpdns.org/enableHttpOnly")
-        ));
-    } else if (account.pwd) {
-        menuId[id] = GM_registerMenuCommand(text, () => login(id, account.pwd)
-            .then(r => r.json())
-            .then(d => d.body ? location.reload() : alert(d.msg))
-        );
-    }
+    menuId[id] = GM_registerMenuCommand(text, () => uOid(id).then(() =>
+        account.token
+            ? loginByToken(account.token).then(r => r
+                ? location.reload()
+                : confirm("Http Only Cookie 读写未授权，是否查看教程？") && open("https://d.chen-jin.dpdns.org/enableHttpOnly"))
+            : menuId[id] = login(id, account.pwd)
+                .then(r => r.json())
+                .then(d => d.body ? location.reload() : alert(d.msg))
+    ));
 }
 function refreshMenu() {
     for (const id in menuId) GM_unregisterMenuCommand(menuId[id]);
@@ -82,10 +83,14 @@ function refreshMenu() {
     GM_cookie.list({
         url: 'https://www.ccw.site',
         name: 'token',
-    }, x => x.length === 1 && (menuId.rr = GM_registerMenuCommand("👤 恢复登录", () => location.reload(document.cookie = "cookie-user-id=0;path=/;domain=.ccw.site"))));
-    menuId.e = GM_registerMenuCommand("⏏️ 临时退出", () => loginByToken('').then(r => r
-        ? location.reload()
-        : confirm("Http Only Cookie 读写未授权，是否查看教程？") && open("https://d.chen-jin.dpdns.org/enableHttpOnly")));
+    }, x => x?.length && (menuId.rr = GM_registerMenuCommand("👤 恢复登录", () => fetch("https://community-web.ccw.site/students/self/detail", {
+        method: 'post',
+        body: '{}',
+        headers: { 'content-type': 'application/json' },
+        credentials: 'include',
+    })
+        .then(r => r.json())
+        .then(() => location.reload()))));
 }
 
 refreshMenu();

@@ -844,6 +844,8 @@
                 const deviceName = document.getElementById('device-name').value.trim() || '账号管理器创建';
                 const browserName = document.getElementById('browser-name').value.trim() || '账号管理器创建';
                 saveDeviceSettings(deviceName, browserName);
+                if (!deviceName) document.getElementById('device-name').value = '账号管理器创建';
+                if (!browserName) document.getElementById('browser-name').value = '账号管理器创建';
             };
 
             document.getElementById('device-name').value = accountManager.GM_getValue('device', '账号管理器创建');

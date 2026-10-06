@@ -1,14 +1,14 @@
 // ==UserScript==
 // @name                快捷回复
 // @namespace           cj-reply
-// @version             1.0.9
+// @version             1.0.10
 // @description         在 CCW 中发现新回复
 // @author              Chen-Jin
 // @match               https://*.ccw.site/*
 // @icon                https://m.ccw.site/user_projects_assets/4448f7d5994cbe0e5283098aad745d4b.svg
 // @downloadURL         https://us.chen-jin.dpdns.org/reply.user.js?
 // @run-at              document-body
-// @grant               none
+// @grant               GM_notification
 // ==/UserScript==
 
 function makeDraggable(element) {
@@ -105,7 +105,7 @@ btn.innerHTML = '<img src="https://m.ccw.site/user_projects_assets/4448f7d5994cb
 const num = document.createElement("span");
 btn.appendChild(num);
 makeDraggable(btn);
-let tr;
+let tr, lastn;
 const updtr = () => tr = setInterval(update, 10000),
     chan = new BroadcastChannel('cj-reply');
 async function update() {
@@ -117,7 +117,18 @@ async function update() {
         credentials: 'include'
     })
         .then(r => r.json())
-        .then(({body}) => body?.COMMENT_TO_ME);
+        .then(({body}) => {
+            const n = body?.COMMENT_TO_ME;
+            if (n > lastn) GM_notification({
+                title: '收到新回复',
+                text: `${n} 条未读消息，点击打开回复页`,
+                image: 'https://m.ccw.site/user_projects_assets/4448f7d5994cbe0e5283098aad745d4b.svg',
+                onclick: btn.hclick,
+                tag: 'cj-reply',
+            });
+            chan.postMessage('l' + (lastn = n));
+            return n;
+        });
     if (noti) {
         num.textContent = noti;
         num.style.display = "unset";
@@ -126,9 +137,10 @@ async function update() {
 }
 btn.title = "打开回复页";
 btn.hclick = () => {
-    if (location.href.startsWith("https://www.ccw.site/notice/")) return document.querySelectorAll('.title-item-3IPvv')[1]?.click();
-    open("https://www.ccw.site/notice/reply");
     num.style.display = "none";
+    if (location.href.startsWith("https://www.ccw.site/notice/")) document.defaultView.focus(),
+        document.querySelectorAll('.title-item-3IPvv')[1]?.click();
+    else open("https://www.ccw.site/notice/reply");
 };
 document.body.appendChild(btn);
 
@@ -136,6 +148,7 @@ updtr();
 chan.onmessage = e => {
     const { data } = e;
     if (data === "sf") clearInterval(tr), tr = setInterval(update, 15000);
+    else if (data.startsWith?.("l")) lastn = +data.substring(1);
     else if (data) {
         num.textContent = data;
         num.style.display = "unset";
@@ -146,4 +159,4 @@ update();
 const observer = new MutationObserver(() => !document.body.contains(btn) && document.body.appendChild(btn));
 observer.observe(document.body, { childList: true });
 document.onload = e => observer.disconnect();
-window._cj_reply = 1;
+document.defaultView._cj_reply = 1;
