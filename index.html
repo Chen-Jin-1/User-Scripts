@@ -107,6 +107,42 @@
             color: var(--accent-primary);
         }
 
+        .github-btn {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(8px);
+            color: var(--text-secondary);
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            font-size: 0.9rem;
+            font-weight: 400;
+            border: 1px solid var(--border-color);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.3px;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            cursor: pointer;
+        }
+
+        .github-btn i {
+            opacity: .7;
+            color: var(--text-primary);
+            transition: all 0.25s ease;
+        }
+
+        .github-btn:hover {
+            border-color: var(--accent-primary);
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--text-primary);
+            box-shadow: 0 0 16px rgba(59, 130, 246, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .github-btn:hover i {
+            opacity: 1;
+        }
+
 
         .toolbar {
             display: flex;
@@ -469,6 +505,9 @@
         <h1><i class="fas fa-code"></i> Chen-Jin 的脚本库</h1>
         <div class="header-actions">
             <span class="badge"><i class="fas fa-archive"></i> <span id="scriptCount">0</span> 个脚本</span>
+            <a class="github-btn" href="https://github.com/Chen-Jin-1/User-Scripts" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-github"></i> GitHub 仓库
+            </a>
         </div>
     </div>
 
