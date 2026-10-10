@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         QQ 音乐下载
 // @namespace    cj-cm-dl
-// @version      1.0.0
+// @version      1.1.0
 // @description  便捷下载音乐
 // @match        https://y.qq.com/n/ryqq_v2/player
 // @run-at       document-start
@@ -42,18 +42,17 @@ s.replaceSync(`#qmdl {
 }`);
 document.adoptedStyleSheets.push(s);
 btn.id = 'qmdl';
-const _ce = document.createElement.bind(document);
-document.createElement = tn => {
-    if (tn === 'audio') {
-        const e = _ce(tn);
+const _fetch = fetch;
+document.defaultView.fetch = (u, o) => {
+    console.log(u, o);
+    if (o?.headers?.Range) {
         btn.textContent = '⬇️ 下载';
         btn.onclick = async () => {
             const d = JSON.parse(localStorage.playSongData).value,
                 s = d.songList[d.index];
-                url = e.src;
             btn.style.pointerEvents = 'none';
             btn.textContent = '获取数据'
-            const response = await fetch(url);
+            const response = await fetch(u);
             if (!response.ok) throw btn.textContent = 'HTTP Error ' + response.status;
             btn.textContent = '转为 Blob';
             const blob = await response.blob();
@@ -61,14 +60,12 @@ document.createElement = tn => {
             btn.textContent = '保存';
             const a = document.createElement('a');
             a.href = blobUrl;
-            a.download = `${s.title} - ${s.singer.map(s => s.name).join('、')}.${url.split("?")[0].split(".").pop()}`;
+            a.download = `${s.title} - ${s.singer.map(s => s.name).join('、')}.${u.split("?")[0].split(".").pop()}`;
             a.click();
             btn.textContent = '✅ 完成';
             btn.style.pointerEvents = 'auto';
         }
         document.body.appendChild(btn);
-        return e;
     }
-    return _ce(tn);
+    return _fetch(u, o);
 }
-Object.defineProperty(navigator, 'userAgent', { get: () => 'Edg/' });

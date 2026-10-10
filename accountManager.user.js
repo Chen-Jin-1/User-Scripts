@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name              账号管理器
 // @namespace         cj-auto-check-in
-// @version           1.2.10
+// @version           1.2.11
 // @description       快捷切换 CCW 账号
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
@@ -25,13 +25,6 @@ if (location.hostname === 'us.chen-jin.dpdns.org' || location.hostname === 'loca
         return unsafeWindow.accountManager = { GM_getValue, GM_setValue, GM_xmlhttpRequest };
     }
 let accounts = GM_getValue("accounts", {}), menuId = {}, currentId;
-const uOid = u => fetch("https://community-web.ccw.site/students/profile", {
-    method: 'post',
-    body: JSON.stringify({ studentNumber: u }),
-    headers: { 'content-type': 'application/json' },
-})
-    .then(r => r.json())
-    .then(r => document.cookie = `cookie-user-id=${r.body.studentOid};path=/;domain=.ccw.site;max-age=2952000`);
 const login = (loginKey, password, noCookies = 0) => {
     return fetch("https://sso.ccw.site/web/auth/login-by-password", {
         method: 'post',
@@ -47,8 +40,7 @@ const login = (loginKey, password, noCookies = 0) => {
         }),
         headers: { 'content-type': 'application/json' },
     });
-}
-const loginByToken = token => new Promise((resolve) => {
+}, loginByToken = token => new Promise((resolve) => {
     GM_cookie.set({
         url: 'https://www.ccw.site',
         name: 'token',
@@ -58,15 +50,22 @@ const loginByToken = token => new Promise((resolve) => {
         httpOnly: true,
         expirationDate: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
     }, result => resolve(!result?.message?.includes('HTTP-only')));
-});
-const r = id => {
+}), soc = () => fetch("https://community-web.ccw.site/students/self/detail", {
+        method: 'post',
+        body: '{}',
+        credentials: 'include',
+        headers: { 'content-type': 'application/json' },
+    })
+    .then(r => r.json())
+    .then(d => document.cookie = `cookie-user-id=${d.body.oid};path=/;domain=.ccw.site;max-age=15552000`),
+    reload = location.reload.bind(location), r = id => {
     if (menuId[id]) GM_unregisterMenuCommand(menuId[id]);
     const account = accounts[id], text = `${currentId === id ? "[当前] " : ""}${account.name} (${id})`;
-    menuId[id] = GM_registerMenuCommand(text, () => uOid(id).then(() =>
+    menuId[id] = GM_registerMenuCommand(text, () => 
         account.token
             ? loginByToken(account.token).then(r => r
-                ? location.reload()
-                : confirm("Http Only Cookie 读写未授权，是否查看教程？") && open("https://d.chen-jin.dpdns.org/enableHttpOnly"))
+                ? soc().then(reload)
+                : confirm("Http Only Cookie 读写未授权，查看教程？") && open("https://d.chen-jin.dpdns.org/enableHttpOnly"))
             : menuId[id] = login(id, account.pwd)
                 .then(r => r.json())
                 .then(d => d.body
@@ -75,8 +74,12 @@ const r = id => {
                         body: '{notifyGroup:"WEB_SYSTEM"}',
                         credentials: 'include',
                         headers: { 'content-type': 'application/json' }
-                    }).then(r => location.reload()) : alert(d.msg))
-    ));
+                    }).then(() => {
+                        document.cookie = `cookie-user-id=${d.body.accountObjectId};path=/;domain=.ccw.site;max-age=15552000`;
+                        reload();
+                    })
+                    : alert(d.msg))
+    );
 }
 function refreshMenu() {
     for (const id in menuId) GM_unregisterMenuCommand(menuId[id]);
@@ -89,14 +92,7 @@ function refreshMenu() {
     GM_cookie.list({
         url: 'https://www.ccw.site',
         name: 'token',
-    }, x => x?.length && (menuId.rr = GM_registerMenuCommand("👤 恢复登录", () => fetch("https://community-web.ccw.site/students/self/detail", {
-        method: 'post',
-        body: '{}',
-        headers: { 'content-type': 'application/json' },
-        credentials: 'include',
-    })
-        .then(r => r.json())
-        .then(() => location.reload()))));
+    }, x => x?.length && (menuId.rr = GM_registerMenuCommand("👤 恢复登录", () => soc().then(reload))));
 }
 
 refreshMenu();
