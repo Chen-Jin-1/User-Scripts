@@ -7,7 +7,7 @@
 // @run-at       document-start
 // @icon         https://y.qq.com/favicon.ico
 // @author       Chen-Jin
-// @downloadURL  https://us.chen-jin.dpdns.org/qqDl.user.js
+// @downloadURL  https://us.chen-jin.dpdns.org/qmDl.user.js
 // ==/UserScript==
 
 const btn = document.createElement('div'), s = new CSSStyleSheet();
