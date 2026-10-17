@@ -516,6 +516,10 @@ function s(rt) {
               _hide();
             } catch(e) {
               console.error(e);
+              Blockly.WidgetDiv.hide = _hide;
+              Blockly.FieldTextInput.prototype.showEditor_ = _showEditor;
+              Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_ = _ohik;
+              Blockly.Touch.splitEventByTouches = _splitEvent;
               if (v) navigator.clipboard.writeText(v)
                 .then(() => alert("出错，内容已复制"))
                 .catch(e => {

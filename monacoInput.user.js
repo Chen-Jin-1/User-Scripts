@@ -389,34 +389,25 @@ Object.defineProperty(win, 'GandiPlugins', {
   set: v => {
     const _ = v.default.prototype.initPluginsManager;
     v.default.prototype.initPluginsManager = function() {
-      _.call(this);
-      this.plugins = new Proxy(this.plugins, {
-        get(target, prop) {
+      console.log(this.plugins);
+      this.plugins = new Proxy(Object.create(null), {
+        set(t, prop, value, receiver) {
           if (prop === 'witcat-blockinput') {
-            console.log("拦截插件读取");
-            return () => {};
-          }
-          return target[prop];
-        },
-        
-        set(target, prop, value) {
-          if (prop === 'witcat-blockinput') {
-            console.log("拦截插件写入");
-            value();
+            console.log('拦截多行输入加载', value());
             return true;
           }
-          target[prop] = value;
-          return true;
+          return Reflect.set(t, prop, value, receiver);
         },
-        
-        deleteProperty(target, prop) {
+
+        deleteProperty(t, prop) {
           if (prop === 'witcat-blockinput') {
-            console.log("拦截插件删除");
+            console.log('拦截多行输入卸载');
             return true;
           }
-          return delete target[prop];
+          return Reflect.deleteProperty(t, prop);
         }
       });
+      _.call(this);
     }
     delete win.GandiPlugins;
     win.GandiPlugins = v;
@@ -541,6 +532,10 @@ function s(rt) {
               _hide();
             } catch(e) {
               console.error(e);
+              Blockly.WidgetDiv.hide = _hide;
+              Blockly.FieldTextInput.prototype.showEditor_ = _showEditor;
+              Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_ = _ohik;
+              Blockly.Touch.splitEventByTouches = _splitEvent;
               if (v) navigator.clipboard.writeText(v)
                 .then(() => alert("出错，内容已复制"))
                 .catch(e => {
@@ -742,7 +737,8 @@ function s(rt) {
             n = `${pb.opcode}_${fn}`,
             value = this.text_;
           language = n === "cjjst_js_js" || n === "i_run_js" || n === "WitCatHTML_jsfunc_js" ||
-            n === "WitCatHTML_jsfuncs_js" || n === "WitCatHTML_functionHTML_func" || n === "cjjst_jsblock_js"
+            n === "WitCatHTML_jsfuncs_js" || n === "WitCatHTML_functionHTML_func" || n === "cjjst_jsblock_js" ||
+            n === "cjjst_newfunc" || n === "cjjst_newafunc"
               ? 'javascript'
               : n === "WitCatHTML_html_html"
                 ? 'html'
@@ -932,10 +928,14 @@ function s(rt) {
     lineText.textarea(Blockly);
     lineText.render();
 
-    return {
+    GM_unregisterMenuCommand(mid);
+    mid = GM_registerMenuCommand('卸载', () => win._monacoInstance?.dispose());
+
+    return win._monacoInstance = {
       dispose: function() {
         lineText.changTextarea(false);
         lineText.dispose(workspace, Blockly);
+        
         GM_unregisterMenuCommand(mid);
         mid = GM_registerMenuCommand('加载', initBlockinput);
         delete win._monacoInstance;
@@ -964,10 +964,7 @@ function s(rt) {
     };
   }
 
-  const instance = initBlockinput();
-  win._monacoInstance = instance;
-  GM_unregisterMenuCommand(mid);
-  mid = GM_registerMenuCommand('卸载', instance.dispose);
+  initBlockinput();
 }
 
 const _bind = Function.prototype.bind;
