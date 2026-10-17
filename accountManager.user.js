@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name              账号管理器
 // @namespace         cj-auto-check-in
-// @version           1.2.11
+// @version           1.2.12
 // @description       快捷切换 CCW 账号
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
-// @match             https://us.chen-jin.dpdns.org/settings/accountManager.html
+// @match             https://us.chen-jin.dpdns.org/settings/accountManager*
 // @icon              https://www.chen-jin.dpdns.org/Chen-Jin-circle.png
 // @downloadURL       https://us.chen-jin.dpdns.org/accountManager.user.js?
 // @grant             unsafeWindow
