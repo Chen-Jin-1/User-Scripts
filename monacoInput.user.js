@@ -383,7 +383,7 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
   position: fixed;
   bottom: 0;
 }
-body:has(#monaco-popup-container) .gandi_collapsible-box_collapsible-box_1_329:not(.gandi-stage-wrapper) {
+body:has(> #monaco-popup-container) .gandi_collapsible-box_collapsible-box_1_329:not(.gandi-stage-wrapper) {
   opacity: .5;
   pointer-events: none;
   cursor: not-allowed;
@@ -392,7 +392,7 @@ document.adoptedStyleSheets.push(style);
 
 const _ac = Element.prototype.appendChild;
 document.head.appendChild = n => {
-  if (n.tagName === 'SCRIPT' && n.src.includes('witcat-blockinput')) return;
+  if (n.tagName === 'SCRIPT' && n.src.includes('witcat-blockinput')) return n.onerror();
   return _ac.call(document.head, n);
 }
 
