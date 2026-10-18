@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Monaco Editor 输入
 // @namespace    cj-monaco-input
-// @version      1.1.7
+// @version      1.1.8
 // @description  在 Gandi IDE 使用 Monaco Editor 输入
 // @match        https://www.ccw.site/gandi*
 // @run-at       document-start
@@ -382,38 +382,19 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
 [class*="gandi_stage-wrapper_full-screen"] [class*="gandi_stage-header_stage-menu-wrapper"] {
   position: fixed;
   bottom: 0;
+}
+body:has(#monaco-popup-container) .gandi_collapsible-box_collapsible-box_1_329:not(.gandi-stage-wrapper) {
+  opacity: .5;
+  pointer-events: none;
+  cursor: not-allowed;
 }`);
 document.adoptedStyleSheets.push(style);
 
-Object.defineProperty(win, 'GandiPlugins', {
-  set: v => {
-    const _ = v.default.prototype.initPluginsManager;
-    v.default.prototype.initPluginsManager = function() {
-      console.log(this.plugins);
-      this.plugins = new Proxy(Object.create(null), {
-        set(t, prop, value, receiver) {
-          if (prop === 'witcat-blockinput') {
-            console.log('拦截多行输入加载', value());
-            return true;
-          }
-          return Reflect.set(t, prop, value, receiver);
-        },
-
-        deleteProperty(t, prop) {
-          if (prop === 'witcat-blockinput') {
-            console.log('拦截多行输入卸载');
-            return true;
-          }
-          return Reflect.deleteProperty(t, prop);
-        }
-      });
-      _.call(this);
-    }
-    delete win.GandiPlugins;
-    win.GandiPlugins = v;
-  },
-  configurable: 1,
-});
+const _ac = Element.prototype.appendChild;
+document.head.appendChild = n => {
+  if (n.tagName === 'SCRIPT' && n.src.includes('witcat-blockinput')) return;
+  return _ac.call(document.head, n);
+}
 
 function s(rt) {
   let language, Blockly = rt.scratchBlocks, checkLong = 20, show = 0, mid, field;
@@ -531,11 +512,6 @@ function s(rt) {
             try {
               _hide();
             } catch(e) {
-              console.error(e);
-              Blockly.WidgetDiv.hide = _hide;
-              Blockly.FieldTextInput.prototype.showEditor_ = _showEditor;
-              Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_ = _ohik;
-              Blockly.Touch.splitEventByTouches = _splitEvent;
               if (v) navigator.clipboard.writeText(v)
                 .then(() => alert("出错，内容已复制"))
                 .catch(e => {
@@ -571,7 +547,7 @@ function s(rt) {
           });
 
           container.onkeydown = e => {
-            if (!e.key === "o" && !e.ctrlKey) e.stopPropagation();
+            if (e.key !== "o" || !e.ctrlKey) e.stopPropagation();
             if (e.key === 's' && e.ctrlKey) document.getElementById('popup-save-btn').click(e.preventDefault());
             else if (e.key === 'Escape') document.getElementById('popup-cancel-btn').click();
           }
