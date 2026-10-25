@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Monaco Editor 输入
 // @namespace    cj-monaco-input
-// @version      1.1.8
+// @version      1.1.9
 // @description  在 Gandi IDE 使用 Monaco Editor 输入
 // @match        https://www.ccw.site/gandi*
 // @run-at       document-start
@@ -379,14 +379,21 @@ style.replaceSync(`/* ===== Monaco Editor 样式 ===== */
   z-index: 7000;
 }
   
-[class*="gandi_stage-wrapper_full-screen"] [class*="gandi_stage-header_stage-menu-wrapper"] {
+body:has(> #monaco-popup-container) [class*="gandi_stage-wrapper_full-screen"] [class*="gandi_stage-header_stage-menu-wrapper"] {
   position: fixed;
-  bottom: 0;
+  inset: 0 auto 0 0;
+  width: max-content !important;
+}
+body:has(> #monaco-popup-container) [class*="gandi_stage-wrapper_full-screen"] [class*="gandi_stage-header_stage-menu-wrapper"] * {
+  flex-direction: column;
 }
 body:has(> #monaco-popup-container) .gandi_collapsible-box_collapsible-box_1_329:not(.gandi-stage-wrapper) {
   opacity: .5;
   pointer-events: none;
   cursor: not-allowed;
+}
+.gandi_mouse-position_position_3zkM- {
+  width: 5rem;
 }`);
 document.adoptedStyleSheets.push(style);
 
@@ -706,21 +713,21 @@ function s(rt) {
         Blockly.FieldTextInput.prototype.showEditor_ = function(e) {
           const sb = this.sourceBlock_,
             { id } = sb,
-            pid = sb.parentBlock_.id,
-            pb = rt._editingTarget.blocks._blocks[pid] ?? rt.flyoutBlocks._blocks[pid],
-            is = pb.inputs,
-            fn = Object.values(is).find(x => x.shadow === id).name,
-            n = `${pb.opcode}_${fn}`,
             value = this.text_;
-          language = n === "cjjst_js_js" || n === "i_run_js" || n === "WitCatHTML_jsfunc_js" ||
-            n === "WitCatHTML_jsfuncs_js" || n === "WitCatHTML_functionHTML_func" || n === "cjjst_jsblock_js" ||
-            n === "cjjst_newfunc" || n === "cjjst_newafunc"
-              ? 'javascript'
-              : n === "WitCatHTML_html_html"
-                ? 'html'
-                : n === "CCWData_getValueInJSON_2_JSON" || n === "CCWData_setValueInJSON_2_JSON" || n === "CCWData_fillJSONArrayToList_JSON"
-                  ? 'json'
-                  : 'text';
+          if (sb.parentBlock_) {
+            const pid = sb.parentBlock_.id,
+            pb = rt._editingTarget.blocks._blocks[pid] ?? rt.flyoutBlocks._blocks[pid],
+            n = `${pb.opcode}_${Object.values(pb.inputs).find(x => x.shadow === id).name}`;
+            language = n === "cjjst_js_js" || n === "i_run_js" || n === "WitCatHTML_jsfunc_js" ||
+              n === "WitCatHTML_jsfuncs_js" || n === "WitCatHTML_functionHTML_func" || n === "cjjst_jsblock_js" ||
+              n === "cjjst_newfunc" || n === "cjjst_newafunc"
+                ? 'javascript'
+                : n === "WitCatHTML_html_html"
+                  ? 'html'
+                  : n === "CCWData_getValueInJSON_2_JSON" || n === "CCWData_setValueInJSON_2_JSON" || n === "CCWData_fillJSONArrayToList_JSON"
+                    ? 'json'
+                    : 'text';
+          } else language = "text";
           field = this;
           const _ce = document.createElement.bind(document);
           document.createElement = t => {
@@ -735,7 +742,7 @@ function s(rt) {
           }
           originShowEditor.call(this, e);
           check();
-        };
+        }
 
         const originKeyDown = Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_;
         Blockly.FieldTextInput.prototype.onHtmlInputKeyDown_ = function(e) {
