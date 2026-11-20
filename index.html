@@ -383,6 +383,7 @@
             color: var(--text-secondary);
             border-top: 1px solid rgba(30, 41, 59, 0.6);
             padding-top: 0.8rem;
+            flex-direction: column;
         }
 
         .card-meta i {
@@ -398,6 +399,10 @@
 
         .card-meta .author i {
             color: var(--accent-secondary);
+        }
+
+        .card-meta .date {
+            color: var(--accent-primary);
         }
 
         /* ===== 底部按钮 (继承主页风格) ===== */
@@ -925,6 +930,20 @@
                 }
                 updated = true;
             }
+
+            const { pathname } = new URL(url);
+
+            fetch(`https://api.github.com/repos/Chen-Jin-1/User-Scripts/commits?path=${pathname}&per_page=1`)
+                .then(r => r.json())
+                .then(j => {
+                    const t = new Date(j[0].commit.committer.date).toLocaleString();
+                    const e = document.createElement('span');
+                    e.className = "date";
+                    const i = document.createElement('i');
+                    i.className = "fas fa-clock";
+                    e.replaceChildren(i, ' ', t);
+                    card.querySelector('.author').after(e);
+                })
 
             if (updated) {
                 showToast('✅ 已更新脚本详情', 2000);
