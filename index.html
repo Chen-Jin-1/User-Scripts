@@ -263,6 +263,15 @@
             align-items: flex-start;
             justify-content: space-between;
             margin-bottom: 0.5rem;
+            gap: 0.5rem;
+        }
+
+        .card-header .name-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 0.4rem 0.5rem;
+            min-width: 0;
         }
 
         .card-header .name {
@@ -272,6 +281,14 @@
             letter-spacing: -0.01em;
             word-break: break-word;
             text-shadow: 0 1px 4px rgba(0,0,0,0.4);
+        }
+
+        /* 右上角容器：详情按钮 + 图标占位 */
+        .card-header-right {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            flex-shrink: 0;
         }
 
         .card-header .icon-placeholder {
@@ -287,6 +304,14 @@
             flex-shrink: 0;
             border: 1px solid rgba(59, 130, 246, 0.2);
             backdrop-filter: blur(4px);
+            overflow: hidden;
+        }
+
+        .card-header .icon-placeholder img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 11px;
         }
         
         .merged .card-header .icon-placeholder {
@@ -295,12 +320,58 @@
             background: rgba(245, 158, 11, 0.15);
         }
 
+        /* 详情图标按钮（右上角小圆按钮） */
+        .btn-detail-icon {
+            width: 38px;
+            height: 38px;
+            padding: 0;
+            border-radius: 12px;
+            background: rgba(139, 92, 246, 0.12);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: #c4b5fd;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            transition: all 0.25s ease;
+            flex-shrink: 0;
+        }
+
+        .btn-detail-icon::before {
+            display: none; /* 去掉通用 .btn 的左侧竖条 */
+        }
+
+        .btn-detail-icon:hover {
+            background: rgba(139, 92, 246, 0.25);
+            border-color: #a78bfa;
+            color: #ffffff;
+            box-shadow: 0 0 16px rgba(139, 92, 246, 0.4);
+            transform: translateY(-2px);
+        }
+
+        .btn-detail-icon:active {
+            transform: translateY(0);
+        }
+
+        .btn-detail-icon:disabled {
+            opacity: 0.6;
+            cursor: default;
+            transform: none;
+        }
+
+        .btn-detail-icon.hidden {
+            display: none;
+        }
+
         .card-desc {
             color: var(--text-secondary);
             font-size: 0.9rem;
             line-height: 1.5;
             margin: 0.4rem 0 1rem;
             flex: 1;
+            word-break: break-word;
         }
 
         .card-meta {
@@ -329,7 +400,7 @@
             color: var(--accent-secondary);
         }
 
-        /* ===== 按钮 (继承主页风格) ===== */
+        /* ===== 底部按钮 (继承主页风格) ===== */
         .btn {
             display: inline-flex;
             align-items: center;
@@ -430,6 +501,29 @@
             margin-top: auto;
         }
 
+        /* ===== 版本显示 ===== */
+        .version-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.7rem;
+            background: rgba(139, 92, 246, 0.15);
+            color: #c4b5fd;
+            padding: 0.15rem 0.6rem;
+            border-radius: 20px;
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .version-badge i {
+            font-size: 0.6rem;
+        }
+
+        .version-badge.hidden {
+            display: none;
+        }
+
         /* ===== 空状态 ===== */
         .empty-state {
             text-align: center;
@@ -439,6 +533,32 @@
             backdrop-filter: blur(6px);
             border-radius: 40px;
             border: 1px dashed var(--border-color);
+        }
+
+        /* ===== 加载状态 ===== */
+        .loading-state {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: var(--text-secondary);
+            background: rgba(15, 23, 42, 0.3);
+            backdrop-filter: blur(6px);
+            border-radius: 40px;
+            border: 1px dashed var(--border-color);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 2.5rem;
+            height: 2.5rem;
+            border: 3px solid rgba(59, 130, 246, 0.2);
+            border-radius: 50%;
+            border-top-color: var(--accent-primary);
+            animation: spin 0.8s ease-in-out infinite;
+            margin-bottom: 1rem;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
         /* ===== Toast ===== */
@@ -519,6 +639,12 @@
         </div>
     </div>
 
+    <!-- 加载中 -->
+    <div id="loadingState" class="loading-state">
+        <div class="loading-spinner"></div>
+        <div>正在加载脚本列表…</div>
+    </div>
+
     <!-- 卡片容器 -->
     <div id="cardContainer"></div>
 
@@ -527,6 +653,12 @@
         <i class="fas fa-box-open" style="font-size: 2.5rem; opacity: 0.4; margin-bottom: 0.8rem; display: block;"></i>
         没有找到匹配的脚本
     </div>
+
+    <!-- 加载失败状态 -->
+    <div id="errorState" class="empty-state" style="display: none;">
+        <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; opacity: 0.4; margin-bottom: 0.8rem; display: block;"></i>
+        <div>脚本列表加载失败，请稍后重试</div>
+    </div>
 </div>
 
 <!-- Toast -->
@@ -534,493 +666,484 @@
     <span id="toastText">已复制到剪贴板</span>
 </div>
 
-<script>
-    (function() {
-        // ---------- 脚本数据 ----------
-        const scripts = [
-            { 
-                name: "账号管理器", 
-                desc: "快捷切换 CCW 账号", 
-                url: "accountManager.user.js",
-                author: "Chen-Jin",
-                set: "/settings/accountManager.html"
-            },
-            { 
-                name: "允许未知扩展", 
-                desc: "使带有未知扩展的作品能正常运行、发布", 
-                url: "allowUnknownExtensions.user.js",
-                author: "Chen-Jin",
-            },
-            { 
-                name: "自动签到", 
-                desc: "无需多点，立即签到", 
-                url: "autoCheckIn.user.js",
-                author: "Chen-Jin",
-            },
-            {
-                name: "CCW 美化",
-                desc: "[开发中] 美化 CCW UI",
-                url: "beautifyCCW.user.js",
-                author: "Chen-Jin"
-            },
-            { 
-                name: "拦截 CCW 的个人隐私 API", 
-                desc: "拦截个人隐私", 
-                url: "blockPrivacyApi.user.js",
-                author: "娅",
-            },
-            { 
-                name: "CCW 评论区自定义图片", 
-                desc: "CCW Comment Section Custom Images", 
-                url: "ccsci.user.js",
-                author: "xiaochen004hao",
-            },
-            { 
-                name: "修改密码", 
-                desc: "使境外号码绑定的 CCW 账号能够发送验证码", 
-                url: "changePassword.user.js",
-                author: "Chen-Jin",
-            },
-            { 
-                name: "网易云音乐下载", 
-                desc: "便捷下载音乐", 
-                url: "cmDl.user.js",
-                author: "Chen-Jin",
-            },
-            { 
-                name: "显示评论 ID", 
-                desc: "在评论区直接查看评论 ID", 
-                url: "commentId.user.js",
-                author: "Chen-Jin",
-            },
-            {
-                name: '复制确认',
-                desc: '在复制到剪贴板前询问',
-                url: 'copyConfirm.user.js',
-                author: 'Chen-Jin',
-            },
-            {
-                name: "CSS 合集",
-                desc: "CSS 注入脚本集合，包含防误删扩展、智能个签等",
-                url: "cssSet.user.js",
-                author: "Chen-Jin",
-            },
-            { 
-                name: "函数备份", 
-                desc: "在任何网站上保留原先函数或对象", 
-                url: "funcBackup.user.js",
-                author: "Chen-Jin",
-            },
-            { 
-                name: "获取 Axios", 
-                desc: "获取 CCW 的 Axios", 
-                url: "getAxios.user.js",
-                author: "不想上学 & Chen-Jin",
-            },
-            { 
-                name: "获取 OSS", 
-                desc: "获取 CCW OSS", 
-                url: "getOSS.user.js",
-                author: "不想上学 & Chen-Jin",
-            },
-            { 
-                name: "获取 Runtime & VM", 
-                desc: "获取 Scratch Runtime 和 VM", 
-                url: "getRV.user.js",
-                author: "Chen-Jin",
-            },
-            { 
-                name: "获取 Runtime & VM Plus", 
-                desc: "获取 Scratch Runtime 和 VM", 
-                url: "getRVPlus.user.js",
-                author: "Chen-Jin",
-            },
-            { 
-                name: "挂载 GM 函数", 
-                desc: "挂载所有 GM_* 函数", 
-                url: "gmExposer.user.js",
-                author: "Chen-Jin",
-            },
-            { 
-                name: "摘帽", 
-                desc: "阻止利用帽子块立即运行代码", 
-                url: "hatsBreaker.user.js",
-                author: "Chen-Jin",
-            },
-            { 
-                name: "隐藏警告", 
-                desc: "隐藏 Gandi 和 TurboWarp 中不支持 WebGL 警告", 
-                url: "hideWarn.user.js",
-                author: "Chen-Jin",
-                mergedTo: "CSS 合集",
-            },
-            { 
-                name: "主页查看器", 
-                desc: "查看封禁、注销用户的主页", 
-                url: "homeViewer.user.js",
-                author: "Chen-Jin",
-            },
-            { 
-                name: "酷狗音乐下载", 
-                desc: "便捷下载音乐", 
-                url: "kgDl.user.js",
-                author: "Chen-Jin",
-            },
-            { 
-                name: "酷我音乐下载", 
-                desc: "便捷下载音乐", 
-                url: "kwDl.user.js",
-                author: "Chen-Jin",
-            },
-            { 
-                name: "恢复登录", 
-                desc: "掉登后点击按钮即可自动登录", 
-                url: "loginAgain.user.js",
-                author: "Chen-Jin",
-                mergedTo: '账号管理器'
-            },
-            {
-                name: 'Monaco Editor 输入',
-                desc: '[开发中] 在 Gandi IDE 使用 Monaco Editor 输入',
-                url: 'monacoInput.user.js',
-                author: 'Chen-Jin',
-            },
-            {
-                name: 'Monaco Editor For TW',
-                desc: '[开发中] 在 TurboWarp 使用 Monaco Editor 输入',
-                url: 'monacoInputTW.user.js',
-                author: 'Chen-Jin',
-            },
-            { 
-                name: "自动通过拼图验证", 
-                desc: "自动识别拼图位置通过验证", 
-                url: "passPuzzleCheck.user.js",
-                author: "Chen-Jin",
-            },
-            { 
-                name: "防误删扩展", 
-                desc: "隐藏扩展删除按钮", 
-                url: "preventExtensionDelete.user.js",
-                author: "Chen-Jin",
-                mergedTo: 'CSS 合集'
-            },
-            {
-                name: "QQ 音乐下载",
-                desc: "便捷下载音乐",
-                url: "qmDl.user.js",
-                author: "Chen-Jin",
-            },
-            { 
-                name: "快捷回复", 
-                desc: "在 CCW 中发现新回复", 
-                url: "reply.user.js",
-                author: "Chen-Jin",
-            },
-            {
-                name: "拦截 CCW API",
-                desc: "修改社区扩展积木返回值",
-                url: "setCCWAPI.user.js",
-                author: "Chen-Jin",
-            },
-            {
-                name: "显示关注动态",
-                desc: "在个人动态显示关注动态",
-                url: "showFollowingFeed.user.js",
-                author: "Chen-Jin",
-            },
-            {
-                name: "显示暂停",
-                desc: "使费米隐藏暂停失效",
-                url: "showPause.user.js",
-                author: "Chen-Jin",
-                mergedTo: "CSS 合集",
-            },
-            {
-                name: "智能个签",
-                desc: "防止个签过长",
-                url: "smartBio.user.js",
-                author: "Chen-Jin",
-                mergedTo: "CSS 合集",
-            },
-            {
-                name: "计时器报废器",
-                desc: "阻止编辑器立即运行代码",
-                url: "timerBreaker.user.js",
-                author: "Chen-Jin",
-                mergedTo: "摘帽",
-            },
-            {
-                name: '反 CCW CSP',
-                desc: '防止 HCN 出的馊主意导致 CCW 作品、扩展异常',
-                url: 'unccwcsp.user.js',
-                author: "Chen-Jin",
-            }
-        ];
+<script type="module">
+    // ---------- 脚本数据（将由 ./_script.js 填充）----------
+    let scripts = [];
 
-        // DOM
-        const container = document.getElementById('cardContainer');
-        const emptyState = document.getElementById('emptyState');
-        const searchInput = document.getElementById('searchInput');
-        const toast = document.getElementById('toast');
-        const toastText = document.getElementById('toastText');
-        const scriptCountSpan = document.getElementById('scriptCount');
+    // DOM
+    const container = document.getElementById('cardContainer');
+    const emptyState = document.getElementById('emptyState');
+    const loadingState = document.getElementById('loadingState');
+    const errorState = document.getElementById('errorState');
+    const searchInput = document.getElementById('searchInput');
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+    const scriptCountSpan = document.getElementById('scriptCount');
 
-        let searchTerm = '';
+    let searchTerm = '';
 
-        // ---------- 工具函数：获取完整的绝对 URL ----------
-        function getAbsoluteUrl(relativePath) {
-            if (relativePath.startsWith('http://') || relativePath.startsWith('https://')) {
-                return relativePath;
-            }
-            return new URL(relativePath, window.location.href).href;
+    // ---------- 工具函数：获取完整的绝对 URL ----------
+    function getAbsoluteUrl(relativePath) {
+        if (!relativePath) return '';
+        if (relativePath.startsWith('http://') || relativePath.startsWith('https://')) {
+            return relativePath;
         }
+        return new URL(relativePath, window.location.href).href;
+    }
 
-        // ---------- Toast ----------
-        function showToast(message, duration = 2500) {
-            toastText.textContent = message || '已复制到剪贴板';
-            toast.classList.add('show');
-            clearTimeout(window.toastTimer);
-            window.toastTimer = setTimeout(() => {
-                toast.classList.remove('show');
-            }, duration);
-        }
+    // ---------- Toast ----------
+    function showToast(message, duration = 2500) {
+        toastText.textContent = message || '已复制到剪贴板';
+        toast.classList.add('show');
+        clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => {
+            toast.classList.remove('show');
+        }, duration);
+    }
 
-        // ---------- 复制 ----------
-        function copyToClipboard(text) {
-            if (!text) return;
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(text).then(() => {
-                    showToast('✅ 已复制: ' + text);
-                }).catch(() => fallbackCopy(text));
-            } else {
-                fallbackCopy(text);
-            }
-        }
-
-        function fallbackCopy(text) {
-            const ta = document.createElement('textarea');
-            ta.value = text;
-            ta.style.position = 'fixed';
-            ta.style.left = '-9999px';
-            ta.style.top = '-9999px';
-            document.body.appendChild(ta);
-            ta.select();
-            try {
-                document.execCommand('copy');
+    // ---------- 复制 ----------
+    function copyToClipboard(text) {
+        if (!text) return;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
                 showToast('✅ 已复制: ' + text);
-            } catch (e) {
-                showToast('❌ 复制失败，请手动复制');
+            }).catch(() => fallbackCopy(text));
+        } else {
+            fallbackCopy(text);
+        }
+    }
+
+    function fallbackCopy(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.left = '-9999px';
+        ta.style.top = '-9999px';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+            document.execCommand('copy');
+            showToast('✅ 已复制: ' + text);
+        } catch (e) {
+            showToast('❌ 复制失败，请手动复制');
+        }
+        document.body.removeChild(ta);
+    }
+
+    // ---------- 转义 ----------
+    function escapeHtml(text) {
+        if (!text) return '';
+        return String(text).replace(/[&<>"]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            if (m === '"') return '&quot;';
+            return m;
+        });
+    }
+
+    // ---------- 滚动到目标脚本 ----------
+    function scrollToScript(targetName) {
+        const cards = document.querySelectorAll('.script-card');
+        let targetCard = null;
+        
+        cards.forEach(card => {
+            const nameElement = card.querySelector('.name');
+            if (nameElement && nameElement.textContent.trim() === targetName) {
+                targetCard = card;
             }
-            document.body.removeChild(ta);
-        }
+        });
 
-        // ---------- 转义 ----------
-        function escapeHtml(text) {
-            if (!text) return '';
-            return String(text).replace(/[&<>"]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                if (m === '"') return '&quot;';
-                return m;
+        if (targetCard) {
+            targetCard.scrollIntoView({ 
+                behavior: 'smooth', 
+                block: 'center' 
             });
-        }
-
-        // ---------- 滚动到目标脚本 ----------
-        function scrollToScript(targetName) {
-            const cards = document.querySelectorAll('.script-card');
-            let targetCard = null;
             
-            cards.forEach(card => {
-                const nameElement = card.querySelector('.name');
-                if (nameElement && nameElement.textContent.trim() === targetName) {
-                    targetCard = card;
-                }
-            });
+            targetCard.style.boxShadow = '0 0 30px rgba(59, 130, 246, 0.5), 0 8px 24px rgba(0,0,0,0.5)';
+            targetCard.style.borderColor = '#3b82f6';
+            
+            setTimeout(() => {
+                targetCard.style.boxShadow = '';
+                targetCard.style.borderColor = '';
+            }, 3000);
+            
+            showToast(`🔍 已定位到: ${targetName}`, 2000);
+        } else {
+            showToast(`⚠️ 未找到脚本: ${targetName}`, 2000);
+        }
+    }
 
-            if (targetCard) {
-                targetCard.scrollIntoView({ 
-                    behavior: 'smooth', 
-                    block: 'center' 
-                });
-                
-                // targetCard.style.transition = 'box-shadow 0.3s ease, border-color 0.3s ease';
-                targetCard.style.boxShadow = '0 0 30px rgba(59, 130, 246, 0.5), 0 8px 24px rgba(0,0,0,0.5)';
-                targetCard.style.borderColor = '#3b82f6';
-                
-                setTimeout(() => {
-                    targetCard.style.boxShadow = '';
-                    targetCard.style.borderColor = '';
-                }, 3000);
-                
-                showToast(`🔍 已定位到: ${targetName}`, 2000);
-            } else {
-                showToast(`⚠️ 未找到脚本: ${targetName}`, 2000);
+    // ---------- 从脚本内容中解析元数据 ----------
+    // 支持：
+    //   @name / @author / @version / @icon / @description / @desc
+    //   JSON 形式的 "name" / "author" / "version" / "icon" / "description"
+    //   以及 metadata 块内嵌 JSON
+    function parseMetadataFromContent(content) {
+        if (!content) return {};
+
+        const meta = {};
+
+        // 1. 尝试提取 @metadata 块（可能包含 JSON）
+        const metaBlockMatch = content.match(/\/\*\s*@metadata[\s\S]*?\*\//i);
+        let metaBlockText = '';
+        if (metaBlockMatch) {
+            metaBlockText = metaBlockMatch[0];
+        }
+
+        // 2. 尝试从 metadata 块中解析 JSON
+        if (metaBlockText) {
+            try {
+                const jsonText = metaBlockText
+                    .replace(/^\/\*\s*@metadata\s*/i, '')
+                    .replace(/\*\/\s*$/, '')
+                    .trim();
+                const parsed = JSON.parse(jsonText);
+                if (parsed && typeof parsed === 'object') {
+                    Object.assign(meta, parsed);
+                }
+            } catch (e) {
+                // 非 JSON 的 metadata，忽略
             }
         }
 
-        // ---------- 渲染卡片列表 ----------
-        function renderCardList(scriptsList, title, icon, isMerged = false) {
-            if (!scriptsList.length) return '';
+        // 3. 逐字段用正则补充/覆盖（支持 @key value 和 "key": "value" 两种）
+        const fieldMap = {
+            name: ['name'],
+            author: ['author'],
+            version: ['version'],
+            icon: ['icon'],
+            description: ['description', 'desc']
+        };
 
-            let html = `
-                <div class="section-title">
-                    <i class="fas ${icon}"></i>
-                    ${title}
-                    <span class="count">${scriptsList.length}</span>
-                </div>
-                <div class="grid">
-            `;
-
-            scriptsList.forEach(script => {
-                const absoluteUrl = getAbsoluteUrl(script.url);
-                const mergedClass = isMerged ? 'merged' : '';
-                
-                let descHtml = escapeHtml(script.desc);
-                if (isMerged && script.mergedTo) {
-                    const targetName = script.mergedTo;
-                    descHtml += `<br>已合并到 <span class="script-link" data-target="${escapeHtml(targetName)}" style="color: #3b82f6; cursor: pointer; text-underline-offset: 2px; font-weight: 500;">${escapeHtml(targetName)}</span>`;
+        for (const [field, aliases] of Object.entries(fieldMap)) {
+            if (meta[field]) continue;
+            for (const alias of aliases) {
+                // @alias value
+                const atRe = new RegExp('@' + alias + '\\s+([^\\n\\r*]+)', 'i');
+                const atMatch = content.match(atRe);
+                if (atMatch && atMatch[1]) {
+                    meta[field] = atMatch[1].trim();
+                    break;
                 }
+                // "alias": "value"
+                const jsonRe = new RegExp('["\']' + alias + '["\']\\s*:\\s*["\']([^"\']+)["\']', 'i');
+                const jsonMatch = content.match(jsonRe);
+                if (jsonMatch && jsonMatch[1]) {
+                    meta[field] = jsonMatch[1].trim();
+                    break;
+                }
+            }
+        }
 
-                html += `
-                    <div class="script-card ${mergedClass}" data-script-name="${escapeHtml(script.name)}">
-                        <div class="card-header">
+        return meta;
+    }
+
+    // ---------- 渲染图标（FontAwesome class 或 图片 URL）----------
+    function renderIconHtml(iconValue, fallbackClass) {
+        if (!iconValue) {
+            return `<i class="fas ${fallbackClass}"></i>`;
+        }
+        const trimmed = String(iconValue).trim();
+        if (/^(https?:\/\/|\/|\.\/|\.\.\/)/i.test(trimmed)) {
+            return `<img src="${escapeHtml(trimmed)}" alt="icon" />`;
+        }
+        let cls = trimmed;
+        if (!/^fa[srlb]?\s/.test(cls) && !/^fas$/.test(cls)) {
+            if (/^fa-/.test(cls)) cls = 'fas ' + cls;
+        }
+        return `<i class="${escapeHtml(cls)}"></i>`;
+    }
+
+    // ---------- 获取并应用脚本详细信息 ----------
+    async function fetchDetail(url, btn) {
+        const card = btn.closest('.script-card');
+        if (!card) return;
+
+        const originalHtml = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
+        try {
+            const resp = await fetch(url, { cache: 'no-store' });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const content = await resp.text();
+            const meta = parseMetadataFromContent(content);
+
+            let updated = false;
+
+            // 名称
+            if (meta.name) {
+                const nameEl = card.querySelector('.name');
+                if (nameEl) {
+                    nameEl.textContent = meta.name;
+                    card.setAttribute('data-script-name', meta.name);
+                    updated = true;
+                }
+            }
+
+            // 作者
+            if (meta.author) {
+                const authorEl = card.querySelector('.card-meta .author');
+                if (authorEl) {
+                    authorEl.innerHTML = `<i class="fas fa-user"></i> ${escapeHtml(meta.author)}`;
+                    updated = true;
+                }
+            }
+
+            // 描述
+            if (meta.description) {
+                const descEl = card.querySelector('.card-desc');
+                if (descEl) {
+                    descEl.innerHTML = escapeHtml(meta.description);
+                    if (card.classList.contains('merged')) {
+                        const targetName = card.getAttribute('data-merged-to');
+                        if (targetName) {
+                            descEl.innerHTML += `<br>已合并到 <span class="script-link" data-target="${escapeHtml(targetName)}" style="color: #3b82f6; cursor: pointer; text-underline-offset: 2px; font-weight: 500;">${escapeHtml(targetName)}</span>`;
+                        }
+                    }
+                    updated = true;
+                }
+            }
+
+            // 图标
+            if (meta.icon) {
+                const iconEl = card.querySelector('.icon-placeholder');
+                if (iconEl) {
+                    const isMerged = card.classList.contains('merged');
+                    iconEl.innerHTML = renderIconHtml(meta.icon, isMerged ? 'fa-code-branch' : 'fa-puzzle-piece');
+                    updated = true;
+                }
+            }
+
+            // 版本
+            if (meta.version) {
+                const badge = card.querySelector('.version-badge');
+                if (badge) {
+                    badge.innerHTML = `<i class="fas fa-tag"></i> v${escapeHtml(meta.version)}`;
+                    badge.classList.remove('hidden');
+                }
+                updated = true;
+            }
+
+            if (updated) {
+                showToast('✅ 已更新脚本详情', 2000);
+                // 获取成功后隐藏详情按钮
+                btn.classList.add('hidden');
+            } else {
+                showToast('⚠️ 未在脚本中找到元数据', 2000);
+            }
+        } catch (err) {
+            console.error('获取详情失败:', err);
+            showToast('❌ 获取详情失败: ' + err.message, 2500);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = originalHtml;
+        }
+    }
+
+    // ---------- 渲染卡片列表 ----------
+    function renderCardList(scriptsList, title, icon, isMerged = false) {
+        if (!scriptsList.length) return '';
+
+        let html = `
+            <div class="section-title">
+                <i class="fas ${icon}"></i>
+                ${title}
+                <span class="count">${scriptsList.length}</span>
+            </div>
+            <div class="grid">
+        `;
+
+        scriptsList.forEach(script => {
+            const absoluteUrl = getAbsoluteUrl(script.url);
+            const mergedClass = isMerged ? 'merged' : '';
+            const mergedTarget = isMerged && script.mergedTo ? script.mergedTo : '';
+            
+            let descHtml = escapeHtml(script.desc);
+            if (isMerged && script.mergedTo) {
+                descHtml += `<br>已合并到 <span class="script-link" data-target="${escapeHtml(mergedTarget)}" style="color: #3b82f6; cursor: pointer; text-underline-offset: 2px; font-weight: 500;">${escapeHtml(mergedTarget)}</span>`;
+            }
+
+            html += `
+                <div class="script-card ${mergedClass}" data-script-name="${escapeHtml(script.name)}" data-merged-to="${escapeHtml(mergedTarget)}">
+                    <div class="card-header">
+                        <div class="name-wrap">
                             <span class="name">${escapeHtml(script.name)}</span>
+                            <span class="version-badge hidden"><i class="fas fa-tag"></i> v-</span>
+                        </div>
+                        <div class="card-header-right">
+                            <button class="btn-detail-icon" data-url="${escapeHtml(absoluteUrl)}" title="获取脚本详情">
+                                <i class="fas fa-circle-info"></i>
+                            </button>
                             <span class="icon-placeholder"><i class="fas ${isMerged ? 'fa-code-branch' : 'fa-puzzle-piece'}"></i></span>
                         </div>
-                        <div class="card-desc">${descHtml}</div>
-                        <div class="card-meta">
-                            <span class="author"><i class="fas fa-user"></i> ${escapeHtml(script.author)}</span>
-                        </div>
-                        <div class="card-actions">
-                            <button class="btn btn-install" data-url="${escapeHtml(absoluteUrl)}" data-name="${escapeHtml(script.name)}">
-                                <i class="fas fa-download"></i> 安装
-                            </button>
-                            <button class="btn btn-copy" data-url="${escapeHtml(absoluteUrl)}">
-                                <i class="fas fa-copy"></i>
-                                <i class="fas fa-check"></i> 复制URL
-                            </button>
-                            ${script.set ? `<button class="btn btn-set" data-url="${escapeHtml(script.set)}">
-                                <i class="fas fa-gear"></i> 设置
-                            </button>` : ''}
-                        </div>
                     </div>
-                `;
-            });
+                    <div class="card-desc">${descHtml}</div>
+                    <div class="card-meta">
+                        <span class="author"><i class="fas fa-user"></i> ${escapeHtml(script.author)}</span>
+                    </div>
+                    <div class="card-actions">
+                        <button class="btn btn-install" data-url="${escapeHtml(absoluteUrl)}" data-name="${escapeHtml(script.name)}">
+                            <i class="fas fa-download"></i> 安装
+                        </button>
+                        <button class="btn btn-copy" data-url="${escapeHtml(absoluteUrl)}">
+                            <i class="fas fa-copy"></i>
+                            <i class="fas fa-check"></i> 复制URL
+                        </button>
+                        ${script.set ? `<button class="btn btn-set" data-url="${escapeHtml(script.set)}">
+                            <i class="fas fa-gear"></i> 设置
+                        </button>` : ''}
+                    </div>
+                </div>
+            `;
+        });
 
-            html += `</div>`;
-            return html;
+        html += `</div>`;
+        return html;
+    }
+
+    // ---------- 渲染全部 ----------
+    function renderAll(activeScripts, mergedScripts) {
+        const total = activeScripts.length + mergedScripts.length;
+        
+        if (!total) {
+            container.innerHTML = '';
+            emptyState.style.display = 'block';
+            scriptCountSpan.textContent = '0';
+            return;
         }
 
-        // ---------- 渲染全部 ----------
-        function renderAll(activeScripts, mergedScripts) {
-            const total = activeScripts.length + mergedScripts.length;
-            
-            if (!total) {
-                container.innerHTML = '';
-                emptyState.style.display = 'block';
-                scriptCountSpan.textContent = '0';
+        emptyState.style.display = 'none';
+        scriptCountSpan.textContent = total;
+
+        let html = '';
+        
+        if (activeScripts.length) {
+            html += renderCardList(activeScripts, '常规脚本', 'fa-cube');
+        }
+        
+        if (mergedScripts.length) {
+            html += renderCardList(mergedScripts, '已合并脚本', 'fa-code-branch', true);
+        }
+
+        container.innerHTML = html;
+    }
+
+    // ---------- 过滤 ----------
+    function getFiltered() {
+        let result = scripts;
+        const term = searchTerm.trim().toLowerCase();
+        if (term) {
+            result = result.filter(s => 
+                (s.name || '').toLowerCase().includes(term) || 
+                (s.author || '').toLowerCase().includes(term)
+            );
+        }
+        
+        const active = result.filter(s => !s.mergedTo);
+        const merged = result.filter(s => s.mergedTo);
+        
+        return { active, merged };
+    }
+
+    function updateUI() {
+        const { active, merged } = getFiltered();
+        renderAll(active, merged);
+    }
+
+    // ---------- 事件绑定 ----------
+    function setupEvents() {
+        container.addEventListener('click', function(e) {
+            const link = e.target.closest('.script-link');
+            if (link) {
+                e.preventDefault();
+                const targetName = link.getAttribute('data-target');
+                if (targetName) {
+                    scrollToScript(targetName);
+                }
                 return;
             }
 
-            emptyState.style.display = 'none';
-            scriptCountSpan.textContent = total;
-
-            let html = '';
-            
-            if (activeScripts.length) {
-                html += renderCardList(activeScripts, '常规脚本', 'fa-cube');
-            }
-            
-            if (mergedScripts.length) {
-                html += renderCardList(mergedScripts, '已合并脚本', 'fa-code-branch', true);
-            }
-
-            container.innerHTML = html;
-        }
-
-        // ---------- 过滤 ----------
-        function getFiltered() {
-            let result = scripts;
-            const term = searchTerm.trim().toLowerCase();
-            if (term) {
-                result = result.filter(s => 
-                    s.name.toLowerCase().includes(term) || 
-                    s.author.toLowerCase().includes(term)
-                );
-            }
-            
-            const active = result.filter(s => !s.mergedTo);
-            const merged = result.filter(s => s.mergedTo);
-            
-            return { active, merged };
-        }
-
-        function updateUI() {
-            const { active, merged } = getFiltered();
-            renderAll(active, merged);
-        }
-
-        // ---------- 事件绑定 ----------
-        function setupEvents() {
-            container.addEventListener('click', function(e) {
-                const link = e.target.closest('.script-link');
-                if (link) {
-                    e.preventDefault();
-                    const targetName = link.getAttribute('data-target');
-                    if (targetName) {
-                        scrollToScript(targetName);
-                    }
-                    return;
+            const installBtn = e.target.closest('.btn-install');
+            if (installBtn) {
+                const url = installBtn.getAttribute('data-url');
+                const name = installBtn.getAttribute('data-name') || '脚本';
+                if (url) {
+                    window.open(url, '_blank');
+                    showToast(`📦 正在打开 ${name}...`, 1800);
+                } else {
+                    showToast('⚠️ 脚本URL缺失', 1500);
                 }
+                return;
+            }
 
-                const installBtn = e.target.closest('.btn-install');
-                if (installBtn) {
-                    const url = installBtn.getAttribute('data-url');
-                    const name = installBtn.getAttribute('data-name') || '脚本';
-                    if (url) {
-                        window.open(url, '_blank');
-                        showToast(`📦 正在打开 ${name}...`, 1800);
-                    } else {
-                        showToast('⚠️ 脚本URL缺失', 1500);
-                    }
-                    return;
+            const copyBtn = e.target.closest('.btn-copy');
+            if (copyBtn) {
+                const url = copyBtn.getAttribute('data-url');
+                if (url) {
+                    copyToClipboard(url);
+                    copyBtn.classList.add('copied');
+                    setTimeout(() => copyBtn.classList.remove('copied'), 2200);
+                } else {
+                    showToast('⚠️ 无URL可复制', 1500);
                 }
+                return;
+            }
 
-                const copyBtn = e.target.closest('.btn-copy');
-                if (copyBtn) {
-                    const url = copyBtn.getAttribute('data-url');
-                    if (url) {
-                        copyToClipboard(url);
-                        copyBtn.classList.add('copied');
-                        setTimeout(() => copyBtn.classList.remove('copied'), 2200);
-                    } else {
-                        showToast('⚠️ 无URL可复制', 1500);
-                    }
+            const detailBtn = e.target.closest('.btn-detail-icon');
+            if (detailBtn) {
+                const url = detailBtn.getAttribute('data-url');
+                if (url) {
+                    fetchDetail(url, detailBtn);
+                } else {
+                    showToast('⚠️ 无URL可获取详情', 1500);
                 }
+                return;
+            }
 
-                const setBtn = e.target.closest('.btn-set');
-                if (setBtn) open(setBtn.getAttribute('data-url'));
-            });
+            const setBtn = e.target.closest('.btn-set');
+            if (setBtn) open(setBtn.getAttribute('data-url'));
+        });
 
-            searchInput.addEventListener('input', function() {
-                searchTerm = this.value;
-                updateUI();
-            });
-        }
+        searchInput.addEventListener('input', function() {
+            searchTerm = this.value;
+            updateUI();
+        });
+    }
 
-        // ---------- 启动 ----------
-        function init() {
+    // ---------- 加载 ./_script.js ----------
+    async function loadScripts() {
+        loadingState.style.display = 'block';
+        errorState.style.display = 'none';
+        container.innerHTML = '';
+        emptyState.style.display = 'none';
+
+        try {
+            scripts = (await import('./_script.js')).scripts;
+
+            loadingState.style.display = 'none';
             updateUI();
             setupEvents();
+        } catch (err) {
+            console.error('加载脚本列表失败:', err);
+            loadingState.style.display = 'none';
+            errorState.style.display = 'block';
+            scriptCountSpan.textContent = '0';
+            showToast('❌ 脚本列表加载失败: ' + err.message, 3000);
         }
+    }
 
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', init);
-        } else {
-            init();
-        }
-    })();
+    // ---------- 启动 ----------
+    function init() {
+        loadScripts();
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
 </script>
 </body>
 </html>

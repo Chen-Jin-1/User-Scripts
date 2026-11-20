@@ -1,0 +1,225 @@
+export const scripts = [
+    { 
+        name: "账号管理器", 
+        desc: "快捷切换 CCW 账号", 
+        url: "accountManager.user.js",
+        author: "Chen-Jin",
+        set: "/settings/accountManager.html"
+    },
+    { 
+        name: "允许未知扩展", 
+        desc: "使带有未知扩展的作品能正常运行、发布", 
+        url: "allowUnknownExtensions.user.js",
+        author: "Chen-Jin",
+    },
+    { 
+        name: "自动签到", 
+        desc: "无需多点，立即签到", 
+        url: "autoCheckIn.user.js",
+        author: "Chen-Jin",
+    },
+    {
+        name: "CCW 美化",
+        desc: "[开发中] 美化 CCW UI",
+        url: "beautifyCCW.user.js",
+        author: "Chen-Jin"
+    },
+    { 
+        name: "拦截 CCW 的个人隐私 API", 
+        desc: "拦截个人隐私", 
+        url: "blockPrivacyApi.user.js",
+        author: "娅",
+    },
+    { 
+        name: "CCW 评论区自定义图片", 
+        desc: "CCW Comment Section Custom Images", 
+        url: "ccsci.user.js",
+        author: "xiaochen004hao",
+    },
+    { 
+        name: "修改密码", 
+        desc: "使境外号码绑定的 CCW 账号能够发送验证码", 
+        url: "changePassword.user.js",
+        author: "Chen-Jin",
+    },
+    { 
+        name: "网易云音乐下载", 
+        desc: "便捷下载音乐", 
+        url: "cmDl.user.js",
+        author: "Chen-Jin",
+    },
+    { 
+        name: "显示评论 ID", 
+        desc: "在评论区直接查看评论 ID", 
+        url: "commentId.user.js",
+        author: "Chen-Jin",
+    },
+    {
+        name: '复制确认',
+        desc: '在复制到剪贴板前询问',
+        url: 'copyConfirm.user.js',
+        author: 'Chen-Jin',
+    },
+    {
+        name: "CSS 合集",
+        desc: "CSS 注入脚本集合，包含防误删扩展、智能个签等",
+        url: "cssSet.user.js",
+        author: "Chen-Jin",
+    },
+    { 
+        name: "函数备份", 
+        desc: "在任何网站上保留原先函数或对象", 
+        url: "funcBackup.user.js",
+        author: "Chen-Jin",
+    },
+    { 
+        name: "获取 Axios", 
+        desc: "获取 CCW 的 Axios", 
+        url: "getAxios.user.js",
+        author: "不想上学 & Chen-Jin",
+    },
+    { 
+        name: "获取 OSS", 
+        desc: "获取 CCW OSS", 
+        url: "getOSS.user.js",
+        author: "不想上学 & Chen-Jin",
+    },
+    { 
+        name: "获取 Runtime & VM", 
+        desc: "获取 Scratch Runtime 和 VM", 
+        url: "getRV.user.js",
+        author: "Chen-Jin",
+    },
+    { 
+        name: "获取 Runtime & VM Plus", 
+        desc: "获取 Scratch Runtime 和 VM", 
+        url: "getRVPlus.user.js",
+        author: "Chen-Jin",
+    },
+    { 
+        name: "挂载 GM 函数", 
+        desc: "挂载所有 GM_* 函数", 
+        url: "gmExposer.user.js",
+        author: "Chen-Jin",
+    },
+    { 
+        name: "摘帽", 
+        desc: "阻止利用帽子块立即运行代码", 
+        url: "hatsBreaker.user.js",
+        author: "Chen-Jin",
+    },
+    { 
+        name: "隐藏警告", 
+        desc: "隐藏 Gandi 和 TurboWarp 中不支持 WebGL 警告", 
+        url: "hideWarn.user.js",
+        author: "Chen-Jin",
+        mergedTo: "CSS 合集",
+    },
+    { 
+        name: "主页查看器", 
+        desc: "查看封禁、注销用户的主页", 
+        url: "homeViewer.user.js",
+        author: "Chen-Jin",
+    },
+    { 
+        name: "酷狗音乐下载", 
+        desc: "便捷下载音乐", 
+        url: "kgDl.user.js",
+        author: "Chen-Jin",
+    },
+    {
+        name: 'KukeChat For CCW',
+        desc: '重做共创世界网页版的消息中心和动态页，并把 KukeChat 接进共创世界。',
+        url: 'kukechat.user.js',
+        author: 'kukemc'
+    },
+    { 
+        name: "酷我音乐下载", 
+        desc: "便捷下载音乐", 
+        url: "kwDl.user.js",
+        author: "Chen-Jin",
+    },
+    { 
+        name: "恢复登录", 
+        desc: "掉登后点击按钮即可自动登录", 
+        url: "loginAgain.user.js",
+        author: "Chen-Jin",
+        mergedTo: '账号管理器'
+    },
+    {
+        name: 'Monaco Editor 输入',
+        desc: '[开发中] 在 Gandi IDE 使用 Monaco Editor 输入',
+        url: 'monacoInput.user.js',
+        author: 'Chen-Jin',
+    },
+    {
+        name: 'Monaco Editor For TW',
+        desc: '[开发中] 在 TurboWarp 使用 Monaco Editor 输入',
+        url: 'monacoInputTW.user.js',
+        author: 'Chen-Jin',
+    },
+    { 
+        name: "自动通过拼图验证", 
+        desc: "自动识别拼图位置通过验证", 
+        url: "passPuzzleCheck.user.js",
+        author: "Chen-Jin",
+    },
+    { 
+        name: "防误删扩展", 
+        desc: "隐藏扩展删除按钮", 
+        url: "preventExtensionDelete.user.js",
+        author: "Chen-Jin",
+        mergedTo: 'CSS 合集'
+    },
+    {
+        name: "QQ 音乐下载",
+        desc: "便捷下载音乐",
+        url: "qmDl.user.js",
+        author: "Chen-Jin",
+    },
+    { 
+        name: "快捷回复", 
+        desc: "在 CCW 中发现新回复", 
+        url: "reply.user.js",
+        author: "Chen-Jin",
+    },
+    {
+        name: "拦截 CCW API",
+        desc: "修改社区扩展积木返回值",
+        url: "setCCWAPI.user.js",
+        author: "Chen-Jin",
+    },
+    {
+        name: "显示关注动态",
+        desc: "在个人动态显示关注动态",
+        url: "showFollowingFeed.user.js",
+        author: "Chen-Jin",
+    },
+    {
+        name: "显示暂停",
+        desc: "使费米隐藏暂停失效",
+        url: "showPause.user.js",
+        author: "Chen-Jin",
+        mergedTo: "CSS 合集",
+    },
+    {
+        name: "智能个签",
+        desc: "防止个签过长",
+        url: "smartBio.user.js",
+        author: "Chen-Jin",
+        mergedTo: "CSS 合集",
+    },
+    {
+        name: "计时器报废器",
+        desc: "阻止编辑器立即运行代码",
+        url: "timerBreaker.user.js",
+        author: "Chen-Jin",
+        mergedTo: "摘帽",
+    },
+    {
+        name: '反 CCW CSP',
+        desc: '防止 HCN 出的馊主意导致 CCW 作品、扩展异常',
+        url: 'unccwcsp.user.js',
+        author: "Chen-Jin",
+    }
+];

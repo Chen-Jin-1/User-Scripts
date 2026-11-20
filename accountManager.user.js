@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name              账号管理器
 // @namespace         cj-auto-check-in
-// @version           1.2.12
+// @version           1.2.13
 // @description       快捷切换 CCW 账号
 // @author            Chen-Jin
 // @match             https://*.ccw.site/*
-// @match             https://us.chen-jin.dpdns.org/settings/accountManager*
+// @match             https://us.chen-jin.dpdns.org/settings/accountManager
 // @icon              https://www.chen-jin.dpdns.org/Chen-Jin-circle.png
 // @downloadURL       https://us.chen-jin.dpdns.org/accountManager.user.js?
 // @grant             unsafeWindow
@@ -18,28 +18,29 @@
 // @run-at            document-start
 // ==/UserScript==
 
-if (location.hostname === 'us.chen-jin.dpdns.org' || location.hostname === 'localhost') 
+if (location.hostname === 'us.chen-jin.dpdns.org') 
     try {
         return unsafeWindow.accountManager = { GM_getValue, GM_setValue, GM_xmlhttpRequest, GM_cookie };
     } catch {
-        return unsafeWindow.accountManager = { GM_getValue, GM_setValue, GM_xmlhttpRequest };
+        throw unsafeWindow.accountManager = { GM_getValue, GM_setValue, GM_xmlhttpRequest };
     }
 let accounts = GM_getValue("accounts", {}), menuId = {}, currentId;
-const login = (loginKey, password, noCookies = 0) => {
-    return fetch("https://sso.ccw.site/web/auth/login-by-password", {
-        method: 'post',
-        credentials: noCookies ? 'omit' : 'include',
-        body: JSON.stringify({
-            loginKey,
-            password,
-            clientCode: "STUDY_COMMUNITY",
-            extra: JSON.stringify({
-                device: GM_getValue("device", "账号管理器创建"),
-                browser: GM_getValue("browser", "账号管理器创建")
-            })
-        }),
-        headers: { 'content-type': 'application/json' },
-    });
+const ccwf = (u, body = '{}', credentials = 'include') => fetch(u, {
+    method: 'post',
+    credentials,
+    body,
+    headers: { 'content-type': 'application/json' }
+}), 
+    login = (loginKey, password, noCookies = 0) => {
+    return ccwf("https://sso.ccw.site/web/auth/login-by-password", JSON.stringify({
+        loginKey,
+        password,
+        clientCode: "STUDY_COMMUNITY",
+        extra: JSON.stringify({
+            device: GM_getValue("device", "账号管理器创建"),
+            browser: GM_getValue("browser", "账号管理器创建")
+        })
+    }), noCookies ? 'omit' : 'include');
 }, loginByToken = token => new Promise((resolve) => {
     GM_cookie.set({
         url: 'https://www.ccw.site',
@@ -50,34 +51,31 @@ const login = (loginKey, password, noCookies = 0) => {
         httpOnly: true,
         expirationDate: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
     }, result => resolve(!result?.message?.includes('HTTP-only')));
-}), soc = () => fetch("https://community-web.ccw.site/students/self/detail", {
-        method: 'post',
-        body: '{}',
-        credentials: 'include',
-        headers: { 'content-type': 'application/json' },
-    })
+}), soc = () => ccwf("https://community-web.ccw.site/students/self/detail")
     .then(r => r.json())
-    .then(d => document.cookie = `cookie-user-id=${d.body.oid};path=/;domain=.ccw.site;max-age=15552000`),
+    .then(d => d.msg ? alert('登录失败\n' + d.msg) : document.cookie = `cookie-user-id=${d.body.oid};path=/;domain=.ccw.site;max-age=15552000`),
     reload = location.reload.bind(location), r = id => {
     if (menuId[id]) GM_unregisterMenuCommand(menuId[id]);
     const account = accounts[id], text = `${currentId === id ? "[当前] " : ""}${account.name} (${id})`;
     menuId[id] = GM_registerMenuCommand(text, () => 
         account.token
             ? loginByToken(account.token).then(r => r
-                ? soc().then(reload)
+                ? soc().then(r => r && reload())
                 : confirm("Http Only Cookie 读写未授权，查看教程？") && open("https://d.chen-jin.dpdns.org/enableHttpOnly"))
             : menuId[id] = login(id, account.pwd)
                 .then(r => r.json())
                 .then(d => d.body
-                    ? fetch("https://community-web.ccw.site/notification/page", {
-                        method: 'post',
-                        body: '{notifyGroup:"WEB_SYSTEM"}',
-                        credentials: 'include',
-                        headers: { 'content-type': 'application/json' }
-                    }).then(() => {
-                        document.cookie = `cookie-user-id=${d.body.accountObjectId};path=/;domain=.ccw.site;max-age=15552000`;
-                        reload();
-                    })
+                    ? ccwf("https://community-web.ccw.site/notification/v3/page", '{group:"SYSTEM"}')
+                        .then(r => r.json())
+                        .then(({ body }) => {
+                            ccwf("https://community-web.ccw.site/notification/v3/mark_read", JSON.stringify({
+                                group: "SYSTEM",
+                                readToken: body.readToken,
+                                ids: [ body.items[0]?.id ]
+                            }));
+                            document.cookie = `cookie-user-id=${d.body.accountObjectId};path=/;domain=.ccw.site;max-age=15552000`;
+                            reload();
+                        })
                     : alert(d.msg))
     );
 }
@@ -100,7 +98,6 @@ if (document.cookie.includes("cookie-user-id")) {
     const _open = XMLHttpRequest.prototype.open;
     XMLHttpRequest.prototype.open = function(m, u, a) {
         if (u === "https://community-web.ccw.site/students/self/detail") this.addEventListener("load", () => {
-            XMLHttpRequest.prototype.open = _open;
             let json = JSON.parse(this.response).body;
             if (json) {
                 currentId = json.studentNumber;
