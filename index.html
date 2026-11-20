@@ -1139,7 +1139,7 @@
         emptyState.style.display = 'none';
 
         try {
-            scripts = (await import('./_script.js')).scripts;
+            scripts = (await import('./_script.js?' + Date.now())).scripts;
 
             loadingState.style.display = 'none';
             updateUI();
